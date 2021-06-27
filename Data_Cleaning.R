@@ -7,6 +7,7 @@ library(GGally)
 library(ggpubr)
 library(ggrepel)
 library(purrr)
+library(stringr)
 
 # Importing my data sets
 air_data_world <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\all_air_data.csv", comment = '#')
@@ -31,6 +32,9 @@ correct <- function(x) return(ifelse(x == "wind speed", "wind-speed", x))
 air_data_india$Specie <- correct(air_data_india$Specie)
 correct <- function(x) return(ifelse(x == "wind gust", "wind-gust", x))
 air_data_india$Specie <- correct(air_data_india$Specie)
+correct <- function(x) return(ifelse(x == "New Delhi", "Delhi", x))
+air_data_india$City <- correct(air_data_india$City)
+
 
 # Arranging the Data according to Year
 air_data_india <- air_data_india %>%
@@ -76,3 +80,20 @@ colnames(air_data_india)
 unique(air_data_india$City)
 unique(air_data_india$Specie)
 
+# Making the List of the Stations
+station_list <- readxl::read_excel("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\Station_List.xlsx", skip = 1)
+colnames(station_list) <- c("Sl.No.State", "State", "Sl.No.City", "City", "Sl.No.Station", "Station")
+station_list <- station_list %>%
+  select(State, City, Station) %>%
+  fill(State) %>%
+  fill(City) %>%
+  fill(Station)
+station_list
+
+station_list <- station_list %>%
+  filter(City %in% unique(air_data_india$City))
+
+station_list <- station_list %>%
+  filter(City %in% unique(air_data_india$City)) %>%
+  group_by(State, City) %>%
+  summarise("Number of Stations" = n())

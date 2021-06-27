@@ -1,5 +1,6 @@
 ---
-title: "STATS_PROJECT"
+title: "AIR QUALITY INDEX-INDIA DATA ANALYSIS"
+subtitle: "Statistical Methods II Spring Project"
 author: "RishiDarkDevil"
 date: "6/27/2021"
 output: 
@@ -8,7 +9,111 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(lubridate)
+library(modelr)
+library(psych)
+library(car)
+library(GGally)
+library(ggpubr)
+library(ggrepel)
+library(purrr)
+library(knitr)
+library(kableExtra)
+library(stringr)
+```
+
+```{r raw_data, cache=TRUE, include=FALSE}
+# Importing my data sets
+air_data_world <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\all_air_data.csv", comment = '#')
+air_data_world
+station_list <- readxl::read_excel("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\Station_List.xlsx", skip = 1)
+```
+
+```{r processed_data, cache=TRUE, dependson="raw_data", include=FALSE}
+# Separating out the date column for easier analysis
+air_data_world <- air_data_world %>%
+  mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
+  select(Year, Month, Day, Country, City, Specie, count, min, max, median, variance)
+
+# Filtering Data relevant to INDIA
+air_data_india <- air_data_world %>%
+  filter(Country == "IN")
+air_data_india <- air_data_india %>%
+  select(Year:Day, City:variance)
+air_data_india
+air_data_india_withDate <- air_data_world %>%
+  filter(Country =="IN")
+
+# Changing some basic flaws in data
+correct <- function(x) return(ifelse(x == "wind speed", "wind-speed", x))
+air_data_india$Specie <- correct(air_data_india$Specie)
+correct <- function(x) return(ifelse(x == "wind gust", "wind-gust", x))
+air_data_india$Specie <- correct(air_data_india$Specie)
+air_data_india <- air_data_india %>%
+  filter(Specie != "wd")
+correct <- function(x) return(ifelse(x == "New Delhi", "Delhi", x))
+air_data_india$City <- correct(air_data_india$City)
+
+# Arranging the Data according to Year
+air_data_india <- air_data_india %>%
+  arrange(Year, Month, Day)
+air_data_india
+
+# Trying to separate the column Specie for easier analysis -- widening the data
+spec1 <- air_data_india %>%
+  build_wider_spec(names_from = Specie, values_from = c(count, min, max, median, variance, Year, Month, Day, City))
+spec1
+# Separate based on Specie
+air_data_india_Specie <- air_data_india %>%
+  group_by(Specie) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider_spec(spec1) %>%
+  select(-row) %>%
+  select(contains("Year"), contains("Month"), contains("Day"), contains("City"), everything())
+air_data_india_Specie
+
+# Separate based on City
+spec2 <- air_data_india %>%
+  build_wider_spec(names_from = City, values_from = c(Specie, count, min, max, median, variance, Year, Month, Day, City))
+spec2
+
+air_data_india_City <- air_data_india %>%
+  group_by(City) %>%
+  mutate(row = row_number()) %>%
+  pivot_wider_spec(spec2) %>%
+  select(-row) %>%
+  select(contains("Year"), contains("Month"), contains("Day"), contains("City"), everything())
+air_data_india_City
+
+# Filtering out the pollutants only
+air_data_india_pollutants <- air_data_india %>%
+  filter(Specie %in% c('pm25', 'pm10', 'o3', 'so2', 'no2', 'co'))
+
+# Filtering out the non-pollutants
+air_data_india_nonpollutants <- air_data_india %>%
+  filter(!(Specie %in% c('pm25', 'pm10', 'o3', 'so2', 'no2', 'co')))
+
+# What Columns are present in my Data?
+colnames(air_data_india)
+unique(air_data_india$City)
+unique(air_data_india$Specie)
+
+# Making List of Stations.
+colnames(station_list) <- c("Sl.No.State", "State", "Sl.No.City", "City", "Sl.No.Station", "Station")
+station_list <- station_list %>%
+  select(State, City, Station) %>%
+  fill(State) %>%
+  fill(City) %>%
+  fill(Station)
+station_list
+
+station_list <- station_list %>%
+  filter(City %in% unique(air_data_india$City)) %>%
+  group_by(State, City) %>%
+  summarise("Number of Stations" = n())
 ```
 
 # INTRODUCTION
@@ -19,6 +124,83 @@ I will also try to find out if there was any significant drop in the levels poll
 
 ### UNDERSTANDING THE DATA
 
+Let's take a look at the Data
+
 ```{r}
-air_data_india
+kable(head(air_data_india), caption = "First few rows of the Air Quality Index Data") %>%
+  kable_styling(position = "center")
+kable(tail(air_data_india), caption = "Last few rows of the Air Quality Index Data") %>%
+  kable_styling(position = "center")
 ```
+
+-   This Data set contains $264864$ rows and $10$ columns.
+
+-   The Year ranges from $2014$ to $2021$ (till June), with observations recorded on each of the $30$ /$31$ days of the month for $12$ months.
+
+-   The Data is generated from the $23$ City Stations for Real-Time Air-Quality Index Monitoring across the Country. The Cities include:
+
+```{r}
+kable(station_list, caption = "City Stations") %>%
+  kable_styling(position = "center")
+```
+
+-   The parameters which we measure at the different Stations are given under the Specie Column and it includes -
+
+```{r}
+Specie_description <- tibble(
+  Parameters = unique(air_data_india$Specie),
+  Description = c(
+    "Particle pollution/particulate matter(particles less than or equal to 2.5 micrometers in diameter)",
+    "Particle pollution/particulate matter(particles less than or equal to 10 micrometers in diameter)",
+    "Ground-level ozone",
+    "Sulfur dioxide",
+    "Nitrogen dioxide",
+    "Carbon Monoxide",
+    "Temperature",
+    "Air Pressure",
+    "Wind Gust/Force",
+    "Relative Humidity",
+    "Wind Speed",
+    "Dew Point",
+    "Precipitation"
+  ),
+  Units = c("AQI","AQI","AQI","AQI","AQI","AQI","Degree Celcius",NA,NA,NA,NA,NA,NA)
+)
+kable(Specie_description, caption = "Specie Description") %>%
+  kable_styling(position = "center")
+```
+
+The Air Quality Index (AQI) is an index for reporting air quality on a daily basis. It measures air pollution affects one's health within a short time period. The purpose of the AQI is to help people know how the local air quality impacts their health. The measurements in AQI are particularly helpful for our Data Analysis as it helps us compare the values at different stations and time points.
+
+-   It also helps in identifying faulty standards and inadequate monitoring programmes.
+
+-   AQI helps in analysing the change in air quality (improvement or degradation).
+
+-    Comparing air quality conditions at different locations/cities.
+
+```{r}
+AQI_Info <- tibble(
+  "AQI Values" = c(
+    "0-50",
+    "51-100",
+    "101-150",
+    "151-200",
+    "201-300",
+    "301-500"
+  ),
+  "Level of Health Concern" = c(
+    "Good",
+    "Moderate",
+    "Unhealthy for sensitive group",
+    "Unhealthy",
+    "Very Unhealthy",
+    "Hazardous"
+  )
+)
+kable(AQI_Info, caption = "Significance of the AQI Values") %>%
+  kable_styling(position = "center")
+```
+
+In further Analysis we will call pm25, pm10, o3, so2, no2 and co2 as pollutants and the remaining parameters as non-pollutants.
+
+-   For Each parameters in Specie we measure it's minimum value, median value, maximum value and variance . The count variable is the number of times the measurement was taken for each of the parameters.
