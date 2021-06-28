@@ -178,8 +178,8 @@ pre code {
 <h1>INTRODUCTION</h1>
 <p>In this Data Analysis Project, I am going to work with <strong>Air Quality Index Data of India</strong>. I will be using several Statistical Tools to Analyze the Data which includes Exploratory Data Analysis, Techniques and methodologies used for Inference and will be Modelling the Data to summarize any pattern or general trend.</p>
 <p>I will also try to find out if there was any significant drop in the levels pollutant gases in the Atmosphere due to imposing lockdowns in the year 2020 and 2021, when several industries, factories, transportation facilities were suspended to work. I will be comparing the data for 2020 and 2021 with the previous years.</p>
-<div id="understanding-the-data" class="section level3">
-<h3>UNDERSTANDING THE DATA</h3>
+<div id="understanding-the-dataset" class="section level3">
+<h3>UNDERSTANDING THE DATASET</h3>
 <p>Let’s take a look at the Data</p>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -648,9 +648,9 @@ co
 </tbody>
 </table>
 <ul>
-<li><p>This Data set contains <span class="math inline">\(264864\)</span> rows and <span class="math inline">\(10\)</span> columns.</p></li>
-<li><p>The Year ranges from <span class="math inline">\(2014\)</span> to <span class="math inline">\(2021\)</span> (till June), with observations recorded on each of the <span class="math inline">\(30\)</span> /<span class="math inline">\(31\)</span> days of the month for <span class="math inline">\(12\)</span> months.</p></li>
-<li><p>The Data is generated from the <span class="math inline">\(23\)</span> City Stations for Real-Time Air-Quality Index Monitoring across the Country. The Cities include:</p></li>
+<li><p>This Data set contains 263890 rows and 10 columns.</p></li>
+<li><p>The Year ranges from 2014 to 2021 (till June), with observations recorded on each of the 30 /31 days of the month for 12 months.</p></li>
+<li><p>The Data is generated from the 22 City Stations for Real-Time Air-Quality Index Monitoring across the Country. The Cities include:</p></li>
 </ul>
 <table class="table" style="margin-left: auto; margin-right: auto;">
 <caption>
@@ -1111,6 +1111,695 @@ Hazardous
 <ul>
 <li>For Each parameters in Specie we measure it’s minimum value, median value, maximum value and variance . The count variable is the number of times the measurement was taken for each of the parameters.</li>
 </ul>
+</div>
+<div id="top-city-stations" class="section level3">
+<h3>TOP CITY STATIONS</h3>
+<p>Here we try to analyze which City Stations</p>
+<ul>
+<li>Records More Observations compared to others, which will give us an idea of those centres being more frequently continuously recorded, which can be due to higher AQI Levels in the pollutants.</li>
+</ul>
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>
+Observations recorded per City Station per Year
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+City
+</th>
+<th style="text-align:right;">
+2014
+</th>
+<th style="text-align:right;">
+2015
+</th>
+<th style="text-align:right;">
+2016
+</th>
+<th style="text-align:right;">
+2017
+</th>
+<th style="text-align:right;">
+2018
+</th>
+<th style="text-align:right;">
+2019
+</th>
+<th style="text-align:right;">
+2020
+</th>
+<th style="text-align:right;">
+2021
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Delhi
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+1320
+</td>
+<td style="text-align:right;">
+1328
+</td>
+<td style="text-align:right;">
+1280
+</td>
+<td style="text-align:right;">
+1713
+</td>
+<td style="text-align:right;">
+6099
+</td>
+<td style="text-align:right;">
+6844
+</td>
+<td style="text-align:right;">
+3159
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mumbai
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+437
+</td>
+<td style="text-align:right;">
+1110
+</td>
+<td style="text-align:right;">
+1098
+</td>
+<td style="text-align:right;">
+1154
+</td>
+<td style="text-align:right;">
+4236
+</td>
+<td style="text-align:right;">
+4415
+</td>
+<td style="text-align:right;">
+2004
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bengaluru
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+524
+</td>
+<td style="text-align:right;">
+1094
+</td>
+<td style="text-align:right;">
+1097
+</td>
+<td style="text-align:right;">
+1186
+</td>
+<td style="text-align:right;">
+4210
+</td>
+<td style="text-align:right;">
+4328
+</td>
+<td style="text-align:right;">
+1971
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ghaziabad
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+4180
+</td>
+<td style="text-align:right;">
+4356
+</td>
+<td style="text-align:right;">
+1970
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hyderabad
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+401
+</td>
+<td style="text-align:right;">
+1087
+</td>
+<td style="text-align:right;">
+1089
+</td>
+<td style="text-align:right;">
+848
+</td>
+<td style="text-align:right;">
+4149
+</td>
+<td style="text-align:right;">
+4556
+</td>
+<td style="text-align:right;">
+2135
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Jaipur
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+1016
+</td>
+<td style="text-align:right;">
+838
+</td>
+<td style="text-align:right;">
+1103
+</td>
+<td style="text-align:right;">
+4138
+</td>
+<td style="text-align:right;">
+4329
+</td>
+<td style="text-align:right;">
+2009
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kolkata
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+188
+</td>
+<td style="text-align:right;">
+216
+</td>
+<td style="text-align:right;">
+1096
+</td>
+<td style="text-align:right;">
+1040
+</td>
+<td style="text-align:right;">
+4097
+</td>
+<td style="text-align:right;">
+4290
+</td>
+<td style="text-align:right;">
+1972
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hapur
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+4067
+</td>
+<td style="text-align:right;">
+4384
+</td>
+<td style="text-align:right;">
+2020
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bhopal
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+544
+</td>
+<td style="text-align:right;">
+4066
+</td>
+<td style="text-align:right;">
+4273
+</td>
+<td style="text-align:right;">
+1980
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thiruvananthapuram
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1289
+</td>
+<td style="text-align:right;">
+4020
+</td>
+<td style="text-align:right;">
+4324
+</td>
+<td style="text-align:right;">
+1981
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chennai
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+871
+</td>
+<td style="text-align:right;">
+893
+</td>
+<td style="text-align:right;">
+915
+</td>
+<td style="text-align:right;">
+1157
+</td>
+<td style="text-align:right;">
+3991
+</td>
+<td style="text-align:right;">
+4265
+</td>
+<td style="text-align:right;">
+1945
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gandhinagar
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+695
+</td>
+<td style="text-align:right;">
+60
+</td>
+<td style="text-align:right;">
+410
+</td>
+<td style="text-align:right;">
+429
+</td>
+<td style="text-align:right;">
+3943
+</td>
+<td style="text-align:right;">
+4301
+</td>
+<td style="text-align:right;">
+1966
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Patna
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+10
+</td>
+<td style="text-align:right;">
+940
+</td>
+<td style="text-align:right;">
+870
+</td>
+<td style="text-align:right;">
+1132
+</td>
+<td style="text-align:right;">
+3768
+</td>
+<td style="text-align:right;">
+4284
+</td>
+<td style="text-align:right;">
+1989
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Visakhapatnam
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+34
+</td>
+<td style="text-align:right;">
+1092
+</td>
+<td style="text-align:right;">
+671
+</td>
+<td style="text-align:right;">
+3768
+</td>
+<td style="text-align:right;">
+4166
+</td>
+<td style="text-align:right;">
+1930
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chandigarh
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+777
+</td>
+<td style="text-align:right;">
+905
+</td>
+<td style="text-align:right;">
+337
+</td>
+<td style="text-align:right;">
+3759
+</td>
+<td style="text-align:right;">
+4263
+</td>
+<td style="text-align:right;">
+1958
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lucknow
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+723
+</td>
+<td style="text-align:right;">
+836
+</td>
+<td style="text-align:right;">
+913
+</td>
+<td style="text-align:right;">
+1143
+</td>
+<td style="text-align:right;">
+3728
+</td>
+<td style="text-align:right;">
+4080
+</td>
+<td style="text-align:right;">
+1963
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Muzaffarnagar
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+11
+</td>
+<td style="text-align:right;">
+3691
+</td>
+<td style="text-align:right;">
+4340
+</td>
+<td style="text-align:right;">
+1982
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nashik
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+36
+</td>
+<td style="text-align:right;">
+1050
+</td>
+<td style="text-align:right;">
+1215
+</td>
+<td style="text-align:right;">
+3543
+</td>
+<td style="text-align:right;">
+3863
+</td>
+<td style="text-align:right;">
+1739
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shillong
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+2275
+</td>
+<td style="text-align:right;">
+4270
+</td>
+<td style="text-align:right;">
+1923
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Thrissur
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+2060
+</td>
+<td style="text-align:right;">
+4281
+</td>
+<td style="text-align:right;">
+1966
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nagpur
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+386
+</td>
+<td style="text-align:right;">
+1096
+</td>
+<td style="text-align:right;">
+1242
+</td>
+<td style="text-align:right;">
+349
+</td>
+<td style="text-align:right;">
+4017
+</td>
+<td style="text-align:right;">
+1773
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mysore
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+319
+</td>
+<td style="text-align:right;">
+3837
+</td>
+<td style="text-align:right;">
+1980
+</td>
+</tr>
+</tbody>
+</table>
+<p>It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.</p>
+<ul>
+<li>Now Let’s take a look at the Average Median AQI Levels of the Pollutants every year Station-wise</li>
+</ul>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwAAAAHaCAMAAACAZd7cAAABU1BMVEUAAAAAADoAAGYAOpAAZrYAv8QzMzM6AAA6ADo6AGY6OpA6kLY6kNtNTU1NTW5NTY5Nbo5NbqtNjqtNjshZTY5kTY5kbqtmAABmADpmAGZmkJBmtv9uTU1uTW5uTW9uTYNuTY5ubk1uboNubo5ubqtujo5ujqtujshuq6tuq8huq+RvU018rgCOTU2OTW6OTY6Obk2Obm6ObquOjk2Ojm6Ojo6OjsiOq6uOyMiOyP+QOgCQOjqQOmaQkDqQkLaQtpCQ27aQ2/+rbk2rbm6rbo6rjk2rjqurq26rq46ryKur5P+2ZgC2Zma2tma22/+2/9u2///HfP/Ijk3Ijm7IyI7I5KvI/8jI/+TI///bkDrb/7bb///kq27kq47k5Kvk/8jk/+Tk///r6+vy8vL4dm3/tmb/trb/yI7/25D/27b/29v/5Kv//7b//8j//9v//+T///9ugjC5AAAACXBIWXMAAA7DAAAOwwHHb6hkAAAfN0lEQVR4nO2d+3vcykGGnXNSpwfihBAggHNKCoGW0CSn0APYXNqYW+stNHV72rgnXJzWjcGxrf//JzQaaXckzU3SaDUjvd/zJLvenW++2Zl5NZJ2V7uTIbRg7UzdAISmFACgRQsA0KIFAGjRAgC0aAEAWrT6AfDOS57FpHaH2Qemt+O3mh7cj91ZCgDs8QAwbzsAOOIBYN52AHDEA8C87QDgiAeAedsBwBEPAPO2A4AjHgDmbQcARzwAzNsOAI54AJi3HQAc8QAwbzsAOOIBYN52AHDEA8C87QDgiAeAedsBwBEPAPO2A4AjHgDmbQcARzwAzNsOAI54AJi3fRgAI2h30fFoKrECGOJZAeZtBwBHPADM2w4AjngAmLcdABzxADBvOwA44gFg3nYAcMQDwLztAOCIB4B52wHAEQ8A87YDgCMeAOZtBwBHPADM2w4AjngAmLcdABzxADBvOwA44gFg3nYAcMQDwLztAOCIB4B52wHAEQ8A87YDgCMeAOZtBwBHPADM2w4Ajvhp+UliDiVtBwBHPADM2w4AjngAmLcdABzxADBvOwA44gFg3nYAcMQDwLztSQLQLhMqHQCWZgcAR9UAMG87ADiqBoAt2Sfa9wWAdaWKetjLSvqmm5TQDB5oBwCp6QD41VoAMIEdAKQAIKQ/ITsASO227gPAIuwAIAUAIf0J2QFACgBC+hOyA4AUAIT0J2QHACkACOlPyA4AUgAQ0p+QHQCkACCkPyE7AEgBQEh/QnYAkAKAkP6E7AAgBQAh/QnZAUAKAEL6E7IDgBQAhPQnZAcAKQAI6U/IDgBSABDSn5A9XgDe7+3df5NlV8/3HpytbwBAX0nfdJMSmsED7dECcPnkTfb2YXZzdKDcAIChkr7pJiU0gwfaowWghODq5RvlBgAMlfRNNymhGTzQHjUA+Tb/8ulZdvXiuLzJHxPfnbWa+mnXcN9UJlywAkD/SgI2aGGauOtsAFw+vnecvX9QzPzypnwmJIqlWAFC+hOyR70CbDb9mxUAAHSV9E03KaEZPNAeNQDZyQHHAF6V9E03KaEZPNAeLQDlTs/N0TN5FugZZ4EslfRNNymhGTzQHi0A2du9vfwYgPcBvCrpm25SQjN4oD1eACwK2ZJSABDSn5AdAKQAIKQ/ITsASAFASH9CdgCQAoCQ/oTsACAFACH9CdkBQAoAQvoTsgOAFACE9CdkBwApAAjpT8gOAFIAENKfkB0ApAAgpD8hOwBIAUBIf0J2AJACgJD+hOwAIAUAIf0J2QFACgBC+hOyA4AUAIT0J2QHACkACOlPyA4AUgAQ0p+QHQCkACCkPyE7AEgBQEh/QnYAkAKAkP6E7AAgBQAh/QnZAUAKAEL6E7IDgBQAhPQnZI8JgA+P9j882vnoNQAAwNbsMQGwup2dfvT69DYAAMDW7BEBkC8A14e3s3P3EhCyJaXiB8CWDgC97XEB8OHRXQDokQ4Ave0RAXB9ePf81iuxIwQAALAte0QAZBd3dm5nq4+/BAAA2Jo9JgC8FbIlpQAgpD8hOwBIAUBIf0L2WAD48GinUlQHwe3HPQUAadhjASDWFQAAZm4HACkACOlPyB4VAKc7O/uncZ0FAoCZ22MCYPXxL+SbwQAAANuy+wAwwsDrACjeCd6P7J1gAJi5HQCkACCkPyF7RABkp2IXSHwcCAAAYFv2mADIzsXbAO75DwDO5wDAV1EB4KuQLSkFACH9CdkBQAoAQvoTskcEgM/e/2ja7Xg/XLACgL1gz+eQVT5dN2L31g+C8yOAfR9XSBRLsQKE9Cdkj2gFEFrt7Nx6BQAAsDV7ZAAIBngfQGsHgFHskQGw8vk0NAA4nwMAX8UEgN/+DwBoKumbblJCM3igPSIAxOcg/BSyJaUAIKQ/IXtEAPgrZEtKAUBIf0L2qADg+wAWOwCMYo8JAL4PYLMDwCj2iADg49BWOwCMYgcAKQAI6U/IHhEAfB/AageAUewxAcD3AWx2ABjFHhUAvgrZklIAENKfkD0+ADgG0NsBYBQ7AEgBQEh/QnYAkAKAkP6E7AAgBQAh/QnZAUAKAEL6E7IDgBQAhPQnZI8FAH4fAAAs9lG63lDz1CuAh0K2pBQAhPQDgLMUAFSVAoCHHQAAAABGSQcAKQAI6QcAZykAqCoFAA87ACwHADXd1ELncwDgKwCQAoCQfgBwlmoCwPsAAGCxzx8AVgAAsNgBAAAAYJT0LQCgs+sAuLgjvxG5cn4psm9LLAKAkH4AcNk1AKyK64LmFHAMoLUDwCjp0QBQfQj04s7CL4wFAIsE4Prwbnm74742Yt+WWAQAIf0A4LK3AKguDX3xyb+zC6S1A8Ao6bEBwBdiAGCRAFS7QFl2yjGA1j4QgE6NB4CQ6d0Ogn1+JqNvSywCAId/WvsCAFifBl36pREBYKEAyI8DefxEHgC4nwMAX0UEgL/6tsQiAHD4p7UvCoAfOheBvi2xCAAc/mntywEg3w/iNKjWDgCjpMcFwGl+FFCdBLp8vLd3kGVXz/cenK1vAEBfiTu9kx0AQqZ3Oghevwlw9eI4u/z0+OboIHv7MCtvAMBQiTsdAPSKBoDT4mfiV2sA3ovpfnJw9fJNdvnkTXkDAIZK3OkAoFcsAJTvf61qbwPnq8Dl0zPlJn9sN5fp2GCAdjveDxesAGBNsaV7tGygfWKN10Kfmgem2+zKO8HF7n8NgJujZ9n7B8XML2/KJ/qiaNF8VoDdYfZ3hvhOYgVw2dsAFJ+EVo4BxHHvs/xQuLkCAICukuZ9APBVRACslwGpy8cHggKOATzSpwVgC/wsBYBiGZDvA8j5X+wGFWeBnnEWyFJJ8z4A+Co2AHL9ugDg7Z7QAe8D+KQDQO/0CAFwq29LLAKAmgAgYDoAWIMBwMMOAAAAAP3tFgFAu5EAAAAh070BkJeG49OgejsA9LdbFBEA14fur8MDgL6S5n0A8FVEAPh8HR4A9JU07wOAryIC4PowXQD6zwEAaGuhAPhcEgsAnPEAkCoA1Y/EpHgQDAD97W11av0WGs9pUPMLMT4VBADfIxAA6J1usgc8+AMAazAAeNiXAUDC7wMAQH97WwsF4Prw7vXhfprXBgWA/va2FgqAmPqru9l5ij+Q0f9QCgDaWjAAp7fT/H0AAOhvb2uhAIhvxOez/5QVoGs6APRPjwkA8SMZq53iKukA0CUdAPqnDxz4tjgNakoHAF8BwEgAeHYjAADA1gHIj4DH/ygEALjt75T4cPZuWiIArAAAYLEDAAAY7IqUcgDgq1gAqPZ/2AXqCEDTDgD+b8I3Nx5TrwCnYuqP+VGIpQHQZw/qnRIfzt5N2wIgxN6nR7ovAOXUH/GdYADQCwAAAABqAoAJd4Hcv5QdsiWapwAAACYBoLg6+o7HN+NDtkTzFAAAwDQA+CpkSzRPLRoANb6H/Z3e3k0AAAAA4Bs/JwBO8x0gj09DA4DFDgDpArD6+BeP9n0ukBiyJZqnAAAApgCg+DzcPqdBO6UDwGRdbxAAdEsHgLYWCkB2KnaBeB+gUzoAzAgA+T6Ae/4HBiDEZ6IAoCYAcKXrAfBVyJaE6QcAqAkAXOkAECgdAABgWEsAAAAAAAAa94MDMMIcGpweFQDXh5N9IwwAAGB6AMQZIN9fSOqtXf2jSj+0ipnue9W8hfSWXS3n2Xifcr72IWX62Sfrem/Z7PWPQvgyEBLFcVeAHptwVoBlrgCFxI7Q1r8PAAAAEAsABQMRHgO0Lz5iqXngDAaABQOQrwAe18adAIAfrwUAfewA0CylAcBz9gOA1Q4AiQJw7jv7AcBqDwnArr6Ir91UxqklAjDa+wBBpiAAAICvYnsnGABsdu/WA4CvAAAAAMCZDgAd0jvZAQAAai0BAJvdu/UA4CsAAAAAcKYDQIf0TnYASBiAMS6MBQA2u3frAcBXAwAY5cJYAGCze7ceAHzlZ9cBMM51gQDAZvdu/QQAeLYeAIa1pN4PigAAANzpbfUHINyFsfrPod1vVQIAAPBIb2sAAMEujAUAAOCRHh8AvnK1AQAAwCMdAMpHAcDdegDw1ZCD4OoD0a4Toa42AAAAeKTHBsD6VyKdbwW42gAAAOCRHhsAm98Jdp0JdbUBAADAIx0AykcBwN16APBVgF2gzPV5IFcbAAAAPNKjA6D6oexT19fjXW0AAADwSI8PAF+52gAAAOCRDgDlowDgbj0A+GoAABd3Al0WBQAAwCM9NgCuD+9eH+6X54IAoKcdAJIFQEz91d3s3P2VMFcbAAAAPNJjBOD0dojvAwAAAHikxwZAtipmv8eXgl1tAAAA8EiPDoD8ICBb+Vwj19UGAAAAj/ToAPCWqw1zA8Dy8xwAMB8Arg99fyXP1YbZAWBOB4D5AOBzAhQAXHYASBYA52fgtgyAeokIAOhhN5VxaqEAVN8Ii+U06O5XKgFAIgB0S48NAH+52gAAAOCRPvD8g0EAAABzAsAx8G0NASDUxXEBAAA80qMDINjFcQEAADzSYwOgdW3Qyydvsuzq+d6Ds/UNALjsADAbAN7v3X+T3RwdZG8fVjcA4LQDQLIANC6Oe3LvB/kKcPXyjVgJyhsAcNoBIF0AmhfHFTP+8ulZdvXiuLzJHyyuXO7Qrsd95dFuAPROdKebLLvm9JZd9bvTvVvcx24q4ynP1vdPH9j1Vvl2vfU0qADg/YNi5pc35RMuCFkB5rMC7LrOxE/W9R6NN6d7A9BaAQDAbp8dANF2vUfjzek6AFo/jXHJMUBZBgAi7HqPxpvTtSvAaXFZrDoAN0fP5FmgZ5wFAoAu6QkCkGu1o3wjbHHvA7T2dwFgaQAIBpb7adBN+rcAYJkArHw+DQ0AersSEwUAvvEtzQcA4yksLQC1/R8AeOczCkMBaI0QAAQFwGTXARDbVyKXAYDWDgBTAFDph68BICgAtveSACAyAD48WvBXIscCwNJ6AIgKgOY7AQAgbwBgCQAUX4p3fxsGAEx2JQYAkgPgtDgFtAIAAFgkAOUpIAAYAID7jWQAqDljAqD4LsA+AAwCwGmfGQAG4tMEQFwblGOA1ADwfR9tJAA8ZrAlPTYA1stAWgAE3AwlCICnHQD8ACiWgcTeBxh4fTEAaGvJAOT69QwBCDWDAUCfPisA3HK1YQ4A1AQAALA4AL6iiwcAfXpQANQdVgAAAEvXzQeAmjY9DwAAYOu6GQGg7XoAAABr1wGAvfHxAOD3kXgA6N93AKBpfEQAeHYjAPTtOwDQNB4AJgNAfxYVAEx2AJgbAFq7dQarAgAAWB4Aih0AAAAAAAAAACBxALqf/gMAAAgKgG0KGhQSgM4DDwAAEBYAi90gAEgVAIMAAAAWAkD3bpwPAD3OohoEAAAwMQB93kdT+86z6w0CgDAAdB5EABhgB4B246cGYMgMBgAAAAAAAAAAAIBtA9D9CCQmAPStBwAA8Aegc3pUAPiM3GgAqOfiAAAAlgdAqBkMAAAAAAAAAAAAAAAAAAAAAH7aBgAWeczglqUbAH72Wjdmu0PstW4cZrf5h9prXS+flP9b7KZB7Jz+q10l0Td94Mh1a73BzgrACqAZxM7pC1sBbH0HAADgmR4EgNbDAAAAUwAw6JIWAAAAyQPQPT00AOX6AwDdAFAFANICAAAAAACwDAA6zWAA8Bk5z3QAsHcjAKQKwKCvAgIAAAwGwPcD/aZBHArAVkaurKR5FwAAwNtuGkQASAkA51EsAAAAAAAAACgKD0AZwC4QAAAAAAAAAABAggCUZ04BAAAAIPaRU1us3AUAAAAAAAAAbwB2W/cBAAAAIPqRa7UeAAAAAAAAAAAAAABgWQDUPg4AAACwOAC6jhwA+NsBIM6Rq7UYAABgaQAM+jIrAPjbZwyAMoPUUUwEgCEjBwCdurE5T/qOQnQAKHZlFHvwk9oH2QGgUzdaAOi0DgNAt75bIAAbxQTAkEGcMwDxb7qSAECvzPD4mN1oUqhRiBkA9fUCQCcA1NkZbCVcCgC61z4NAEPsCwdA341THANoN2NRnwUCAACYDQCD9iLq6dr1ZxIAfBffjWIaOVPj5wqAaTviOYjTAuAhix0AAGBqAJx2fwA6T8FJdoFUTTtypr4zpS8NgFAzOLqzQMr86LMJ97Bb0mUd5c32ATBp+wDou3HYaZwk3k6x2Du/+OEAGOaA3xwyzqcRARg4ck77JABstCUA9KNQm4IzBkBdfLvP4IF2fdfXR87y2scaOW3rt7YLtNGWdoFCdqOqgQB0n8EhT4P2AaB7ur7rFw5A9xms3e7sDu/G7gupUlVm2IuwNj4eAALaO3e99+8D1OyqPEduyKYrJgDUflDuq93YLuMaBe9DqVbV7fTdZhGD3T0Kk5wF8rXr01v9Y+i6gQAo97OQm66UATA8brObtiMuuwaALuntqkzHP9bDUCXGF7+BM9g3vVvXh9zyWbqu5Z8OALXBhg2B64WEAaDWDx0GsV3VUAA62T1evAcASrk+m3Bbeteu77AH1a6qd99p1m5jelAA1IaoG4IuLyT8KHSxt6tKBYBwm3BbesTbnp5rd2cArp7vPTjzAKDvCzHZPTUfAN4p8V0Sa/eDbzzGS29XFSUAN0cH2duHQwHwex1VE/2M9nR7hKWqOQAw0B4QgE4tiRKAq5dvsssnbywAaDL8ipka2ck+MN3H3mlAu6VPC0BbsdlH6PquAFw+PcuuXhzn94q9e4TmIV8A3j+oABAKiSL2+OIXYO8KwGYFAIAt2NNufQr2rgCMfgyAPaL4Bdi7AnBz9MxxFqhvS7DHF78Ae1cA3O8D9G0J9vjiF2DvDEBNIVuCPb74BdgBIGp72q1PwQ4AUdvTbn0KdgCI2p5261OwA0DU9rRbn4IdAKK2p936FOwAELU97danYAeAqO1ptz4FOwBEbU+79SnYASBqe9qtT8EOAFHb0259CvZhAPhp4PdmlmxPu/Up2QEgSnvarU/JDgBR2tNufUr2MQFAKHoBAFq0AAAtWgCAFi0AQIvWIADe7+2JLwpvrhbR0M3RgfY5g+HycV7f3oFarCzZNojoh5lGm0xjs5qVVAXFn882LSz/PDloPCmuEql/RYqruzbNdTe85bs5erj58+afjhtPOyM3qpnd4Y9F7sl9XcaJ2k1FlK30zdHenx/16jk5bdbObr03CIC34pWcPDizAaB93ASAePjq+YHyt6nq93m0uFCFNtO3C6pK7OVPmq/BDkBv9TULn9KkLQPw6Z+dZVff1ma0Os5a2jLYrjYU02Z9zartASAziwn3V8WGW6B4kF0+/Zfir6vne7/1WTEZxb1vH1dP/8ln978oDbpXIi/B9Xzv/hvZJ0XJ5ouSAy5K6jMrU/W4LNVoyB//hQA4r6Te/hOxLIjA0nTyebOKz2wAyHJXL/9t796xfCBvRv6anaOyMef3OvjFjC+6Y91p+Ry+Ocq3S6Ky4sGy7YZWVymignvH0vxfmw69X1R/+elxcXXAVg3fyVv5uZy8RfT3843xe7l0qh0nV4BG6aKrs6qdue4dK5PENnZqh5RL4MG6oqbVqgEArPvj8vEz8YcAQoyW/Cs7yW/2CgDEvXvH66cPKoN+PES5k+IiRJvKmgCs/9Znrk31ljUb8jtvdO0vNoJiDlamoia1CjO763JXzx+c5QtMNYEfu4ahZu7mv3zyc7n9P6ledd7+/L5SWfXC9K2uABBz6P2D/ynMaoc+OHubD0f+ot+2V9zLJz89yP7zBxsAjh4WOzqtjisBqJcuunpTQCm9mSSGsTtovIocUKWixoDaNAQAZbezCrp6Wb04cSk5uTtS3JML6+ZpXcvkQ2WfyKLVDGgC8FShR5e56VKlZY2GfO33zja5m1KZGGjlT7GSy9W8qkK3C1Tsh+7dX0flO3KSI++1vdaDHfyXn369OBoSTcs7rgDg689qXVO9MENkLUWalQ4VdT49+8n3H+p2ji6ffPGNm3/+QlkBjosuLrZiaseVANRLZxVTm8HOdJOkPXZqh6iHjrVZY3zdqgYAsJ6F67wTMQXU7jwRk1GUK9quPm0GIO+7Yj28d2wBQO4u3Ds2ZTYBkKXqDfna75aV1EvJPavNnz85luO4DtLs3KrHAEW5YvdQbYlHd6o92MGfb+6unpdzVjJzc/TNvxRDo7S4YlPX6jUAxXhKsxIsNkgvf/byiyc/08ylfPn51//+60stAO2Oa5Yup1BVoDWHzGNXA2D9h1qR7XWrCnMMIDcXzw+yTXprBag/bQZArF0vq4ExzIByp/fFsSmzDkBZqtGQP/qsrKRequjmzZ9iDPM61SpsB8FVuRfHPVaAzavp4C/KfHpcWwGO8y2rUtnz9lGU0urmCnBcroCX6xUgO/mbb+R795qzbnmZn3z/mR6AWseVALRLK+1szSHz2OkAqFWU2V63qlBngarYT9fb0+YxQONpEwDFWaD17qxpBrwXG/92pZvMWk9Uc6TRkJ+qlaxLFauyanrYrMJ2DFCWu3r+sNoLfXvfDYAoVx7qyFfTwV88+Xa9vy7nVQXPp8dK2w2tzsqU4jjyyc835rJD86rf78mjAF0NsgOrOlQAHjZmRat01dWbdrYniWHsNAA0XrDldasK9T6A+Pd2rzrvI/7dHClngX4775T60zoA1jtzxfkIywogywr+TJk1AMpSrYaUldRK/W1xOuJPN6aTz4tdrfIvmdDqiTUAZbmrF9+pXN986QZA9OQmpJgh3v7iSXHWRz0LJG5kZTdH98t7GmvR4Q/LlPVZoNz8xZP1iaH78hCzOGmsCy+7WdZRA+Dz+mtqlf5Z0dXPNsPRmkOWsWv2fVYl5S/4i7rVqi29E+yeAlvSlhqyOS09jX+WGmXstgBAvtEsNgWTa4sNAYDAGm3s+CwQWrQAAC1aAIAWLQBAixYAoEULAGLS6c7Ozq1XWXbx1VfZ//7H1K1ZhAAgHl0ffvylgGBf/CEYQOMLAOLRSsz/nIDiBgC2IwCIRh8e7Vd3L7763Ts7O3dXt/P7p7cnbNP8BQDRSNnm53fFX+cfvc73i/ZtJjRQABCNLj55vb4rARBrgvIoGkEAEI3aK4DY/WEPaFwBQDSqjgE+/P6rCoCLT37EHtC4AoB4dFqeBfrodQXA9eEfsgc0rgAgHm3eB8hnv1wPTnfYAxpXABCTVso7wSsx9y/usAc0rgAganEOaGwBQNQ6vTt1C+YuAIhYF3fkYTEaTwCAFi0AQIsWAKBFCwDQogUAaNECALRoAQBatAAALVoAgBYtAECLFgCgRQsA0KIFAGjRAgC0aAEAWrQAAC1aAIAWLQBAixYAoEULANCiBQBo0UoUgF/qRfQss8cUABAdffaYmgEAu5PNQiV56wBs+VVPmj2mAGBANAAAwEQCAAAIIwAYEA0AADCRxCi0tLVZGFX07tYAmOplj6roALg+/Oh1Jq4La/1lCDEcv2poi7PwWw1tMforTW0RgB83BABj6OKOuCT4yn5dZDsA5zsff3lxZ0f85PqHRzuyJnGl/dMdoeInJ8TdgrRMV1A8KJ+VBX90uLOvRtsAOL3rVWWfbCcA/bObNm22DYBWtL5Gc/TmxxBaXT6m4gNA/EaW85dRHADcFr80J35nRfzKbvE7i+fVDDiXw7Gq6tcWFA+e1gqufAG4+I0vPas0ZT/aN2W7ADBmt6psZjdt+mwLAK1oY42GaGWIWl0+piIE4MOj21nxG+nXh3KTITYRO/kG5pN/qLrIDcC5qGC1/+EPXhcbltWt78rNi+huUfXfvdqUbRfMhzMTj2wKegOQF/Ss0pZdtLKV7QLAml2rspndsBmyLQC0oo01GqI3Q9Tu8jEVIQDZ+a3vyp9IvF38cmLxc3HipxOVwwL7Idm5LCh+b3Q99OX6Wm6N8tV3Z7PEtgpuNtdVwToA5mg5x72qNGRv/mplOw6CjdntKjXZ9b/8su0vW1+jIXozRO0uH1MxApBv+cVhwLnY3Oez///ErBE/HKrsFjlXgKKau8UOj9q7ZYcXa+56k6QpuNmFLgv6rgBiVD2rNGQX+yu3XumyHSuAMbtdpSa7YdNlm1cAbbS+RkP0eog0XT6mYgRATv3ykFWwcF78eKLyS+o+AHx4dDfLmivAuXpsXfawpqCIOq92t+QC7QnAebmR96jSkC32+H5zvbtQy3YAYMxuV9nObti02WYAdNGGGg3R6yHSdPmYihmAcrJ+eHSrOEzqBoBcLza7oPL/lfqjc7KHdQU3G6eqYKcVwK9KQ3aWbfYosk4AGLPbVbaymzZttmMF8KvREJ0BwEYSgPNbcroUW5fzjitA2aticZW7/UXvrpdgUef134sUbcHN5roq6AtAMap+VRqyi4OF25ku2wGAMbtdZTO7ZdNmmwFoRxtrNERnawDaXT6mIgag+OH0fOILEC7udASgOuVfPx++2Ss4LX6ROr+nL3hePV0W7HQWyK9KW3b+ly7b4yyQX5Wt7Ppfpmz7WSC/Go3R5XZC1+VjKmIAitOgRU/kN997tN8EwHkWyEM/fO1Z0PcsUHU4OEq266MQW8/ezsseVVEC4Jb9o1nnOx/7Dcf1P/rFXdffCbZ+GM73t617ZDs/kDZh9ojRo2qWAGwrmk+D8lmgiQQAABBGADAgGgAAYCL9Ui+iZ5k9phIFAKEwAgC0aAEAWrQAAC1aAIAWLQBAixYAoEULANCiBQBo0QIAtGgBAFq0AAAtWgCAFi0AQIsWAKBF6/8BrIUuiK6HnpwAAAAASUVORK5CYII=" /><!-- --></p>
 </div>
 </div>
 

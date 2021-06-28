@@ -23,6 +23,8 @@ library(purrr)
 library(knitr)
 library(kableExtra)
 library(stringr)
+library(viridis)
+options(dplyr.summarise.inform = FALSE)
 ```
 
 ```{r raw_data, cache=TRUE, include=FALSE}
@@ -122,7 +124,7 @@ In this Data Analysis Project, I am going to work with **Air Quality Index Data 
 
 I will also try to find out if there was any significant drop in the levels pollutant gases in the Atmosphere due to imposing lockdowns in the year 2020 and 2021, when several industries, factories, transportation facilities were suspended to work. I will be comparing the data for 2020 and 2021 with the previous years.
 
-### UNDERSTANDING THE DATA
+### UNDERSTANDING THE DATASET
 
 Let's take a look at the Data
 
@@ -133,11 +135,11 @@ kable(tail(air_data_india), caption = "Last few rows of the Air Quality Index Da
   kable_styling(position = "center")
 ```
 
--   This Data set contains $264864$ rows and $10$ columns.
+-   This Data set contains `r nrow(air_data_india)` rows and `r ncol(air_data_india)` columns.
 
--   The Year ranges from $2014$ to $2021$ (till June), with observations recorded on each of the $30$ /$31$ days of the month for $12$ months.
+-   The Year ranges from 2014 to 2021 (till June), with observations recorded on each of the 30 /31 days of the month for 12 months.
 
--   The Data is generated from the $23$ City Stations for Real-Time Air-Quality Index Monitoring across the Country. The Cities include:
+-   The Data is generated from the `r length(unique(air_data_india$City))` City Stations for Real-Time Air-Quality Index Monitoring across the Country. The Cities include:
 
 ```{r}
 kable(station_list, caption = "City Stations") %>%
@@ -176,7 +178,7 @@ The Air Quality Index (AQI) is an index for reporting air quality on a daily bas
 
 -   AQI helps in analysing the change in air quality (improvement or degradation).
 
--    Comparing air quality conditions at different locations/cities.
+-   Comparing air quality conditions at different locations/cities.
 
 ```{r}
 AQI_Info <- tibble(
@@ -204,3 +206,73 @@ kable(AQI_Info, caption = "Significance of the AQI Values") %>%
 In further Analysis we will call pm25, pm10, o3, so2, no2 and co2 as pollutants and the remaining parameters as non-pollutants.
 
 -   For Each parameters in Specie we measure it's minimum value, median value, maximum value and variance . The count variable is the number of times the measurement was taken for each of the parameters.
+
+### TOP CITY STATIONS
+
+Here we try to analyze which City Stations
+
+-   Records More Observations compared to others, which will give us an idea of those centres being more frequently continuously recorded, which can be due to higher AQI Levels in the pollutants.
+
+```{r}
+obsv_per_station <- air_data_india %>%
+  group_by(Year, City) %>%
+  count() %>%
+  arrange(Year, desc(n)) %>%
+  spread(key = Year, value = n) %>%
+  arrange(desc(`2019`, `2020`, `2021`))
+
+kable(obsv_per_station, caption = "Observations recorded per City Station per Year") %>%
+  kable_styling(position = "center")
+```
+
+It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
+
+-   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise
+
+```{r, warning=FALSE, results='hide', message=FALSE}
+avg_median_per_year_per_station <- air_data_india_pollutants %>%
+  group_by(Year, City) %>%
+  summarise(Median = mean(median)) %>%
+  arrange(desc(Year, Median)) %>%
+  spread(key = Year, value = Median) %>%
+  arrange(desc(`2021`, `2020`, `2019`, `2018`))
+
+kable(avg_median_per_year_per_station[1:11,], caption = "Average Median AQI Levels of Top 11 City Stations") %>%
+  kable_styling(position = "center")
+```
+
+```{r, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  group_by(Year, City) %>%
+  summarise(Median = mean(median)) %>%
+  arrange(desc(Year, Median)) %>%
+  filter(Year != 2014) %>%
+  ggplot(aes(Year, Median)) +
+  geom_bar(aes(fill = City), position = "dodge", stat = "identity") +
+  labs(
+    y = "Average Median AQI Levels"
+  ) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 2,
+      override.aes = list(size = 3)
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
+
+```{r, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)), City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  ggplot(aes(City, median, fill =cut_width(Year, 1))) +
+  geom_boxplot(outlier.shape = NA) + 
+  coord_cartesian(ylim = c(0, 350)) +
+  labs(y = "Average Median AQI Levels", fill = "Year") +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+```
