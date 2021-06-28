@@ -221,7 +221,7 @@ obsv_per_station <- air_data_india %>%
   spread(key = Year, value = n) %>%
   arrange(desc(`2019`, `2020`, `2021`))
 
-kable(obsv_per_station, caption = "Observations recorded per City Station per Year") %>%
+kable(head(obsv_per_station), caption = "Observations recorded per City Station per Year") %>%
   kable_styling(position = "center")
 ```
 
@@ -229,7 +229,7 @@ It is clearly visible that Delhi is definitely the most monitored centre, which 
 
 -   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise
 
-```{r, warning=FALSE, results='hide', message=FALSE}
+```{r}
 avg_median_per_year_per_station <- air_data_india_pollutants %>%
   group_by(Year, City) %>%
   summarise(Median = mean(median)) %>%
@@ -237,7 +237,7 @@ avg_median_per_year_per_station <- air_data_india_pollutants %>%
   spread(key = Year, value = Median) %>%
   arrange(desc(`2021`, `2020`, `2019`, `2018`))
 
-kable(avg_median_per_year_per_station[1:11,], caption = "Average Median AQI Levels of Top 11 City Stations") %>%
+kable(head(avg_median_per_year_per_station), caption = "Average Median AQI Levels of Top 11 City Stations") %>%
   kable_styling(position = "center")
 ```
 
