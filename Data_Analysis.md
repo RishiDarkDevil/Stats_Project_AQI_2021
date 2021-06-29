@@ -533,115 +533,50 @@ Here we try to analyze which City Stations
    <td style="text-align:right;"> 4329 </td>
    <td style="text-align:right;"> 2009 </td>
   </tr>
+</tbody>
+</table>
+
+It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
+
+-   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise. The Top 11 Stations will be considered in the further analysis where ever we need to do a Station-wise breakdown of Data or Analysis.
+
+<table class="table" style="margin-left: auto; margin-right: auto;">
+<caption>Average Median AQI Levels of Top 11 City Stations</caption>
+ <thead>
   <tr>
-   <td style="text-align:left;"> Kolkata </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 188 </td>
-   <td style="text-align:right;"> 216 </td>
-   <td style="text-align:right;"> 1096 </td>
-   <td style="text-align:right;"> 1040 </td>
-   <td style="text-align:right;"> 4097 </td>
-   <td style="text-align:right;"> 4290 </td>
-   <td style="text-align:right;"> 1972 </td>
+   <th style="text-align:left;"> City </th>
+   <th style="text-align:right;"> 2014 </th>
+   <th style="text-align:right;"> 2015 </th>
+   <th style="text-align:right;"> 2016 </th>
+   <th style="text-align:right;"> 2017 </th>
+   <th style="text-align:right;"> 2018 </th>
+   <th style="text-align:right;"> 2019 </th>
+   <th style="text-align:right;"> 2020 </th>
+   <th style="text-align:right;"> 2021 </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> Delhi </td>
+   <td style="text-align:right;"> 132.28571 </td>
+   <td style="text-align:right;"> 75.80250 </td>
+   <td style="text-align:right;"> 84.49887 </td>
+   <td style="text-align:right;"> 75.09305 </td>
+   <td style="text-align:right;"> 79.38403 </td>
+   <td style="text-align:right;"> 72.71864 </td>
+   <td style="text-align:right;"> 66.22442 </td>
+   <td style="text-align:right;"> 74.17862 </td>
   </tr>
   <tr>
-   <td style="text-align:left;"> Hapur </td>
+   <td style="text-align:left;"> Ghaziabad </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 4067 </td>
-   <td style="text-align:right;"> 4384 </td>
-   <td style="text-align:right;"> 2020 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Bhopal </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 544 </td>
-   <td style="text-align:right;"> 4066 </td>
-   <td style="text-align:right;"> 4273 </td>
-   <td style="text-align:right;"> 1980 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Thiruvananthapuram </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 1289 </td>
-   <td style="text-align:right;"> 4020 </td>
-   <td style="text-align:right;"> 4324 </td>
-   <td style="text-align:right;"> 1981 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Chennai </td>
-   <td style="text-align:right;"> 16 </td>
-   <td style="text-align:right;"> 871 </td>
-   <td style="text-align:right;"> 893 </td>
-   <td style="text-align:right;"> 915 </td>
-   <td style="text-align:right;"> 1157 </td>
-   <td style="text-align:right;"> 3991 </td>
-   <td style="text-align:right;"> 4265 </td>
-   <td style="text-align:right;"> 1945 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Gandhinagar </td>
-   <td style="text-align:right;"> 12 </td>
-   <td style="text-align:right;"> 695 </td>
-   <td style="text-align:right;"> 60 </td>
-   <td style="text-align:right;"> 410 </td>
-   <td style="text-align:right;"> 429 </td>
-   <td style="text-align:right;"> 3943 </td>
-   <td style="text-align:right;"> 4301 </td>
-   <td style="text-align:right;"> 1966 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Patna </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 10 </td>
-   <td style="text-align:right;"> 940 </td>
-   <td style="text-align:right;"> 870 </td>
-   <td style="text-align:right;"> 1132 </td>
-   <td style="text-align:right;"> 3768 </td>
-   <td style="text-align:right;"> 4284 </td>
-   <td style="text-align:right;"> 1989 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Visakhapatnam </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 34 </td>
-   <td style="text-align:right;"> 1092 </td>
-   <td style="text-align:right;"> 671 </td>
-   <td style="text-align:right;"> 3768 </td>
-   <td style="text-align:right;"> 4166 </td>
-   <td style="text-align:right;"> 1930 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Chandigarh </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 777 </td>
-   <td style="text-align:right;"> 905 </td>
-   <td style="text-align:right;"> 337 </td>
-   <td style="text-align:right;"> 3759 </td>
-   <td style="text-align:right;"> 4263 </td>
-   <td style="text-align:right;"> 1958 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Lucknow </td>
-   <td style="text-align:right;"> 12 </td>
-   <td style="text-align:right;"> 723 </td>
-   <td style="text-align:right;"> 836 </td>
-   <td style="text-align:right;"> 913 </td>
-   <td style="text-align:right;"> 1143 </td>
-   <td style="text-align:right;"> 3728 </td>
-   <td style="text-align:right;"> 4080 </td>
-   <td style="text-align:right;"> 1963 </td>
+   <td style="text-align:right;"> 151.88333 </td>
+   <td style="text-align:right;"> 60.61417 </td>
+   <td style="text-align:right;"> 55.16624 </td>
+   <td style="text-align:right;"> 63.21880 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Muzaffarnagar </td>
@@ -649,21 +584,142 @@ Here we try to analyze which City Stations
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 3691 </td>
-   <td style="text-align:right;"> 4340 </td>
-   <td style="text-align:right;"> 1982 </td>
+   <td style="text-align:right;"> 99.41667 </td>
+   <td style="text-align:right;"> 49.24321 </td>
+   <td style="text-align:right;"> 48.52875 </td>
+   <td style="text-align:right;"> 55.38776 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Lucknow </td>
+   <td style="text-align:right;"> 45.34167 </td>
+   <td style="text-align:right;"> 27.80456 </td>
+   <td style="text-align:right;"> 47.30801 </td>
+   <td style="text-align:right;"> 49.22979 </td>
+   <td style="text-align:right;"> 45.82328 </td>
+   <td style="text-align:right;"> 39.11255 </td>
+   <td style="text-align:right;"> 45.46136 </td>
+   <td style="text-align:right;"> 54.03193 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hapur </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 100.00000 </td>
+   <td style="text-align:right;"> 52.50352 </td>
+   <td style="text-align:right;"> 44.98838 </td>
+   <td style="text-align:right;"> 48.94888 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Patna </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 68.51000 </td>
+   <td style="text-align:right;"> 38.48277 </td>
+   <td style="text-align:right;"> 42.99115 </td>
+   <td style="text-align:right;"> 44.43895 </td>
+   <td style="text-align:right;"> 41.59399 </td>
+   <td style="text-align:right;"> 36.66967 </td>
+   <td style="text-align:right;"> 46.86358 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Gandhinagar </td>
+   <td style="text-align:right;"> 27.15000 </td>
+   <td style="text-align:right;"> 46.16173 </td>
+   <td style="text-align:right;"> 42.24333 </td>
+   <td style="text-align:right;"> 58.07122 </td>
+   <td style="text-align:right;"> 59.86312 </td>
+   <td style="text-align:right;"> 38.95743 </td>
+   <td style="text-align:right;"> 34.07332 </td>
+   <td style="text-align:right;"> 42.43792 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Kolkata </td>
+   <td style="text-align:right;"> 259.00000 </td>
+   <td style="text-align:right;"> 135.90426 </td>
+   <td style="text-align:right;"> 129.69352 </td>
+   <td style="text-align:right;"> 43.30009 </td>
+   <td style="text-align:right;"> 49.56707 </td>
+   <td style="text-align:right;"> 42.06618 </td>
+   <td style="text-align:right;"> 33.27508 </td>
+   <td style="text-align:right;"> 42.15740 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Jaipur </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 56.18333 </td>
+   <td style="text-align:right;"> 53.62057 </td>
+   <td style="text-align:right;"> 45.49523 </td>
+   <td style="text-align:right;"> 47.28734 </td>
+   <td style="text-align:right;"> 38.77708 </td>
+   <td style="text-align:right;"> 35.41928 </td>
+   <td style="text-align:right;"> 41.47772 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Chandigarh </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 36.78000 </td>
+   <td style="text-align:right;"> 29.56680 </td>
+   <td style="text-align:right;"> 30.44762 </td>
+   <td style="text-align:right;"> 35.00841 </td>
+   <td style="text-align:right;"> 36.04891 </td>
+   <td style="text-align:right;"> 35.53375 </td>
+   <td style="text-align:right;"> 38.86554 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Mumbai </td>
+   <td style="text-align:right;"> 171.66667 </td>
+   <td style="text-align:right;"> 67.26247 </td>
+   <td style="text-align:right;"> 34.35991 </td>
+   <td style="text-align:right;"> 36.24845 </td>
+   <td style="text-align:right;"> 49.11408 </td>
+   <td style="text-align:right;"> 33.10925 </td>
+   <td style="text-align:right;"> 30.21040 </td>
+   <td style="text-align:right;"> 38.10787 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Visakhapatnam </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 45.29118 </td>
+   <td style="text-align:right;"> 39.60440 </td>
+   <td style="text-align:right;"> 44.05279 </td>
+   <td style="text-align:right;"> 36.30747 </td>
+   <td style="text-align:right;"> 32.97047 </td>
+   <td style="text-align:right;"> 38.10200 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Bhopal </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 52.06531 </td>
+   <td style="text-align:right;"> 38.79051 </td>
+   <td style="text-align:right;"> 33.07403 </td>
+   <td style="text-align:right;"> 36.94878 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Hyderabad </td>
+   <td style="text-align:right;"> 128.00000 </td>
+   <td style="text-align:right;"> 61.56534 </td>
+   <td style="text-align:right;"> 36.34029 </td>
+   <td style="text-align:right;"> 43.35620 </td>
+   <td style="text-align:right;"> 50.91969 </td>
+   <td style="text-align:right;"> 33.32681 </td>
+   <td style="text-align:right;"> 30.05922 </td>
+   <td style="text-align:right;"> 36.20543 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Nashik </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 36 </td>
-   <td style="text-align:right;"> 1050 </td>
-   <td style="text-align:right;"> 1215 </td>
-   <td style="text-align:right;"> 3543 </td>
-   <td style="text-align:right;"> 3863 </td>
-   <td style="text-align:right;"> 1739 </td>
+   <td style="text-align:right;"> 51.03056 </td>
+   <td style="text-align:right;"> 41.11010 </td>
+   <td style="text-align:right;"> 38.22255 </td>
+   <td style="text-align:right;"> 30.47740 </td>
+   <td style="text-align:right;"> 27.66307 </td>
+   <td style="text-align:right;"> 34.79266 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Shillong </td>
@@ -672,31 +728,31 @@ Here we try to analyze which City Stations
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 2275 </td>
-   <td style="text-align:right;"> 4270 </td>
-   <td style="text-align:right;"> 1923 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Thrissur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 2060 </td>
-   <td style="text-align:right;"> 4281 </td>
-   <td style="text-align:right;"> 1966 </td>
+   <td style="text-align:right;"> 29.25296 </td>
+   <td style="text-align:right;"> 26.55895 </td>
+   <td style="text-align:right;"> 34.77732 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Nagpur </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 386 </td>
-   <td style="text-align:right;"> 1096 </td>
-   <td style="text-align:right;"> 1242 </td>
-   <td style="text-align:right;"> 349 </td>
-   <td style="text-align:right;"> 4017 </td>
-   <td style="text-align:right;"> 1773 </td>
+   <td style="text-align:right;"> 23.29974 </td>
+   <td style="text-align:right;"> 45.37208 </td>
+   <td style="text-align:right;"> 37.19080 </td>
+   <td style="text-align:right;"> 36.23182 </td>
+   <td style="text-align:right;"> 29.37133 </td>
+   <td style="text-align:right;"> 34.19137 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Bengaluru </td>
+   <td style="text-align:right;"> 4.44000 </td>
+   <td style="text-align:right;"> 12.79294 </td>
+   <td style="text-align:right;"> 36.30832 </td>
+   <td style="text-align:right;"> 28.59490 </td>
+   <td style="text-align:right;"> 31.89567 </td>
+   <td style="text-align:right;"> 29.59513 </td>
+   <td style="text-align:right;"> 26.55614 </td>
+   <td style="text-align:right;"> 29.91554 </td>
   </tr>
   <tr>
    <td style="text-align:left;"> Mysore </td>
@@ -705,19 +761,72 @@ Here we try to analyze which City Stations
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
    <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 319 </td>
-   <td style="text-align:right;"> 3837 </td>
-   <td style="text-align:right;"> 1980 </td>
+   <td style="text-align:right;"> 25.51613 </td>
+   <td style="text-align:right;"> 17.65821 </td>
+   <td style="text-align:right;"> 25.45951 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Thiruvananthapuram </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 30.65580 </td>
+   <td style="text-align:right;"> 24.07198 </td>
+   <td style="text-align:right;"> 24.34395 </td>
+   <td style="text-align:right;"> 25.12243 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Thrissur </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> NA </td>
+   <td style="text-align:right;"> 12.87060 </td>
+   <td style="text-align:right;"> 18.73273 </td>
+   <td style="text-align:right;"> 25.08202 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Chennai </td>
+   <td style="text-align:right;"> 42.51875 </td>
+   <td style="text-align:right;"> 33.63261 </td>
+   <td style="text-align:right;"> 31.57973 </td>
+   <td style="text-align:right;"> 28.69913 </td>
+   <td style="text-align:right;"> 27.57224 </td>
+   <td style="text-align:right;"> 23.46841 </td>
+   <td style="text-align:right;"> 21.70384 </td>
+   <td style="text-align:right;"> 22.78234 </td>
   </tr>
 </tbody>
 </table>
 
-It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
+### VISUAL OVERVIEW
 
--   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise
+-   Here we will look at several visualization to get an approximate idea about the spread, patterns, trends and key facts to notice about the Data, which will greatly impact our further Analysis and will prove helpful in finding out the parts of the Data which needs to be observed and tested carefully to provide valuable insight.
 
+![](Data_Analysis_files/figure-html/Yearly_Station_Bar-1.png)<!-- -->
 
+Here, from above bar plot, we see that the year 2020 was the one with the least levels of Pollutants compared to all the other years. 2021 has seen a hike in the AQI levels, which maybe due to opening of the factories, industries and also starting of Transportation facilities in many States. Though we cannot totally claim that, because we don't have data pertaining to entire of 2021.
 
-![](Data_Analysis_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/City_AQI_Box-1.png)<!-- -->
 
-![](Data_Analysis_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+Taking look at the Top 11 Stations we can also see a drop in the AQI levels in the year 2020.
+
+-   Here is an interesting relationship between month and average AQI levels per day of that Month, where we see that the AQI levels in each Measure drop almost linearly till July each year and then it starts rising. We will later explore this relationship in the Modelling Part of this Analysis.
+
+![](Data_Analysis_files/figure-html/AQI_Yearly_Viz-1.png)<!-- -->
+
+-   The Past 4 years Station-wise we can see the same pattern with Delhi being at the top of each month. This answers the question of why Delhi has so many more Observations recorded per year as compared to the other Stations. It's the concerning and high levels of AQI levels.
+
+-   Now we see even more revealing pattern when we plot our Top 11 Station's Measure of AQI Levels in the last 4 years. The Maximum AQI Levels measured each day per month increases and then decreases till July where previously in the above plot which merged all the Stations didn't showed this much. This kind of behavior is ore pronounced in Delhi.
+
+![](Data_Analysis_files/figure-html/Station_Monthly_Viz-1.png)<!-- -->
+
+-   Let's turn to the Pollutant-wise breakdown of the AQI Levels, which may help us find out weather it was actually the Lockdowns which may have caused a dip in the AQI levels during the year 2020.
+
+![](Data_Analysis_files/figure-html/Specie_Yearly_Viz-1.png)<!-- -->
+
+Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
+
+![](Data_Analysis_files/figure-html/Monthly_Pollutant_Viz-1.png)<!-- -->

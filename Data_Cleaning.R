@@ -12,11 +12,22 @@ library(stringr)
 # Importing my data sets
 air_data_world <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\all_air_data.csv", comment = '#')
 air_data_world
+covid_data <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Covid Cases\\covid_19_india.csv")
+covid_data
 
 # Separating out the date column for easier analysis
 air_data_world <- air_data_world %>%
   mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
   select(Year, Month, Day, Country, City, Specie, count, min, max, median, variance)
+
+covid_data <- covid_data %>%
+  mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
+  select(Sno, Year, Month, Day, everything(), -Date, -Time)
+covid_data <- covid_data %>%
+  rename("State" = `State/UnionTerritory`)
+covid_data <- covid_data %>%
+  select(-ConfirmedIndianNational, -ConfirmedForeignNational)
+covid_data
 
 # Filtering Data relevant to INDIA
 air_data_india <- air_data_world %>%

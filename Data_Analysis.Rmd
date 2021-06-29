@@ -24,6 +24,7 @@ library(knitr)
 library(kableExtra)
 library(stringr)
 library(viridis)
+library(formattable)
 options(dplyr.summarise.inform = FALSE)
 ```
 
@@ -148,7 +149,7 @@ kable(station_list, caption = "City Stations") %>%
 
 -   The parameters which we measure at the different Stations are given under the Specie Column and it includes -
 
-```{r}
+```{r Specie_description}
 Specie_description <- tibble(
   Parameters = unique(air_data_india$Specie),
   Description = c(
@@ -180,7 +181,7 @@ The Air Quality Index (AQI) is an index for reporting air quality on a daily bas
 
 -   Comparing air quality conditions at different locations/cities.
 
-```{r}
+```{r AQI_Info}
 AQI_Info <- tibble(
   "AQI Values" = c(
     "0-50",
@@ -213,7 +214,7 @@ Here we try to analyze which City Stations
 
 -   Records More Observations compared to others, which will give us an idea of those centres being more frequently continuously recorded, which can be due to higher AQI Levels in the pollutants.
 
-```{r}
+```{r obsv_per_station}
 obsv_per_station <- air_data_india %>%
   group_by(Year, City) %>%
   count() %>%
@@ -227,9 +228,9 @@ kable(head(obsv_per_station), caption = "Observations recorded per City Station 
 
 It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
 
--   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise
+-   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise. The Top 11 Stations will be considered in the further analysis where ever we need to do a Station-wise breakdown of Data or Analysis.
 
-```{r}
+```{r avg_median_per_year_per_station}
 avg_median_per_year_per_station <- air_data_india_pollutants %>%
   group_by(Year, City) %>%
   summarise(Median = mean(median)) %>%
@@ -237,11 +238,15 @@ avg_median_per_year_per_station <- air_data_india_pollutants %>%
   spread(key = Year, value = Median) %>%
   arrange(desc(`2021`, `2020`, `2019`, `2018`))
 
-kable(head(avg_median_per_year_per_station), caption = "Average Median AQI Levels of Top 11 City Stations") %>%
+kable(avg_median_per_year_per_station, caption = "Average Median AQI Levels of Top 11 City Stations") %>%
   kable_styling(position = "center")
 ```
 
-```{r, fig.asp=0.618, fig.width=8}
+### VISUAL OVERVIEW
+
+-   Here we will look at several visualization to get an approximate idea about the spread, patterns, trends and key facts to notice about the Data, which will greatly impact our further Analysis and will prove helpful in finding out the parts of the Data which needs to be observed and tested carefully to provide valuable insight.
+
+```{r Yearly_Station_Bar, fig.asp=0.618, fig.width=8}
 air_data_india_pollutants %>%
   group_by(Year, City) %>%
   summarise(Median = mean(median)) %>%
@@ -262,7 +267,9 @@ air_data_india_pollutants %>%
   scale_fill_viridis(discrete = TRUE)
 ```
 
-```{r, fig.asp=0.618, fig.width=8}
+Here, from above bar plot, we see that the year 2020 was the one with the least levels of Pollutants compared to all the other years. 2021 has seen a hike in the AQI levels, which maybe due to opening of the factories, industries and also starting of Transportation facilities in many States. Though we cannot totally claim that, because we don't have data pertaining to entire of 2021.
+
+```{r City_AQI_Box, fig.asp=0.618, fig.width=8}
 air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017)), City %in% avg_median_per_year_per_station$City[1:11]) %>%
   ggplot(aes(City, median, fill =cut_width(Year, 1))) +
@@ -275,4 +282,100 @@ air_data_india_pollutants %>%
       nrow = 1
     )
   )
+```
+
+Taking look at the Top 11 Stations we can also see a drop in the AQI levels in the year 2020.
+
+-   Here is an interesting relationship between month and average AQI levels per day of that Month, where we see that the AQI levels in each Measure drop almost linearly till July each year and then it starts rising. We will later explore this relationship in the Modelling Part of this Analysis.
+
+```{r AQI_Yearly_Viz, fig.asp=0.618, fig.width=8}
+Monthly_Pollutant <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+
+Monthly_Pollutant_1 <- Monthly_Pollutant %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+Monthly_Pollutant_1 %>%
+  ggplot(aes(Month, AQI)) +
+  geom_point(aes(color = Year, shape = Measure), size = 6, alpha = 0.66) +
+  labs(
+    y = "Average AQI Levels"
+  ) +
+  scale_color_viridis(option = "H")
+```
+
+-   The Past 4 years Station-wise we can see the same pattern with Delhi being at the top of each month. This answers the question of why Delhi has so many more Observations recorded per year as compared to the other Stations. It's the concerning and high levels of AQI levels.
+
+-   Now we see even more revealing pattern when we plot our Top 11 Station's Measure of AQI Levels in the last 4 years. The Maximum AQI Levels measured each day per month increases and then decreases till July where previously in the above plot which merged all the Stations didn't showed this much. This kind of behavior is ore pronounced in Delhi.
+
+```{r Station_Monthly_Viz, fig.asp=0.618, fig.width=8}
+Monthly_Pollutant_City <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  group_by(Year, Month, City) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+
+Monthly_Pollutant_City_1 <- Monthly_Pollutant_City %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+Monthly_Pollutant_City_1 %>%
+  ggplot(aes(Month, AQI)) +
+  geom_point(aes(color = City, alpha = 0.7, shape = Measure), size = 4) +
+  facet_wrap(~Year) +
+  scale_color_viridis(discrete = TRUE, option = "H")
+```
+
+-   Let's turn to the Pollutant-wise breakdown of the AQI Levels, which may help us find out weather it was actually the Lockdowns which may have caused a dip in the AQI levels during the year 2020.
+
+```{r Specie_Yearly_Viz, fig.asp=0.618, fig.width=8}
+Yearly_Specie <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Specie) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+
+Yearly_Specie_1 <- Yearly_Specie %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI") %>%
+  spread(key = Specie, value = AQI)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  gather(min, median, max, key = "Measure", value = "AQI") %>%
+  ggplot(aes(Specie, AQI, fill = cut_width(Year, 1))) +
+  geom_boxplot(outlier.shape = NA) +
+  coord_cartesian(ylim = c(0,300)) +
+  labs(fill = "Year")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+```
+
+Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
+
+```{r Monthly_Pollutant_Viz, fig.asp=0.618, fig.width=8}
+Monthly_Specie <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Specie) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+ 
+
+Monthly_Specie_1 <- Monthly_Specie %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI") %>%
+  spread(key = Specie, value = AQI)
+
+
+Monthly_Specie_2 <- Monthly_Specie_1 %>%
+  gather(co:so2, key = "Pollutants", value = "AQI")
+
+Monthly_Specie_2 %>%
+  ggplot(aes(Month, AQI)) +
+  geom_point(aes(color = Pollutants, shape = Measure), alpha = 0.66, size = 6) +
+  labs(
+    y = "Average AQI Levels"
+  ) +
+  facet_wrap(~Year) +
+  scale_color_viridis(discrete = TRUE, option = "B")
 ```
