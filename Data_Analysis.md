@@ -801,7 +801,7 @@ It is clearly visible that Delhi is definitely the most monitored centre, which 
 </tbody>
 </table>
 
-### VISUAL OVERVIEW
+# VISUAL OVERVIEW
 
 -   Here we will look at several visualization to get an approximate idea about the spread, patterns, trends and key facts to notice about the Data, which will greatly impact our further Analysis and will prove helpful in finding out the parts of the Data which needs to be observed and tested carefully to provide valuable insight.
 
@@ -843,7 +843,7 @@ They look quite familiar to Gamma Distribution. Later in the Inference Part we w
 
 We see more or less same distribution for Maximum AQI Levels and Minimum AQI Levels.
 
-![](Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-1.png)<!-- -->![](Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-2.png)<!-- -->
+<img src="Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-1.png" width=".49\linewidth" style="display: block; margin: auto;" /><img src="Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-2.png" width=".49\linewidth" style="display: block; margin: auto;" />
 
 -   A Pollutant-wise (Excluding pm10 and pm25) breakdown of the Median AQI Levels also reveal similar Gamma looking Distributions but with different parameters.
 
@@ -851,4 +851,26 @@ We see more or less same distribution for Maximum AQI Levels and Minimum AQI Lev
 
 -   Now in all these above plots we have skipped pm10 and pm25 since they have much higher values of AQI compared to these gases. So, we won't be able to fit them in the above plots. Added with that pm25 doesn't seem to follow some known distribution. We will later see if any transformation or change can help us model that.
 
-    ![](Data_Analysis_files/figure-html/Yearly_Indiv_Pollutant_Hist_2-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/Yearly_Indiv_Pollutant_Hist_2-1.png)<!-- -->
+
+### RELATIONSHIPS - PATTERNS & TRENDS
+
+Here we are going to explore the visual relationships between all the pollutants with all the other pollutants and not only that, it is important to realize that the non-pollutants also play a crucial role in deciding the level of pollutants measured. We will see more of it below in this section as well as a lot of it in the section where we build our Models. These relationships are best exposed with Scatter plots. Here we will take a look at these.
+
+-   Here we look at the Scatter Plot matrix of the Pollutants among themselves and Non-Pollutants among themselves where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
+
+![](Data_Analysis_files/figure-html/Monthly_Specie_Scatterplot_Matrix-1.png)<!-- -->![](Data_Analysis_files/figure-html/Monthly_Specie_Scatterplot_Matrix-2.png)<!-- -->
+
+Here we see that the non-pollutants also have strong correlations among themselves, which can be attributed for the fact that temperature, pressure, humidity, wind-speed, etc. are physically strongly related.
+
+-   Let's take a look at the dependence of the Pollutants on Non-Pollutants
+
+![](Data_Analysis_files/figure-html/Monthly_Pol_non_Pol_Scatterplot_Matrix-1.png)<!-- -->
+
+There is a significiant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+
+-   There is also one more thing which can prove to be really helpful in understanding the relationship between the pollutants that is the variance of these parameters measured each day at the stations at real-time. Where we can see how these parameters variances are related. I haven't included the scatterplot matrix of the non-pollutants and of the pollutants and non-pollutants, as they visually don't convey much. But we will surely work with them in the later section.
+
+![](Data_Analysis_files/figure-html/Monthly_Pol_non_Pol_Scatterplot_Matrix_Var-1.png)<!-- -->
+
+So, with this visual picture of the Data in mind. We wrap the Visual Overview and most part of the EDA here. In the next section we will draw inferences from the data using several Inferential Statistical Technique.
