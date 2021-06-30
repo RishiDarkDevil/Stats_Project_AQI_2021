@@ -372,10 +372,107 @@ Monthly_Specie_2 <- Monthly_Specie_1 %>%
 
 Monthly_Specie_2 %>%
   ggplot(aes(Month, AQI)) +
-  geom_point(aes(color = Pollutants, shape = Measure), alpha = 0.66, size = 6) +
+  geom_point(aes(color = Pollutants, shape = Measure), alpha = 0.66, size = 5) +
   labs(
     y = "Average AQI Levels"
   ) +
   facet_wrap(~Year) +
   scale_color_viridis(discrete = TRUE, option = "B")
 ```
+
+### DISTRIBUTIONS
+
+Distributions are key in deciding any changes been made to the system generating the data. They help us distinguish between two different groups. They help us look at the spread of the data and helps us take important decisions regarding what inferential techniques we can use and what sort of assumptions are valid. They are also fundamental part before doing any kind of Testing or Model Building.
+
+-   Let's take a look at the Yearly Distribution of the Median AQI Levels
+
+```{r Yearly_Pollutant_Hist, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 0.5) +
+  coord_cartesian(xlim = c(0, 50)) +
+  facet_wrap(~Year) +
+  labs(fill = "Year", x = "Median AQI Levels[Excluding pm10 & pm25]", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
+
+They look quite familiar to Gamma Distribution. Later in the Inference Part we will try to find out the parameters and will do several Tests to verify this. We will also perform tests for whether the Year 2020 saw a dip in these AQI Levels.
+
+We see more or less same distribution for Maximum AQI Levels and Minimum AQI Levels.
+
+```{r Yearly_Pollutant_Hist_1, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(max, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 1) +
+  coord_cartesian(xlim = c(0, 200)) +
+  facet_wrap(~Year) +
+  labs(fill = "Year", x = "Max AQI Levels[Excluding pm10 & pm25]", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(min, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 0.1) +
+  coord_cartesian(xlim = c(0, 10)) +
+  facet_wrap(~Year) +
+  labs(fill = "Year", x = "Min AQI Levels[Excluding pm10 & pm25]", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
+
+-   A Pollutant-wise (Excluding pm10 and pm25) breakdown of the Median AQI Levels also reveal similar Gamma looking Distributions but with different parameters.
+
+```{r Yearly_Indiv_Pollutant_Hist, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = Specie, group = Specie)) +
+  geom_histogram(binwidth = 0.5) +
+  coord_cartesian(xlim = c(0, 30)) +
+  facet_wrap(~Year + Specie) +
+  labs(fill = "Year", x = "Median AQI Levels[Excluding pm10 & pm25]", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
+
+-   Now in all these above plots we have skipped pm10 and pm25 since they have much higher values of AQI compared to these gases. So, we won't be able to fit them in the above plots. Added with that pm25 doesn't seem to follow some known distribution. We will later see if any transformation or change can help us model that.
+
+    ```{r Yearly_Indiv_Pollutant_Hist_2, fig.asp=0.618, fig.width=8}
+    air_data_india_pollutants %>%
+      filter(!(Year %in% c(2014, 2015, 2016, 2017)) & (Specie %in% c('pm25', 'pm10'))) %>%
+      ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
+      geom_histogram(binwidth = 5) +
+      coord_cartesian(xlim = c(0, 200)) +
+      facet_wrap(~Year + Specie) +
+      labs(fill = "Year", x = "Median AQI Levels", y = "Density")+
+      theme(legend.position = "bottom") +
+      guides(
+        fill = guide_legend(
+          nrow = 1
+        )
+      ) +
+      scale_fill_viridis(discrete = TRUE)
+    ```

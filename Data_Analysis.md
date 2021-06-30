@@ -830,3 +830,25 @@ Taking look at the Top 11 Stations we can also see a drop in the AQI levels in t
 Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
 ![](Data_Analysis_files/figure-html/Monthly_Pollutant_Viz-1.png)<!-- -->
+
+### DISTRIBUTIONS
+
+Distributions are key in deciding any changes been made to the system generating the data. They help us distinguish between two different groups. They help us look at the spread of the data and helps us take important decisions regarding what inferential techniques we can use and what sort of assumptions are valid. They are also fundamental part before doing any kind of Testing or Model Building.
+
+-   Let's take a look at the Yearly Distribution of the Median AQI Levels
+
+![](Data_Analysis_files/figure-html/Yearly_Pollutant_Hist-1.png)<!-- -->
+
+They look quite familiar to Gamma Distribution. Later in the Inference Part we will try to find out the parameters and will do several Tests to verify this. We will also perform tests for whether the Year 2020 saw a dip in these AQI Levels.
+
+We see more or less same distribution for Maximum AQI Levels and Minimum AQI Levels.
+
+![](Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-1.png)<!-- -->![](Data_Analysis_files/figure-html/Yearly_Pollutant_Hist_1-2.png)<!-- -->
+
+-   A Pollutant-wise (Excluding pm10 and pm25) breakdown of the Median AQI Levels also reveal similar Gamma looking Distributions but with different parameters.
+
+![](Data_Analysis_files/figure-html/Yearly_Indiv_Pollutant_Hist-1.png)<!-- -->
+
+-   Now in all these above plots we have skipped pm10 and pm25 since they have much higher values of AQI compared to these gases. So, we won't be able to fit them in the above plots. Added with that pm25 doesn't seem to follow some known distribution. We will later see if any transformation or change can help us model that.
+
+    ![](Data_Analysis_files/figure-html/Yearly_Indiv_Pollutant_Hist_2-1.png)<!-- -->
