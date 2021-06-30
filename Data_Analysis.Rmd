@@ -460,19 +460,19 @@ air_data_india_pollutants %>%
 
 -   Now in all these above plots we have skipped pm10 and pm25 since they have much higher values of AQI compared to these gases. So, we won't be able to fit them in the above plots. Added with that pm25 doesn't seem to follow some known distribution. We will later see if any transformation or change can help us model that.
 
-    ```{r Yearly_Indiv_Pollutant_Hist_2, fig.asp=0.618, fig.width=8}
-    air_data_india_pollutants %>%
-      filter(!(Year %in% c(2014, 2015, 2016, 2017)) & (Specie %in% c('pm25', 'pm10'))) %>%
-      ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
-      geom_histogram(binwidth = 5) +
-      coord_cartesian(xlim = c(0, 200)) +
-      facet_wrap(~Year + Specie) +
-      labs(fill = "Year", x = "Median AQI Levels", y = "Density")+
-      theme(legend.position = "bottom") +
-      guides(
-        fill = guide_legend(
-          nrow = 1
-        )
-      ) +
-      scale_fill_viridis(discrete = TRUE)
-    ```
+```{r Yearly_Indiv_Pollutant_Hist_2, fig.asp=0.618, fig.width=8}
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & (Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 5) +
+  coord_cartesian(xlim = c(0, 200)) +
+  facet_wrap(~Year + Specie) +
+  labs(fill = "Year", x = "Median AQI Levels", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
