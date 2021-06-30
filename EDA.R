@@ -318,6 +318,30 @@ air_data_india_All_Specie_Monthly_2[-3] %>%
 air_data_india_All_Specie_Monthly_2[-3] %>%
   ggpairs()
 
+# Actually here all the parameters with all the others except Year and Month are really highly correlated. So let's take a look at them 
+air_data_india_All_Specie_Monthly_2 %>%
+  ggpairs(columns = c("co", "no2", "o3", "so2", "pm10", "pm25"), aes(color = cut_width(Year, 1), shape = cut_width(Year, 1))) +
+  scale_color_viridis(discrete = TRUE)
+
+air_data_india_All_Specie_Monthly_2 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  ggpairs(columns = c("dew", "humidity", "precipitation", "pressure", "temperature", "wind-gust", "wind-speed"), aes(color = cut_width(Year, 1), shape = cut_width(Year, 1))) +
+  scale_color_viridis(discrete = TRUE)
+
+air_data_india_Pollutants_nonpollutants_monthly <- air_data_india_All_Specie_Monthly_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation) %>%
+  gather(dew, humidity, pressure, temperature, `wind-gust`, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+air_data_india_Pollutants_nonpollutants_monthly
+
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  ggplot(aes(AQI, Levels, color = cut_width(Year, 1), shape = cut_width(Year, 1))) +
+  geom_point() +
+  scale_color_viridis(discrete = TRUE) +
+  facet_wrap(~pollutants + non_pollutants, scales = "free", labeller = label_wrap_gen(multi_line=FALSE))
+
 
 # Exploring the relationships between All Species with each other Daily
 air_data_india_All_Specie_Daily <- air_data_india %>%

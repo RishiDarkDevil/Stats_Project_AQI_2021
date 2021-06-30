@@ -447,7 +447,7 @@ air_data_india_pollutants %>%
   ggplot(aes(median, ..density.., fill = Specie, group = Specie)) +
   geom_histogram(binwidth = 0.5) +
   coord_cartesian(xlim = c(0, 30)) +
-  facet_wrap(~Year + Specie) +
+  facet_wrap(~Year + Specie, labeller = label_wrap_gen(multi_line=FALSE)) +
   labs(fill = "Year", x = "Median AQI Levels[Excluding pm10 & pm25]", y = "Density")+
   theme(legend.position = "bottom") +
   guides(
@@ -466,7 +466,7 @@ air_data_india_pollutants %>%
   ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
   geom_histogram(binwidth = 5) +
   coord_cartesian(xlim = c(0, 200)) +
-  facet_wrap(~Year + Specie) +
+  facet_wrap(~Year + Specie, labeller = label_wrap_gen(multi_line=FALSE)) +
   labs(fill = "Year", x = "Median AQI Levels", y = "Density")+
   theme(legend.position = "bottom") +
   guides(
@@ -481,4 +481,60 @@ air_data_india_pollutants %>%
 
 Here we are going to explore the visual relationships between all the pollutants with all the other pollutants and not only that, it is important to realize that the non-pollutants also play a crucial role in deciding the level of pollutants measured. We will see more of it below in this section as well as a lot of it in the section where we build our Models. These relationships are best exposed with Scatter plots. Here we will take a look at these.
 
--   
+-   Here we look at the Scatter Plot matrix of the Pollutants where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
+
+```{r Monthly_Specie_Scatterplot_Matrix, fig.asp=0.618, fig.width=12, message=FALSE, warning=FALSE}
+# Exploring the relationships between All Species with each other Monthly
+air_data_india_All_Specie_Monthly <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE))
+
+air_data_india_All_Specie_Monthly_1 <- air_data_india_All_Specie_Monthly %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Monthly_2 <- air_data_india_All_Specie_Monthly_1 %>%
+  spread(key = Specie, value = AQI)
+
+# Actually here all the parameters with all the others except Year and Month are really highly correlated. So let's take a look at them 
+air_data_india_All_Specie_Monthly_2 %>%
+  ggpairs(columns = c("co", "no2", "o3", "so2", "pm10", "pm25"), aes(color = cut_width(Year, 1), shape = cut_width(Year, 1)), progress = FALSE) +
+  scale_color_viridis(discrete = TRUE)
+
+air_data_india_All_Specie_Monthly_2 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  ggpairs(columns = c("dew", "humidity", "pressure", "temperature", "wind-gust", "wind-speed"), aes(color = cut_width(Year, 1), shape = cut_width(Year, 1)), progress = FALSE) +
+  scale_color_viridis(discrete = TRUE)
+```
+
+Here we see that the non-pollutants also have strong correlations among themselves, which can be attributed for the fact that temperature, pressure, humidity, wind-speed, etc. are physically strongly related.
+
+-   Let's take a look at the dependence of the Pollutants on Non-Pollutants
+
+```{r Monthly_Pol_non_Pol_Scatterplot_Matrix, fig.asp=0.618, fig.width=12}
+air_data_india_Pollutants_nonpollutants_monthly <- air_data_india_All_Specie_Monthly_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation) %>%
+  gather(dew, humidity, pressure, temperature, `wind-gust`, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  ggplot(aes(AQI, Levels, color = cut_width(Year, 1))) +
+  geom_point() +
+  scale_color_viridis(discrete = TRUE) +
+  facet_wrap(~pollutants + non_pollutants, scales = "free", labeller = label_wrap_gen(multi_line=FALSE)) +
+  labs(color = "Year") +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  coord_flip() +
+  scale_fill_viridis(discrete = TRUE)
+```
+
+There is a significiant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+
+So, with this visual picture of the Data in mind. We wrap the Visual Overview and most part of the EDA here. In the next section we will draw inferences from the data using several Inferential Statistical Technique.
