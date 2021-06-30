@@ -677,127 +677,6 @@ It is clearly visible that Delhi is definitely the most monitored centre, which 
    <td style="text-align:right;"> 30.21040 </td>
    <td style="text-align:right;"> 38.10787 </td>
   </tr>
-  <tr>
-   <td style="text-align:left;"> Visakhapatnam </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 45.29118 </td>
-   <td style="text-align:right;"> 39.60440 </td>
-   <td style="text-align:right;"> 44.05279 </td>
-   <td style="text-align:right;"> 36.30747 </td>
-   <td style="text-align:right;"> 32.97047 </td>
-   <td style="text-align:right;"> 38.10200 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Bhopal </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 52.06531 </td>
-   <td style="text-align:right;"> 38.79051 </td>
-   <td style="text-align:right;"> 33.07403 </td>
-   <td style="text-align:right;"> 36.94878 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Hyderabad </td>
-   <td style="text-align:right;"> 128.00000 </td>
-   <td style="text-align:right;"> 61.56534 </td>
-   <td style="text-align:right;"> 36.34029 </td>
-   <td style="text-align:right;"> 43.35620 </td>
-   <td style="text-align:right;"> 50.91969 </td>
-   <td style="text-align:right;"> 33.32681 </td>
-   <td style="text-align:right;"> 30.05922 </td>
-   <td style="text-align:right;"> 36.20543 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Nashik </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 51.03056 </td>
-   <td style="text-align:right;"> 41.11010 </td>
-   <td style="text-align:right;"> 38.22255 </td>
-   <td style="text-align:right;"> 30.47740 </td>
-   <td style="text-align:right;"> 27.66307 </td>
-   <td style="text-align:right;"> 34.79266 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Shillong </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 29.25296 </td>
-   <td style="text-align:right;"> 26.55895 </td>
-   <td style="text-align:right;"> 34.77732 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Nagpur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 23.29974 </td>
-   <td style="text-align:right;"> 45.37208 </td>
-   <td style="text-align:right;"> 37.19080 </td>
-   <td style="text-align:right;"> 36.23182 </td>
-   <td style="text-align:right;"> 29.37133 </td>
-   <td style="text-align:right;"> 34.19137 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Bengaluru </td>
-   <td style="text-align:right;"> 4.44000 </td>
-   <td style="text-align:right;"> 12.79294 </td>
-   <td style="text-align:right;"> 36.30832 </td>
-   <td style="text-align:right;"> 28.59490 </td>
-   <td style="text-align:right;"> 31.89567 </td>
-   <td style="text-align:right;"> 29.59513 </td>
-   <td style="text-align:right;"> 26.55614 </td>
-   <td style="text-align:right;"> 29.91554 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Mysore </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 25.51613 </td>
-   <td style="text-align:right;"> 17.65821 </td>
-   <td style="text-align:right;"> 25.45951 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Thiruvananthapuram </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 30.65580 </td>
-   <td style="text-align:right;"> 24.07198 </td>
-   <td style="text-align:right;"> 24.34395 </td>
-   <td style="text-align:right;"> 25.12243 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Thrissur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 12.87060 </td>
-   <td style="text-align:right;"> 18.73273 </td>
-   <td style="text-align:right;"> 25.08202 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Chennai </td>
-   <td style="text-align:right;"> 42.51875 </td>
-   <td style="text-align:right;"> 33.63261 </td>
-   <td style="text-align:right;"> 31.57973 </td>
-   <td style="text-align:right;"> 28.69913 </td>
-   <td style="text-align:right;"> 27.57224 </td>
-   <td style="text-align:right;"> 23.46841 </td>
-   <td style="text-align:right;"> 21.70384 </td>
-   <td style="text-align:right;"> 22.78234 </td>
-  </tr>
 </tbody>
 </table>
 
@@ -857,7 +736,7 @@ We see more or less same distribution for Maximum AQI Levels and Minimum AQI Lev
 
 Here we are going to explore the visual relationships between all the pollutants with all the other pollutants and not only that, it is important to realize that the non-pollutants also play a crucial role in deciding the level of pollutants measured. We will see more of it below in this section as well as a lot of it in the section where we build our Models. These relationships are best exposed with Scatter plots. Here we will take a look at these.
 
--   Here we look at the Scatter Plot matrix of the Pollutants among themselves and Non-Pollutants among themselves where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
+-   Here we look at the Scatter Plot matrix of the Pollutants where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
 
 ![](Data_Analysis_files/figure-html/Monthly_Specie_Scatterplot_Matrix-1.png)<!-- -->![](Data_Analysis_files/figure-html/Monthly_Specie_Scatterplot_Matrix-2.png)<!-- -->
 
@@ -867,7 +746,11 @@ Here we see that the non-pollutants also have strong correlations among themselv
 
 ![](Data_Analysis_files/figure-html/Monthly_Pol_non_Pol_Scatterplot_Matrix-1.png)<!-- -->
 
-There is a significiant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+There is a significant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+
+-   One really important thing to keep in mind is the measured values(Levels) of non-pollutants change with seasons, and months of the Year. So this effect should be kept in mind.
+
+![](Data_Analysis_files/figure-html/Monthly_nonpol_viz-1.png)<!-- -->
 
 -   There is also one more thing which can prove to be really helpful in understanding the relationship between the pollutants that is the variance of these parameters measured each day at the stations at real-time. Where we can see how these parameters variances are related. I haven't included the scatterplot matrix of the non-pollutants and of the pollutants and non-pollutants, as they visually don't convey much. But we will surely work with them in the later section.
 

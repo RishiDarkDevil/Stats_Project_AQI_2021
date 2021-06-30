@@ -443,3 +443,19 @@ tail(air_data_india_All_Specie_Daily_var_1)
 
 air_data_india_All_Specie_Daily_var_1 %>%
   ggpairs()
+
+
+# Behaviour of Non-Pollutants with Months
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  ggplot(aes(Month, Levels, fill = cut_width(Year, 1))) +
+  geom_hex() +
+  facet_wrap(~non_pollutants, scales = "free") +
+  labs(fill = "Year", y = "Levels")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+  

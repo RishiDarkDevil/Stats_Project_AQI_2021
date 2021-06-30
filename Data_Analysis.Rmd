@@ -238,7 +238,7 @@ avg_median_per_year_per_station <- air_data_india_pollutants %>%
   spread(key = Year, value = Median) %>%
   arrange(desc(`2021`, `2020`, `2019`, `2018`))
 
-kable(avg_median_per_year_per_station, caption = "Average Median AQI Levels of Top 11 City Stations") %>%
+kable(avg_median_per_year_per_station[1:11,], caption = "Average Median AQI Levels of Top 11 City Stations") %>%
   kable_styling(position = "center")
 ```
 
@@ -246,7 +246,7 @@ kable(avg_median_per_year_per_station, caption = "Average Median AQI Levels of T
 
 -   Here we will look at several visualization to get an approximate idea about the spread, patterns, trends and key facts to notice about the Data, which will greatly impact our further Analysis and will prove helpful in finding out the parts of the Data which needs to be observed and tested carefully to provide valuable insight.
 
-```{r Yearly_Station_Bar, fig.asp=0.618, fig.width=8}
+```{r Yearly_Station_Bar, fig.asp=0.618, fig.width=12}
 air_data_india_pollutants %>%
   group_by(Year, City) %>%
   summarise(Median = mean(median)) %>%
@@ -269,7 +269,7 @@ air_data_india_pollutants %>%
 
 Here, from above bar plot, we see that the year 2020 was the one with the least levels of Pollutants compared to all the other years. 2021 has seen a hike in the AQI levels, which maybe due to opening of the factories, industries and also starting of Transportation facilities in many States. Though we cannot totally claim that, because we don't have data pertaining to entire of 2021.
 
-```{r City_AQI_Box, fig.asp=0.618, fig.width=8}
+```{r City_AQI_Box, fig.asp=0.618, fig.width=12}
 air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017)), City %in% avg_median_per_year_per_station$City[1:11]) %>%
   ggplot(aes(City, median, fill =cut_width(Year, 1))) +
@@ -288,7 +288,7 @@ Taking look at the Top 11 Stations we can also see a drop in the AQI levels in t
 
 -   Here is an interesting relationship between month and average AQI levels per day of that Month, where we see that the AQI levels in each Measure drop almost linearly till July each year and then it starts rising. We will later explore this relationship in the Modelling Part of this Analysis.
 
-```{r AQI_Yearly_Viz, fig.asp=0.618, fig.width=8}
+```{r AQI_Yearly_Viz, fig.asp=0.618, fig.width=12}
 Monthly_Pollutant <- air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
   group_by(Year, Month) %>%
@@ -328,7 +328,7 @@ Monthly_Pollutant_City_1 %>%
 
 -   Let's turn to the Pollutant-wise breakdown of the AQI Levels, which may help us find out weather it was actually the Lockdowns which may have caused a dip in the AQI levels during the year 2020.
 
-```{r Specie_Yearly_Viz, fig.asp=0.618, fig.width=8}
+```{r Specie_Yearly_Viz, fig.asp=0.618, fig.width=12}
 Yearly_Specie <- air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
   group_by(Year, Specie) %>%
@@ -355,7 +355,7 @@ air_data_india_pollutants %>%
 
 Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
-```{r Monthly_Pollutant_Viz, fig.asp=0.618, fig.width=8}
+```{r Monthly_Pollutant_Viz, fig.asp=0.618, fig.width=12}
 Monthly_Specie <- air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
   group_by(Year, Month, Specie) %>%
@@ -386,7 +386,7 @@ Distributions are key in deciding any changes been made to the system generating
 
 -   Let's take a look at the Yearly Distribution of the Median AQI Levels
 
-```{r Yearly_Pollutant_Hist, fig.asp=0.618, fig.width=8}
+```{r Yearly_Pollutant_Hist, fig.asp=0.618, fig.width=12}
 air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
   ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
@@ -407,7 +407,7 @@ They look quite familiar to Gamma Distribution. Later in the Inference Part we w
 
 We see more or less same distribution for Maximum AQI Levels and Minimum AQI Levels.
 
-```{r Yearly_Pollutant_Hist_1, fig.asp=0.618, fig.width=8, out.width='.49\\linewidth',fig.show='hold',fig.align='center'}
+```{r Yearly_Pollutant_Hist_1, fig.asp=0.618, fig.width=12, out.width='.49\\linewidth',fig.show='hold',fig.align='center'}
 air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
   ggplot(aes(max, ..density.., fill = cut_width(Year,1), group = Year)) +
@@ -535,7 +535,24 @@ air_data_india_Pollutants_nonpollutants_monthly %>%
   scale_fill_viridis(discrete = TRUE)
 ```
 
-There is a significiant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+There is a significant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
+
+-   One really important thing to keep in mind is the measured values(Levels) of non-pollutants change with seasons, and months of the Year. So this effect should be kept in mind.
+
+```{r Monthly_nonpol_viz, fig.asp=0.618, fig.width=12}
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  ggplot(aes(Month, Levels, fill = cut_width(Year, 1))) +
+  geom_hex() +
+  facet_wrap(~non_pollutants, scales = "free") +
+  labs(fill = "Year", y = "Levels")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
 
 -   There is also one more thing which can prove to be really helpful in understanding the relationship between the pollutants that is the variance of these parameters measured each day at the stations at real-time. Where we can see how these parameters variances are related. I haven't included the scatterplot matrix of the non-pollutants and of the pollutants and non-pollutants, as they visually don't convey much. But we will surely work with them in the later section.
 
