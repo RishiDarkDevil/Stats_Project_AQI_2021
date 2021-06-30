@@ -481,7 +481,7 @@ air_data_india_pollutants %>%
 
 Here we are going to explore the visual relationships between all the pollutants with all the other pollutants and not only that, it is important to realize that the non-pollutants also play a crucial role in deciding the level of pollutants measured. We will see more of it below in this section as well as a lot of it in the section where we build our Models. These relationships are best exposed with Scatter plots. Here we will take a look at these.
 
--   Here we look at the Scatter Plot matrix of the Pollutants among themselves and Non-Pollutants among themselves where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
+-   Here we look at the Scatter Plot matrix of the Pollutants where we have summarized the data in Yearly & Monthly basis so as to make the plots less overwhelming and more interpretable. We see strong correlation between all these marginals plots. Which can be attributed due to the conversions of one gas to the other that takes place naturally in the atmosphere. But we must also be careful that it may happen that these individual pollutants are related due to some other underlying common feature, which we will explore further in the Model Building section.
 
 ```{r Monthly_Specie_Scatterplot_Matrix, fig.asp=0.618, fig.width=12, message=FALSE, warning=FALSE}
 # Exploring the relationships between All Species with each other Monthly
@@ -537,6 +537,7 @@ air_data_india_Pollutants_nonpollutants_monthly %>%
 
 There is a significiant relationship between each of the non-pollutants on the AQI levels of the pollutants, which may be due to the fact that wind speeds, temperature, pressure, humidity, etc. changes the concentration of the pollutants in the Air. There are other physical processes in nature that also strongly intertwine them. We will see more of it in the later sections.
 
+<<<<<<< HEAD
 -   There is also one more thing which can prove to be really helpful in understanding the relationship between the pollutants that is the variance of these parameters measured each day at the stations at real-time. Where we can see how these parameters variances are related. I haven't included the scatterplot matrix of the non-pollutants and of the pollutants and non-pollutants, as they visually don't convey much. But we will surely work with them in the later section.
 
 ```{r Monthly_Pol_non_Pol_Scatterplot_Matrix_Var, fig.asp=0.618, fig.width=12, message=FALSE, warning=FALSE}
@@ -559,4 +560,6 @@ air_data_india_Pollutants_nonpollutants_monthly_var_1 <- air_data_india_All_Spec
   gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI_variance")
 ```
 
+=======
+>>>>>>> e59644dfd767f8702e1811a1c9df0b96b044b831
 So, with this visual picture of the Data in mind. We wrap the Visual Overview and most part of the EDA here. In the next section we will draw inferences from the data using several Inferential Statistical Technique.
