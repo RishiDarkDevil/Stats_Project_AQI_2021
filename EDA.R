@@ -311,9 +311,64 @@ air_data_india_All_Specie_Monthly_2 <- air_data_india_All_Specie_Monthly_1 %>%
   spread(key = Specie, value = AQI)
 print(air_data_india_All_Specie_Monthly_2, n = 1000)
 
-air_data_india_All_Specie_Monthly_2[22:114, -3] %>%
+air_data_india_All_Specie_Monthly_2[-3] %>%
   drop_na() %>%
   cor()
 
-air_data_india_All_Specie_Monthly_2[22:114, -3] %>%
+air_data_india_All_Specie_Monthly_2[-3] %>%
+  ggpairs()
+
+
+# Exploring the relationships between All Species with each other Daily
+air_data_india_All_Specie_Daily <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Day,  Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE))
+print(air_data_india_All_Specie_Daily, n = 1000)
+
+air_data_india_All_Specie_Daily_1 <- air_data_india_All_Specie_Daily %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+air_data_india_All_Specie_Daily_1
+
+air_data_india_All_Specie_Daily_2 <- air_data_india_All_Specie_Daily_1 %>%
+  spread(key = Specie, value = AQI)
+head(air_data_india_All_Specie_Daily_2)
+tail(air_data_india_All_Specie_Daily_2)
+
+air_data_india_All_Specie_Daily_2[-4] %>%
+  drop_na() %>%
+  cor()
+
+air_data_india_All_Specie_Daily_2[-4] %>%
+  ggpairs()
+
+
+# Monthly Variances among all species
+air_data_india_All_Specie_Monthly_var <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Specie) %>%
+  summarise(Avg_Variance = mean(variance, na.rm = TRUE))
+print(air_data_india_All_Specie_Monthly_var, n = 1000)
+
+air_data_india_All_Specie_Monthly_var_1 <- air_data_india_All_Specie_Monthly_var %>%
+  spread(key = Specie, value = Avg_Variance)
+print(air_data_india_All_Specie_Monthly_var_1, n = 1000)
+
+air_data_india_All_Specie_Monthly_var_1 %>%
+  ggpairs()
+
+# Daily Variances among all species
+air_data_india_All_Specie_Daily_var <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Day, Specie) %>%
+  summarise(Avg_Variance = mean(variance, na.rm = TRUE))
+air_data_india_All_Specie_Daily_var
+tail(air_data_india_All_Specie_Daily_var)
+
+air_data_india_All_Specie_Daily_var_1 <- air_data_india_All_Specie_Daily_var %>%
+  spread(key = Specie, value = Avg_Variance)
+air_data_india_All_Specie_Daily_var_1
+tail(air_data_india_All_Specie_Daily_var_1)
+
+air_data_india_All_Specie_Daily_var_1 %>%
   ggpairs()

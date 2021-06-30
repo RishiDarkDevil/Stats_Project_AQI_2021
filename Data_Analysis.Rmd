@@ -242,7 +242,7 @@ kable(avg_median_per_year_per_station, caption = "Average Median AQI Levels of T
   kable_styling(position = "center")
 ```
 
-### VISUAL OVERVIEW
+# VISUAL OVERVIEW
 
 -   Here we will look at several visualization to get an approximate idea about the spread, patterns, trends and key facts to notice about the Data, which will greatly impact our further Analysis and will prove helpful in finding out the parts of the Data which needs to be observed and tested carefully to provide valuable insight.
 
@@ -476,3 +476,9 @@ air_data_india_pollutants %>%
   ) +
   scale_fill_viridis(discrete = TRUE)
 ```
+
+### RELATIONSHIPS - PATTERNS & TRENDS
+
+Here we are going to explore the visual relationships between all the pollutants with all the other pollutants and not only that, it is important to realize that the non-pollutants also play a crucial role in deciding the level of pollutants measured. We will see more of it below in this section as well as a lot of it in the section where we build our Models. These relationships are best exposed with Scatter plots. Here we will take a look at these.
+
+-   
