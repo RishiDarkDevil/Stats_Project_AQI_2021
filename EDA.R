@@ -233,9 +233,83 @@ Monthly_Specie_2 <- Monthly_Specie_1 %>%
 Monthly_Specie_2
 
 # Histograms pertaining to Specie
+
+# This one is Correct
 air_data_india_pollutants %>%
-  filter(!(Year %in% c(2014, 2015, 2016, 2017, 2018, 2018, 2020)) & !(Specie %in% c('pm25', 'pm10'))) %>%
-  ggplot(aes(median, fill = cut_width(Year,1), alpha = 0.5)) +
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
   geom_histogram(binwidth = 0.5) +
+  coord_cartesian(xlim = c(0, 50)) +
+  facet_wrap(~Year)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & (Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 5) +
+  coord_cartesian(xlim = c(0, 200)) +
+  facet_wrap(~Year + Specie)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(max, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 1) +
+  coord_cartesian(xlim = c(0, 200)) +
+  facet_wrap(~Year)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(min, ..density.., fill = cut_width(Year,1), group = Year)) +
+  geom_histogram(binwidth = 0.1) +
+  coord_cartesian(xlim = c(0, 10)) +
+  facet_wrap(~Year)
+
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = cut_width(Year,1))) +
+  geom_histogram(binwidth = 1) +
   coord_cartesian(xlim = c(0, 30)) +
   facet_wrap(~Specie)
+
+# This one is correct
+air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & !(Specie %in% c('pm25', 'pm10'))) %>%
+  ggplot(aes(median, ..density.., fill = Specie, group = Specie)) +
+  geom_histogram(binwidth = 0.5) +
+  coord_cartesian(xlim = c(0, 30)) +
+  facet_wrap(~Year + Specie)
+
+
+air_data_india_pollutants_2020 <- air_data_india_pollutants %>%
+  filter(Year == 2020)
+
+air_data_india_pollutants_2020 %>%
+  filter(Specie == 'co') %>%
+  ggplot(aes(median, ..density..)) +
+  geom_histogram()
+
+air_data_india_pollutants_2019 <- air_data_india_pollutants %>%
+  filter(Year == 2019)
+
+air_data_india_pollutants_2019 %>%
+  filter(Specie == 'co') %>%
+  ggplot(aes(median, ..density..)) +
+  geom_histogram()
+
+
+# Exploring the relationships between All Species with each other Monthly
+air_data_india_All_Specie_Monthly <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE))
+print(air_data_india_All_Specie_Monthly, n = 1000)
+
+air_data_india_All_Specie_Monthly_1 <- air_data_india_All_Specie_Monthly %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+air_data_india_All_Specie_Monthly_1
+
+air_data_india_All_Specie_Monthly_2 <- air_data_india_All_Specie_Monthly_1 %>%
+  spread(key = Specie, value = AQI)
+print(air_data_india_All_Specie_Monthly_2, n = 1000)
+
+air_data_india_All_Specie_Monthly_2[22:114, -3] %>%
+  ggpairs()
