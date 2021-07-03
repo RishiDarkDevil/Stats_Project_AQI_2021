@@ -459,3 +459,31 @@ air_data_india_Pollutants_nonpollutants_monthly %>%
   ) +
   scale_fill_viridis(discrete = TRUE)
   
+# Exploring some relation between COVID cases and Pollution levels -- Nothing Fruitful
+covid_data
+tail(covid_data)
+
+covid_data_states_merged <- covid_data %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Total_Cured = sum(Cured), Total_Deaths = sum(Deaths), Total_Confirmed = sum(Confirmed))
+covid_data_states_merged
+
+covid_data_states_merged_monthly <- covid_data %>%
+  group_by(Year, Month) %>%
+  summarise(Total_Cured = sum(Cured), Total_Deaths = sum(Deaths), Total_Confirmed = sum(Confirmed))
+covid_data_states_merged_monthly
+
+covid_data_states_merged_monthly$Total_Confirmed <- c(covid_data_states_merged_monthly$Total_Confirmed[1], diff(covid_data_states_merged_monthly$Total_Confirmed))
+covid_data_states_merged_monthly$Total_Deaths <- c(covid_data_states_merged_monthly$Total_Deaths[1], diff(covid_data_states_merged_monthly$Total_Deaths))
+covid_data_states_merged_monthly$Total_Cured <- c(covid_data_states_merged_monthly$Total_Cured[1], diff(covid_data_states_merged_monthly$Total_Cured))
+covid_data_states_merged_monthly
+
+covid_pollutant_data <- Monthly_Pollutant %>%
+  filter(Year %in% c(2020, 2021)) %>%
+  full_join(covid_data_states_merged_monthly, by = c("Year", "Month"))
+covid_pollutant_data
+
+covid_pollutant_data %>%
+  ggplot(aes(Total_Confirmed, Avg_Median)) +
+  geom_point() +
+  xlim(min(covid_pollutant_data$Total_Confirmed), 1e8)

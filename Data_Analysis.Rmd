@@ -25,6 +25,13 @@ library(kableExtra)
 library(stringr)
 library(viridis)
 library(formattable)
+library(skimr)
+library(moderndive)
+library(infer)
+#library(fitdistrplus)
+library(pander)
+library(stargazer)
+library(forcats)
 options(dplyr.summarise.inform = FALSE)
 ```
 
@@ -214,7 +221,7 @@ Here we try to analyze which City Stations
 
 -   Records More Observations compared to others, which will give us an idea of those centres being more frequently continuously recorded, which can be due to higher AQI Levels in the pollutants.
 
-```{r obsv_per_station}
+```{r obsv_per_station, fig.asp=0.618, fig.width=12}
 obsv_per_station <- air_data_india %>%
   group_by(Year, City) %>%
   count() %>%
@@ -222,15 +229,32 @@ obsv_per_station <- air_data_india %>%
   spread(key = Year, value = n) %>%
   arrange(desc(`2019`, `2020`, `2021`))
 
-kable(head(obsv_per_station), caption = "Observations recorded per City Station per Year") %>%
-  kable_styling(position = "center")
+air_data_india %>%
+  group_by(Year, City) %>%
+  count() %>%
+  filter(Year %in% c("2021", "2020", "2019", "2018")) %>%
+  ggplot(aes(City, n, fill = City)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Year) +
+  coord_flip() +
+  labs(
+    x = "Number of Observations Recorded"
+  ) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 3,
+      override.aes = list(size = 3)
+    )
+  ) +
+  scale_color_viridis(discrete = TRUE)
 ```
 
 It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
 
 -   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise. The Top 11 Stations will be considered in the further analysis where ever we need to do a Station-wise breakdown of Data or Analysis.
 
-```{r avg_median_per_year_per_station}
+```{r avg_median_per_year_per_station, fig.asp=0.618, fig.width=12}
 avg_median_per_year_per_station <- air_data_india_pollutants %>%
   group_by(Year, City) %>%
   summarise(Median = mean(median)) %>%
@@ -238,8 +262,26 @@ avg_median_per_year_per_station <- air_data_india_pollutants %>%
   spread(key = Year, value = Median) %>%
   arrange(desc(`2021`, `2020`, `2019`, `2018`))
 
-kable(avg_median_per_year_per_station[1:11,], caption = "Average Median AQI Levels of Top 11 City Stations") %>%
-  kable_styling(position = "center")
+air_data_india_pollutants %>%
+  group_by(Year, City) %>%
+  summarise(Median = mean(median)) %>%
+  arrange(desc(Year, Median)) %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  ggplot(aes(City, Median, fill = City)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Year) +
+  coord_flip() +
+  labs(
+    y = "Average Median AQI Levels of Pollutants"
+  ) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 3,
+      override.aes = list(size = 3)
+    )
+  ) +
+  scale_color_viridis(discrete = TRUE)
 ```
 
 # VISUAL OVERVIEW
@@ -353,7 +395,7 @@ air_data_india_pollutants %>%
   )
 ```
 
-Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
+Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particulate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
 ```{r Monthly_Pollutant_Viz, fig.asp=0.618, fig.width=12}
 Monthly_Specie <- air_data_india_pollutants %>%
@@ -577,3 +619,58 @@ air_data_india_Pollutants_nonpollutants_monthly_var_1 <- air_data_india_All_Spec
 ```
 
 So, with this visual picture of the Data in mind. We wrap the Visual Overview and most part of the EDA here. In the next section we will draw inferences from the data using several Inferential Statistical Technique.
+
+# STATISTICAL INFERENCE
+
+So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
+
+-   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+
+```{=html}
+<!-- -->
+```
+-   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded are same for all the cities (Top 11) except Delhi.
+
+```{r observation_prop_test, fig.asp=0.618, fig.width=12}
+obsv_per_station %>%
+  gather(`2021`, `2020`, key = "Year", value = Observations) %>%
+  select(City, Year, Observations) %>%
+  filter(City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  ggplot(aes(City, Observations, fill = City)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Year) +
+  coord_flip() +
+  labs(
+    x = "Number of Observations Recorded"
+  ) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 3)
+    )
+  ) +
+  scale_color_viridis(discrete = TRUE)
+```
+
+We perform chi-square test on Year 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis. Hence, all other City Stations except Delhi are equally monitored.
+
+```{r}
+test <- obsv_per_station %>%
+  ungroup() %>%
+  filter(City != "Delhi" & City %in% avg_median_per_year_per_station$City[1:11]) %>% # Since it is clearly different
+  select(`2020`) %>%
+  chisq.test()
+pander(test)
+
+test <- obsv_per_station %>%
+  ungroup() %>%
+  filter(City != "Delhi" & City %in% avg_median_per_year_per_station$City[1:11]) %>% # Since it is clearly different
+  select(`2021`) %>%
+  chisq.test()
+pander(test)
+```
+
+-   Now, It is a natural question to ask - whether the AQI Levels of the pollutants similar across all the City Stations?
+
+To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an One-Factor Analysis of Variance to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.

@@ -451,234 +451,13 @@ Here we try to analyze which City Stations
 
 -   Records More Observations compared to others, which will give us an idea of those centres being more frequently continuously recorded, which can be due to higher AQI Levels in the pollutants.
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<caption>Observations recorded per City Station per Year</caption>
- <thead>
-  <tr>
-   <th style="text-align:left;"> City </th>
-   <th style="text-align:right;"> 2014 </th>
-   <th style="text-align:right;"> 2015 </th>
-   <th style="text-align:right;"> 2016 </th>
-   <th style="text-align:right;"> 2017 </th>
-   <th style="text-align:right;"> 2018 </th>
-   <th style="text-align:right;"> 2019 </th>
-   <th style="text-align:right;"> 2020 </th>
-   <th style="text-align:right;"> 2021 </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> Delhi </td>
-   <td style="text-align:right;"> 21 </td>
-   <td style="text-align:right;"> 1320 </td>
-   <td style="text-align:right;"> 1328 </td>
-   <td style="text-align:right;"> 1280 </td>
-   <td style="text-align:right;"> 1713 </td>
-   <td style="text-align:right;"> 6099 </td>
-   <td style="text-align:right;"> 6844 </td>
-   <td style="text-align:right;"> 3159 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Mumbai </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 437 </td>
-   <td style="text-align:right;"> 1110 </td>
-   <td style="text-align:right;"> 1098 </td>
-   <td style="text-align:right;"> 1154 </td>
-   <td style="text-align:right;"> 4236 </td>
-   <td style="text-align:right;"> 4415 </td>
-   <td style="text-align:right;"> 2004 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Bengaluru </td>
-   <td style="text-align:right;"> 5 </td>
-   <td style="text-align:right;"> 524 </td>
-   <td style="text-align:right;"> 1094 </td>
-   <td style="text-align:right;"> 1097 </td>
-   <td style="text-align:right;"> 1186 </td>
-   <td style="text-align:right;"> 4210 </td>
-   <td style="text-align:right;"> 4328 </td>
-   <td style="text-align:right;"> 1971 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Ghaziabad </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 11 </td>
-   <td style="text-align:right;"> 4180 </td>
-   <td style="text-align:right;"> 4356 </td>
-   <td style="text-align:right;"> 1970 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Hyderabad </td>
-   <td style="text-align:right;"> 3 </td>
-   <td style="text-align:right;"> 401 </td>
-   <td style="text-align:right;"> 1087 </td>
-   <td style="text-align:right;"> 1089 </td>
-   <td style="text-align:right;"> 848 </td>
-   <td style="text-align:right;"> 4149 </td>
-   <td style="text-align:right;"> 4556 </td>
-   <td style="text-align:right;"> 2135 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Jaipur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 6 </td>
-   <td style="text-align:right;"> 1016 </td>
-   <td style="text-align:right;"> 838 </td>
-   <td style="text-align:right;"> 1103 </td>
-   <td style="text-align:right;"> 4138 </td>
-   <td style="text-align:right;"> 4329 </td>
-   <td style="text-align:right;"> 2009 </td>
-  </tr>
-</tbody>
-</table>
+![](Data_Analysis_files/figure-html/obsv_per_station-1.png)<!-- -->
 
 It is clearly visible that Delhi is definitely the most monitored centre, which is due to the presence the highest number of Real-Time Air Monitoring Stations in Delhi and more frequent montioring which is due to high AQI Levels which we will see in further analysis. The other centres have more or less the same number of observations.
 
 -   Now Let's take a look at the Average Median AQI Levels of the Pollutants every year Station-wise. The Top 11 Stations will be considered in the further analysis where ever we need to do a Station-wise breakdown of Data or Analysis.
 
-<table class="table" style="margin-left: auto; margin-right: auto;">
-<caption>Average Median AQI Levels of Top 11 City Stations</caption>
- <thead>
-  <tr>
-   <th style="text-align:left;"> City </th>
-   <th style="text-align:right;"> 2014 </th>
-   <th style="text-align:right;"> 2015 </th>
-   <th style="text-align:right;"> 2016 </th>
-   <th style="text-align:right;"> 2017 </th>
-   <th style="text-align:right;"> 2018 </th>
-   <th style="text-align:right;"> 2019 </th>
-   <th style="text-align:right;"> 2020 </th>
-   <th style="text-align:right;"> 2021 </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:left;"> Delhi </td>
-   <td style="text-align:right;"> 132.28571 </td>
-   <td style="text-align:right;"> 75.80250 </td>
-   <td style="text-align:right;"> 84.49887 </td>
-   <td style="text-align:right;"> 75.09305 </td>
-   <td style="text-align:right;"> 79.38403 </td>
-   <td style="text-align:right;"> 72.71864 </td>
-   <td style="text-align:right;"> 66.22442 </td>
-   <td style="text-align:right;"> 74.17862 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Ghaziabad </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 151.88333 </td>
-   <td style="text-align:right;"> 60.61417 </td>
-   <td style="text-align:right;"> 55.16624 </td>
-   <td style="text-align:right;"> 63.21880 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Muzaffarnagar </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 99.41667 </td>
-   <td style="text-align:right;"> 49.24321 </td>
-   <td style="text-align:right;"> 48.52875 </td>
-   <td style="text-align:right;"> 55.38776 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Lucknow </td>
-   <td style="text-align:right;"> 45.34167 </td>
-   <td style="text-align:right;"> 27.80456 </td>
-   <td style="text-align:right;"> 47.30801 </td>
-   <td style="text-align:right;"> 49.22979 </td>
-   <td style="text-align:right;"> 45.82328 </td>
-   <td style="text-align:right;"> 39.11255 </td>
-   <td style="text-align:right;"> 45.46136 </td>
-   <td style="text-align:right;"> 54.03193 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Hapur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 100.00000 </td>
-   <td style="text-align:right;"> 52.50352 </td>
-   <td style="text-align:right;"> 44.98838 </td>
-   <td style="text-align:right;"> 48.94888 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Patna </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 68.51000 </td>
-   <td style="text-align:right;"> 38.48277 </td>
-   <td style="text-align:right;"> 42.99115 </td>
-   <td style="text-align:right;"> 44.43895 </td>
-   <td style="text-align:right;"> 41.59399 </td>
-   <td style="text-align:right;"> 36.66967 </td>
-   <td style="text-align:right;"> 46.86358 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Gandhinagar </td>
-   <td style="text-align:right;"> 27.15000 </td>
-   <td style="text-align:right;"> 46.16173 </td>
-   <td style="text-align:right;"> 42.24333 </td>
-   <td style="text-align:right;"> 58.07122 </td>
-   <td style="text-align:right;"> 59.86312 </td>
-   <td style="text-align:right;"> 38.95743 </td>
-   <td style="text-align:right;"> 34.07332 </td>
-   <td style="text-align:right;"> 42.43792 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Kolkata </td>
-   <td style="text-align:right;"> 259.00000 </td>
-   <td style="text-align:right;"> 135.90426 </td>
-   <td style="text-align:right;"> 129.69352 </td>
-   <td style="text-align:right;"> 43.30009 </td>
-   <td style="text-align:right;"> 49.56707 </td>
-   <td style="text-align:right;"> 42.06618 </td>
-   <td style="text-align:right;"> 33.27508 </td>
-   <td style="text-align:right;"> 42.15740 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Jaipur </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 56.18333 </td>
-   <td style="text-align:right;"> 53.62057 </td>
-   <td style="text-align:right;"> 45.49523 </td>
-   <td style="text-align:right;"> 47.28734 </td>
-   <td style="text-align:right;"> 38.77708 </td>
-   <td style="text-align:right;"> 35.41928 </td>
-   <td style="text-align:right;"> 41.47772 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Chandigarh </td>
-   <td style="text-align:right;"> NA </td>
-   <td style="text-align:right;"> 36.78000 </td>
-   <td style="text-align:right;"> 29.56680 </td>
-   <td style="text-align:right;"> 30.44762 </td>
-   <td style="text-align:right;"> 35.00841 </td>
-   <td style="text-align:right;"> 36.04891 </td>
-   <td style="text-align:right;"> 35.53375 </td>
-   <td style="text-align:right;"> 38.86554 </td>
-  </tr>
-  <tr>
-   <td style="text-align:left;"> Mumbai </td>
-   <td style="text-align:right;"> 171.66667 </td>
-   <td style="text-align:right;"> 67.26247 </td>
-   <td style="text-align:right;"> 34.35991 </td>
-   <td style="text-align:right;"> 36.24845 </td>
-   <td style="text-align:right;"> 49.11408 </td>
-   <td style="text-align:right;"> 33.10925 </td>
-   <td style="text-align:right;"> 30.21040 </td>
-   <td style="text-align:right;"> 38.10787 </td>
-  </tr>
-</tbody>
-</table>
+![](Data_Analysis_files/figure-html/avg_median_per_year_per_station-1.png)<!-- -->
 
 # VISUAL OVERVIEW
 
@@ -706,7 +485,7 @@ Taking look at the Top 11 Stations we can also see a drop in the AQI levels in t
 
 ![](Data_Analysis_files/figure-html/Specie_Yearly_Viz-1.png)<!-- -->
 
-Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particuate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
+Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particulate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
 ![](Data_Analysis_files/figure-html/Monthly_Pollutant_Viz-1.png)<!-- -->
 
@@ -757,3 +536,40 @@ There is a significant relationship between each of the non-pollutants on the AQ
 ![](Data_Analysis_files/figure-html/Monthly_Pol_non_Pol_Scatterplot_Matrix_Var-1.png)<!-- -->
 
 So, with this visual picture of the Data in mind. We wrap the Visual Overview and most part of the EDA here. In the next section we will draw inferences from the data using several Inferential Statistical Technique.
+
+# STATISTICAL INFERENCE
+
+So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
+
+-   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+
+```{=html}
+<!-- -->
+```
+-   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded are same for all the cities (Top 11) except Delhi.
+
+![](Data_Analysis_files/figure-html/observation_prop_test-1.png)<!-- -->
+
+We perform chi-square test on Year 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis. Hence, all other City Stations except Delhi are equally monitored.
+
+
+---------------------------------
+ Test statistic   df    P value  
+---------------- ---- -----------
+     17.61        9    0.03995 * 
+---------------------------------
+
+Table: Chi-squared test for given probabilities: `.`
+
+
+-------------------------------
+ Test statistic   df   P value 
+---------------- ---- ---------
+      2.08        9    0.9901  
+-------------------------------
+
+Table: Chi-squared test for given probabilities: `.`
+
+-   Now, It is a natural question to ask - whether the AQI Levels of the pollutants similar across all the City Stations?
+
+To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an One-Factor Analysis of Variance to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.
