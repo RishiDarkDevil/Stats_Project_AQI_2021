@@ -487,7 +487,7 @@ Taking look at the Top 11 Stations we can also see a drop in the AQI levels in t
 
 Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particulate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
-![](Data_Analysis_files/figure-html/Monthly_Pollutant_Viz-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/Monthly_Pollutant_Viz_and_Daily_Data_wrangling_included-1.png)<!-- -->
 
 ### DISTRIBUTIONS
 
@@ -542,34 +542,36 @@ So, with this visual picture of the Data in mind. We wrap the Visual Overview an
 So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
 
 -   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+-   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded in a year are same for all the cities (Top 11) except Delhi.
 
-```{=html}
-<!-- -->
-```
--   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded are same for all the cities (Top 11) except Delhi.
+![](Data_Analysis_files/figure-html/observation_prop_viz_and_chisq_test_for_prop-1.png)<!-- -->
 
-![](Data_Analysis_files/figure-html/observation_prop_test-1.png)<!-- -->
-
-We perform chi-square test on Year 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis. Hence, all other City Stations except Delhi are equally monitored.
-
-
----------------------------------
- Test statistic   df    P value  
----------------- ---- -----------
-     17.61        9    0.03995 * 
----------------------------------
-
-Table: Chi-squared test for given probabilities: `.`
-
-
--------------------------------
- Test statistic   df   P value 
----------------- ---- ---------
-      2.08        9    0.9901  
--------------------------------
-
-Table: Chi-squared test for given probabilities: `.`
+We performed the **chi-square test for equality of proportion** on Year 2019, 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis for the recent 2 years. Hence, all other City Stations except Delhi are equally monitored in the last 2 years.
 
 -   Now, It is a natural question to ask - whether the AQI Levels of the pollutants similar across all the City Stations?
 
-To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an One-Factor Analysis of Variance to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.
+To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an **One-Factor Analysis of Variance** to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.
+
+![](Data_Analysis_files/figure-html/average_pollutant_one_factor_anova-1.png)<!-- -->
+
+It is clear from the p-values that indeed the average AQI Levels of Pollutants in all the Top City Stations same in the past 3 Years.
+
+-   Now the Question that rises is whether the Mean AQI Level of Pollutants in 2020 Less than that of 2019? Along with it we will also find out whether the Mean AQI Level of Pollutants in 2021 More than that of 2020 (Considering the Data of the First 6 months of 2020 and 2021)?
+
+It is natural to think so, as India saw several Lockdowns at different places as well as a Nation-wide Lockdown in 2020, during which Major Factories and transportation facilities were closed, which usually are the top contributors of these Pollutants. Whereas in the Later months of 2020 and in 2021 Lockdown was mostly lifted and we may suspect that the Mean AQI Levels of Pollutants have increased.
+
+So, to Test our Hypothesis of whether the Mean AQI Level of 2020 less than that of 2019 against the Alternative that the Mean AQI Level has Dropped in 2020, we will perform a **two sample t-test for equality of mean**.
+
+![](Data_Analysis_files/figure-html/average_pollutant_yearly_t_test-1.png)<!-- -->
+
+So, it is clear from the above two p-values that, Our guess that the Mean AQI of Pollutants have dropped in 2020 compared to 2019 doesn't seem to hold. But we see that the Average AQI of Pollutants for the data we have i.e. January to June of 2021 is definitely higher than that of 2020 by at least 7.5 with 99% confidence, which seems to be consistant with our thinking that the Lockdown might have caused a decrease in AQI Levels in 2020.
+
+Let us try to explore the 2019 and 2020 comparison a bit more closely. We know that the Major Lockdown in India was from March to June of 2020 i.e. the first half of the Year. So, it makes more sense to compare the AQI Levels of 2019 during that phase with 2020 and as an extra check we will see if the values measured in 2021 similar to those of 2019 when the industries and transportation facilities were open as they are in 2021.
+
+![](Data_Analysis_files/figure-html/average_pollutant_first6month_t_test-1.png)<!-- -->
+
+Indeed Our guess was right here. The AQI values during the time when there was Lockdown that is the first half of 2020, there was a statistically significant drop in the mean AQI Levels of Pollutants, whereas the mean AQI Level of 2021 and 2019 are same.
+
+A rather surprising fact which we noted in the Visual Overview Section through scatter plot is that the Average AQI Levels during the second half of 2020 was more compared to 2019.
+
+![](Data_Analysis_files/figure-html/average_pollutant_last6month_t_test-1.png)<!-- -->
