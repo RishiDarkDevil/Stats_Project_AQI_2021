@@ -32,6 +32,7 @@ library(infer)
 library(pander)
 library(stargazer)
 library(forcats)
+library(broom)
 options(dplyr.summarise.inform = FALSE)
 ```
 
@@ -397,7 +398,7 @@ air_data_india_pollutants %>%
 
 Here we can clearly see that each Pollutant has decreased in the Year 2020 compared to all the other Years. But more interesting is the fact that particulate matter of both sizes have shown a big drop. Particulate Matters are mostly contributed by Vehicles, Transportation facilities and some Industries like Cement, etc. Since, there was lockdown we see it might have caused such a dip. Other Pollutants have also seen drop in the Year 2020. Further in the Analysis we will do Statistical Tests to find out if these drops were significant or not.
 
-```{r Monthly_Pollutant_Viz, fig.asp=0.618, fig.width=12}
+```{r Monthly_Pollutant_Viz_and_Daily_Data_wrangling_included, fig.asp=0.618, fig.width=12}
 Monthly_Specie <- air_data_india_pollutants %>%
   filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
   group_by(Year, Month, Specie) %>%
@@ -411,6 +412,17 @@ Monthly_Specie_1 <- Monthly_Specie %>%
 
 Monthly_Specie_2 <- Monthly_Specie_1 %>%
   gather(co:so2, key = "Pollutants", value = "AQI")
+
+air_data_india_All_Specie_Daily <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017))) %>%
+  group_by(Year, Month, Day,  Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE))
+
+air_data_india_All_Specie_Daily_1 <- air_data_india_All_Specie_Daily %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Daily_2 <- air_data_india_All_Specie_Daily_1 %>%
+  spread(key = Specie, value = AQI)
 
 Monthly_Specie_2 %>%
   ggplot(aes(Month, AQI)) +
@@ -625,15 +637,11 @@ So, with this visual picture of the Data in mind. We wrap the Visual Overview an
 So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
 
 -   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+-   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded in a year are same for all the cities (Top 11) except Delhi.
 
-```{=html}
-<!-- -->
-```
--   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded are same for all the cities (Top 11) except Delhi.
-
-```{r observation_prop_test, fig.asp=0.618, fig.width=12}
-obsv_per_station %>%
-  gather(`2021`, `2020`, key = "Year", value = Observations) %>%
+```{r observation_prop_viz_and_chisq_test_for_prop, fig.asp=0.618, fig.width=12}
+p1 <- obsv_per_station %>%
+  gather(`2021`, `2020`, `2019`, key = "Year", value = Observations) %>%
   select(City, Year, Observations) %>%
   filter(City %in% avg_median_per_year_per_station$City[1:11]) %>%
   ggplot(aes(City, Observations, fill = City)) +
@@ -643,34 +651,347 @@ obsv_per_station %>%
   labs(
     x = "Number of Observations Recorded"
   ) +
-  theme(legend.position = "bottom") +
-  guides(
-    fill = guide_legend(
-      nrow = 1,
-      override.aes = list(size = 3)
-    )
-  ) +
+  theme(legend.position = "None") +
   scale_color_viridis(discrete = TRUE)
-```
 
-We perform chi-square test on Year 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis. Hence, all other City Stations except Delhi are equally monitored.
+print_chisq_prop <- function(test){
+  table <- tibble(
+    `Test Statistic` = test$statistic,
+    df = test$parameter,
+    `p-value` = test$p.value,
+  )
+  return(list("test_table" = table))
+}
 
-```{r}
-test <- obsv_per_station %>%
+test0 <- obsv_per_station %>%
+  ungroup() %>%
+  filter(City != "Delhi" & City %in% avg_median_per_year_per_station$City[1:11]) %>% # Since it is clearly different
+  select(`2019`) %>%
+  chisq.test()
+test0 <- print_chisq_prop(test0)
+table0 <- ggtexttable(test0$test_table, theme = ttheme("mBlue")) %>%
+  tab_add_footnote(text = "Chi-sq Test for Equality of Proportion 2019", size = 10, face = "italic")
+
+test1 <- obsv_per_station %>%
   ungroup() %>%
   filter(City != "Delhi" & City %in% avg_median_per_year_per_station$City[1:11]) %>% # Since it is clearly different
   select(`2020`) %>%
   chisq.test()
-pander(test)
+test1 <- print_chisq_prop(test1)
+table1 <- ggtexttable(test1$test_table, theme = ttheme("mBlue")) %>%
+  tab_add_footnote(text = "Chi-sq Test for Equality of Proportion 2020", size = 10, face = "italic")
 
-test <- obsv_per_station %>%
+test2 <- obsv_per_station %>%
   ungroup() %>%
   filter(City != "Delhi" & City %in% avg_median_per_year_per_station$City[1:11]) %>% # Since it is clearly different
   select(`2021`) %>%
   chisq.test()
-pander(test)
+test2 <- print_chisq_prop(test2)
+table2 <- ggtexttable(test2$test_table, theme = ttheme("mBlue")) %>%
+  tab_add_footnote(text = "Chi-sq Test for Equality of Proportion 2021", size = 10, face = "italic")
+
+p2 <- ggarrange(table0, table1, table2, ncol = 3)
+ggarrange(p1, p2, nrow = 2, heights = c(6, 1))
 ```
+
+We performed the **chi-square test for equality of proportion** on Year 2019, 2020 and 2021 respectively and clearly we fail to reject the null Hypothesis for the recent 2 years. Hence, all other City Stations except Delhi are equally monitored in the last 2 years.
 
 -   Now, It is a natural question to ask - whether the AQI Levels of the pollutants similar across all the City Stations?
 
-To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an One-Factor Analysis of Variance to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.
+To answer this Question we can compare the mean AQI Levels of the City Stations. So, we can perform an **One-Factor Analysis of Variance** to test our Null Hypothesis of the mean AQI Levels of all the City Stations are equal.
+
+```{r average_pollutant_one_factor_anova, fig.asp=0.618, fig.width=12, warning=FALSE}
+
+air_data_all_specie_yearly_city_included <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017, 2018))) %>%
+  group_by(Year, City, Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE)) %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_pollutants_yearly_city_included <- air_data_all_specie_yearly_city_included %>%
+  filter(Specie %in% c("co", "no2", "o3", "so2", "pm10", "pm25"))
+
+air_data_nonpollutants_yearly_city_included <- air_data_all_specie_yearly_city_included %>%
+  filter(!(Specie %in% c("co", "no2", "o3", "so2", "pm10", "pm25")))
+
+plt1 <- air_data_pollutants_yearly_city_included %>%
+  filter(Year == 2019 & City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  ggplot(aes(AQI, City, fill = City)) +
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun = "mean") +
+  coord_cartesian(xlim = c(0, 200)) +
+  scale_y_discrete(labels = NULL) +
+  geom_vline(
+    xintercept = mean(filter(air_data_pollutants_yearly_city_included, Year == 2019 & City %in% avg_median_per_year_per_station$City[1:11])$AQI), size = 1
+  ) +
+  ggtitle("2019") +
+  theme(legend.position = "None") +
+  scale_fill_viridis(discrete = TRUE)
+
+test3 <- aov(AQI ~ City, filter(air_data_pollutants_yearly_city_included, City %in% avg_median_per_year_per_station$City[1:11] & Year == 2019))
+test3 <- summary(test3)
+test3 <- unclass(test3)
+test3 <- cbind("Source" = rownames(test3[[1]]), test3[[1]])
+test3 <- as_tibble(test3)
+table1 <- ggtexttable(test3, theme = ttheme("mBlue")) %>%
+  tab_add_footnote(text = "One-Factor ANOVA for 2019", size = 10, face = "italic")
+
+
+plt2 <- air_data_pollutants_yearly_city_included %>%
+  filter(Year == 2020 & City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  ggplot(aes(AQI, City, fill = City)) +
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun = "mean") +
+  coord_cartesian(xlim = c(0, 200)) +
+  scale_y_discrete(labels = NULL) +
+  geom_vline(
+    xintercept = mean(filter(air_data_pollutants_yearly_city_included, Year == 2020 & City %in% avg_median_per_year_per_station$City[1:11])$AQI), size = 1
+  ) +
+  ggtitle("2020") +
+  theme(legend.position = "None") +
+  scale_fill_viridis(discrete = TRUE)
+
+test4 <- aov(AQI ~ City, filter(air_data_pollutants_yearly_city_included, City %in% avg_median_per_year_per_station$City[1:11] & Year == 2020))
+test4 <- summary(test4)
+test4 <- unclass(test4)
+test4 <- cbind("Source" = rownames(test4[[1]]), test4[[1]])
+test4 <- as_tibble(test4)
+table2 <- ggtexttable(test4, theme = ttheme("mBlue"))%>%
+  tab_add_footnote(text = "One-Factor ANOVA for 2020", size = 10, face = "italic")
+
+plt3 <- air_data_pollutants_yearly_city_included %>%
+  filter(Year == 2021 & City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  ggplot(aes(AQI, City, fill = City)) +
+  geom_boxplot(outlier.shape = NA) +
+  stat_summary(fun = "mean") +
+  coord_cartesian(xlim = c(0, 200)) +
+  scale_y_discrete(labels = NULL) +
+  geom_vline(
+    xintercept = mean(filter(air_data_pollutants_yearly_city_included, Year == 2021 & City %in% avg_median_per_year_per_station$City[1:11])$AQI), size = 1
+  ) +
+  ggtitle("2021") +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 2
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+
+test5 <- aov(AQI ~ City, filter(air_data_pollutants_yearly_city_included, City %in% avg_median_per_year_per_station$City[1:11] & Year == 2021))
+test5 <- summary(test5)
+test5 <- unclass(test5)
+test5 <- cbind("Source" = rownames(test5[[1]]), test5[[1]])
+test5 <- as_tibble(test5)
+table3 <- ggtexttable(test5, theme = ttheme("mBlue")) %>%
+  tab_add_footnote(text = "One-Factor ANOVA for 2021", size = 10, face = "italic")
+
+table <- ggarrange(table1, table2, table3, nrow = 3)
+
+ggarrange(plt1, plt2, plt3, table)
+```
+
+It is clear from the p-values that indeed the average AQI Levels of Pollutants in all the Top City Stations same in the past 3 Years.
+
+-   Now the Question that rises is whether the Mean AQI Level of Pollutants in 2020 Less than that of 2019? Along with it we will also find out whether the Mean AQI Level of Pollutants in 2021 More than that of 2020 (Considering the Data of the First 6 months of 2020 and 2021)?
+
+It is natural to think so, as India saw several Lockdowns at different places as well as a Nation-wide Lockdown in 2020, during which Major Factories and transportation facilities were closed, which usually are the top contributors of these Pollutants. Whereas in the Later months of 2020 and in 2021 Lockdown was mostly lifted and we may suspect that the Mean AQI Levels of Pollutants have increased.
+
+So, to Test our Hypothesis of whether the Mean AQI Level of 2020 less than that of 2019 against the Alternative that the Mean AQI Level has Dropped in 2020, we will perform a **two sample t-test for equality of mean**.
+
+```{r average_pollutant_yearly_t_test, fig.asp=0.618, fig.width=12, warning=FALSE, cache=TRUE}
+air_data_india_Pollutants_Daily <- air_data_india_All_Specie_Daily_1 %>%
+  group_by(Year, Month, Day) %>%
+  filter(Specie %in% c("co", "no2", "o3", "so2", "pm10", "pm25")) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+plt1 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020)) %>%
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(Year, Mean_AQI, fill = Year)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean") +
+  coord_cartesian(ylim = c(20, 100)) +
+  labs(y = "Mean AQI", x = NULL) +
+  geom_hline(
+    yintercept = mean(filter(air_data_india_Pollutants_Daily, Year %in% c(2019, 2020))$Mean_AQI, na.rm = TRUE), size = 1
+  )+
+  theme(legend.position = "None")
+
+null_distribution1_t <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  hypothesise("independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+obs_diff_means1 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+sim_test_statistic1 <- visualise(null_distribution1_t, method = "both") +
+  shade_p_value(obs_stat = obs_diff_means1, direction = "left")
+
+test1 <- t.test(filter(air_data_india_Pollutants_Daily, Year == 2020)$Mean_AQI, filter(air_data_india_Pollutants_Daily, Year == 2019)$Mean_AQI,
+                alternative = "less", var.equal = TRUE, conf.level = 0.99)
+
+table1 <- ggtexttable(map_df(list(test1), tidy), theme = ttheme("mOrange")) %>%
+  tab_add_footnote(text = "two-sample t-test for 2019 & 2020", size = 10, face = "italic")
+
+plt2 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2020, 2021) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(Year, Mean_AQI, fill = Year)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean") +
+  coord_cartesian(ylim = c(20, 100)) +
+  labs(y = "Mean AQI", x = NULL) +
+  geom_hline(
+    yintercept = mean(filter(air_data_india_Pollutants_Daily, Year %in% c(2020, 2021) & Month %in% c(1,2,3,4,5,6) )$Mean_AQI, na.rm = TRUE), size = 1
+  )+
+  theme(legend.position = "None")
+
+null_distribution2_t <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2021, 2020) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  hypothesise("independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "t", order = c("2021", "2020"))
+
+obs_diff_means2 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2021, 2020) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  calculate(stat = "t", order = c("2021", "2020"))
+
+sim_test_statistic2 <- visualise(null_distribution2_t, method = "both") +
+  shade_p_value(obs_stat = obs_diff_means2, direction = "right")
+
+test2 <- t.test(filter(air_data_india_Pollutants_Daily, Year == 2021 & Month %in% c(1,2,3,4,5,6))$Mean_AQI, filter(air_data_india_Pollutants_Daily, Year == 2020 & Month %in% c(1,2,3,4,5,6))$Mean_AQI,
+                alternative = "greater", var.equal = TRUE, conf.level = 0.99)
+
+table2 <- ggtexttable(map_df(list(test2), tidy), theme = ttheme("mOrange")) %>%
+  tab_add_footnote(text = "two-sample t-test for 2021 & 2021", size = 10, face = "italic")
+
+p1 <- ggarrange(plt1, plt2, ncol = 2)
+p2 <- ggarrange(sim_test_statistic1, sim_test_statistic2, ncol = 2)
+p3 <- ggarrange(table1, table2, nrow = 2) 
+ggarrange(p1, p2, p3, nrow = 3, heights = c(3, 3, 2))
+```
+
+So, it is clear from the above two p-values that, Our guess that the Mean AQI of Pollutants have dropped in 2020 compared to 2019 doesn't seem to hold. But we see that the Average AQI of Pollutants for the data we have i.e. January to June of 2021 is definitely higher than that of 2020 by at least 7.5 with 99% confidence, which seems to be consistant with our thinking that the Lockdown might have caused a decrease in AQI Levels in 2020.
+
+Let us try to explore the 2019 and 2020 comparison a bit more closely. We know that the Major Lockdown in India was from March to June of 2020 i.e. the first half of the Year. So, it makes more sense to compare the AQI Levels of 2019 during that phase with 2020 and as an extra check we will see if the values measured in 2021 similar to those of 2019 when the industries and transportation facilities were open as they are in 2021.
+
+```{r average_pollutant_first6month_t_test, fig.asp=0.618, fig.width=12, warning=FALSE, cache=TRUE}
+plt3 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020, 2021) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(Year, Mean_AQI, fill = Year)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean") +
+  coord_cartesian(ylim = c(20, 100)) +
+  labs(x = NULL) +
+  theme(legend.position = "None") 
+
+null_distribution1_t <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  hypothesise("independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+obs_diff_means1 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+sim_test_statistic1 <- visualise(null_distribution1_t, method = "both") +
+  shade_p_value(obs_stat = obs_diff_means1, direction = "left")
+
+test1 <- t.test(filter(air_data_india_Pollutants_Daily, Year == 2020 & Month %in% c(1,2,3,4,5,6))$Mean_AQI, filter(air_data_india_Pollutants_Daily, Year == 2019 & Month %in% c(1,2,3,4,5,6))$Mean_AQI,
+                alternative = "less", var.equal = TRUE, conf.level = 0.99)
+
+table1 <- ggtexttable(map_df(list(test1), tidy), theme = ttheme("mOrange")) %>%
+  tab_add_footnote(text = "two-sample t-test for 2019 & 2020", size = 10, face = "italic")
+
+null_distribution2_t <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2021, 2019) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  hypothesise("independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "t", order = c("2021", "2019"))
+
+obs_diff_means2 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2021, 2019) & Month %in% c(1,2,3,4,5,6)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  calculate(stat = "t", order = c("2021", "2019"))
+
+sim_test_statistic2 <- visualise(null_distribution2_t, method = "both") +
+  shade_p_value(obs_stat = obs_diff_means2, direction = "both")
+
+test2 <- t.test(filter(air_data_india_Pollutants_Daily, Year == 2021 & Month %in% c(1,2,3,4,5,6))$Mean_AQI, filter(air_data_india_Pollutants_Daily, Year == 2019 & Month %in% c(1,2,3,4,5,6))$Mean_AQI,
+                alternative = "two.sided", var.equal = TRUE, conf.level = 0.99)
+
+table2 <- ggtexttable(map_df(list(test2), tidy), theme = ttheme("mOrange")) %>%
+  tab_add_footnote(text = "two-sample t-test for 2021 & 2019", size = 10, face = "italic")
+
+p1 <- ggarrange(plt3, ncol = 1)
+p2 <- ggarrange(sim_test_statistic1, sim_test_statistic2, ncol = 2)
+p3 <- ggarrange(table1, table2, nrow = 2) 
+ggarrange(p1, p2, p3, nrow = 3, heights = c(4, 3, 2))
+```
+
+Indeed Our guess was right here. The AQI values during the time when there was Lockdown that is the first half of 2020, there was a statistically significant drop in the mean AQI Levels of Pollutants, whereas the mean AQI Level of 2021 and 2019 are same.
+
+A rather surprising fact which we noted in the Visual Overview Section through scatter plot is that the Average AQI Levels during the second half of 2020 was more compared to 2019.
+
+```{r average_pollutant_last6month_t_test, fig.asp=0.618, fig.width=12, warning=FALSE, cache=TRUE}
+plt5 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020) & Month %in% c(7,8,9,10, 11, 12)) %>%
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(Year, Mean_AQI, fill = Year)) +
+  geom_boxplot() +
+  stat_summary(fun = "mean") +
+  coord_cartesian(ylim = c(20, 100)) +
+  geom_hline(
+    yintercept = mean(filter(air_data_india_Pollutants_Daily, Year %in% c(2019, 2020) & Month %in% c(7,8,9,10, 11, 12))$Mean_AQI, na.rm = TRUE), size = 1
+  )+
+  labs(x = NULL, y = "Mean AQI") +
+  theme(legend.position = "None") 
+
+null_distribution1_t <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020) & Month %in% c(7,8,9,10, 11, 12)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  hypothesise("independence") %>%
+  generate(reps = 1000, type = "permute") %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+obs_diff_means1 <- air_data_india_Pollutants_Daily %>%
+  filter(Year %in% c(2019, 2020) & Month %in% c(7,8,9,10, 11, 12)) %>%
+  mutate(Year = as.character(Year)) %>%
+  specify(Mean_AQI ~ Year) %>%
+  calculate(stat = "t", order = c("2020", "2019"))
+
+sim_test_statistic1 <- visualise(null_distribution1_t, method = "both") +
+  shade_p_value(obs_stat = obs_diff_means1, direction = "right")
+
+test1 <- t.test(filter(air_data_india_Pollutants_Daily, Year == 2020 & Month %in% c(7,8,9,10, 11, 12))$Mean_AQI, filter(air_data_india_Pollutants_Daily, Year == 2019 & Month %in% c(7,8,9,10, 11, 12))$Mean_AQI,
+                alternative = "greater", var.equal = TRUE, conf.level = 0.99)
+
+table1 <- ggtexttable(map_df(list(test1), tidy), theme = ttheme("mOrange")) %>%
+  tab_add_footnote(text = "two-sample t-test for 2019 & 2020", size = 10, face = "italic")
+
+p1 <- ggarrange(plt5, sim_test_statistic1, ncol = 2)
+p3 <- ggarrange(table1, nrow = 1) 
+ggarrange(p1, p3, nrow = 2, heights = c(6, 1))
+```
