@@ -1254,3 +1254,13 @@ p2 <- ggarrange(plt3, table, nrow = 2, heights = c(6, 3))
 
 ggarrange(p1, p2, nrow = 2)
 ```
+
+We have seen several Tests in this section, and it seems that the first half of 2020 indeed saw a dip in Mean AQI Levels of Pollutants. It is also observed that it was the time when India went under a nation-wide lockdown which might have resulted in the drop of Mean AQI Levels of Pollutants.
+
+But that surprising part which we eventually unfolded is that the Later half of 2020 saw an increase in the AQI Levels of Pollutants where I expected to see a drop or similar AQI Levels.
+
+We will see more of Hypothesis Testing where ever needed, during our Analysis.
+
+### PROBABILITY MODELS
+
+We have already taken a look at the Distributions of all the Pollutants in the Distribution section of the Visual Overview. Now, it's time to fit Probability Models to the data we have observed. It is a really important part of parametric modelling. It will give us an idea about the noise we have in our data and in general what sort of AQI values of different pollutants we can expect every year. We will also carry our analysis on how different is the distribution of Year 2020 compared to 2019 & 2021.
