@@ -131,7 +131,6 @@ table1 <- ggtexttable(test3, theme = ttheme("mBlue")) %>%
   tab_add_footnote(text = "One-Factor ANOVA for 2019", size = 10, face = "italic")
 table1
 
-
 plt2 <- air_data_pollutants_yearly_city_included %>%
   filter(Year == 2020 & City %in% avg_median_per_year_per_station$City[1:11]) %>%
   ggplot(aes(AQI, City, fill = City)) +
@@ -725,4 +724,3 @@ table <- ggarrange(table1, table2, table3, ncol = 3)
 p2 <- ggarrange(plt3, table, nrow = 2, heights = c(6, 3))
 
 ggarrange(p1, p2, nrow = 2)
-

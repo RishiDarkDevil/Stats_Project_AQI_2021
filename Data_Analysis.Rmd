@@ -634,9 +634,12 @@ So, with this visual picture of the Data in mind. We wrap the Visual Overview an
 
 # STATISTICAL INFERENCE
 
-So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
+So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA. We will also strengthen our grip on the data by fitting several probability Models to the Histograms and Distributions we have seen in the previous section.
 
--   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+-   We will conduct all Tests, wherever needed, at a *0.01 level of significance*. Similarly, the Confidence Intervals wherever used will be *99% confidence intervals*.
+
+### HYPOTHESIS TESTING
+
 -   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded in a year are same for all the cities (Top 11) except Delhi.
 
 ```{r observation_prop_viz_and_chisq_test_for_prop, fig.asp=0.618, fig.width=12}

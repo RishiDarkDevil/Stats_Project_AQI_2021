@@ -539,9 +539,12 @@ So, with this visual picture of the Data in mind. We wrap the Visual Overview an
 
 # STATISTICAL INFERENCE
 
-So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA.
+So, far what we have seen is a qualitative analysis, where we have looked at several visualizations which gave us a clear idea of what we see in the data. Now, it's time to ask some important questions regarding the data and trying to find quantitative answers to them. This will help us solidify our claims and believes which have in our mind after looking at the EDA. We will also strengthen our grip on the data by fitting several probability Models to the Histograms and Distributions we have seen in the previous section.
 
--   We will conduct all Tests, wherever needed, at a 0.01 level of significance. Similarly, the Confidence Intervals wherever used will be 99% confidence intervals.
+-   We will conduct all Tests, wherever needed, at a *0.01 level of significance*. Similarly, the Confidence Intervals wherever used will be *99% confidence intervals*.
+
+### HYPOTHESIS TESTING
+
 -   Let's get back to the first question with which we started the the Visual Overview of our data. It is clear that Delhi's number of observations recorder per year is much higher than the other. But the number of observations of other Cities look more or less same. Let's Test our Hypothesis of whether the proportion of the total observations recorded in a year are same for all the cities (Top 11) except Delhi.
 
 ![](Data_Analysis_files/figure-html/observation_prop_viz_and_chisq_test_for_prop-1.png)<!-- -->
@@ -560,7 +563,7 @@ It is clear from the p-values that indeed the average AQI Levels of Pollutants i
 
 It is natural to think so, as India saw several Lockdowns at different places as well as a Nation-wide Lockdown in 2020, during which Major Factories and transportation facilities were closed, which usually are the top contributors of these Pollutants. Whereas in the Later months of 2020 and in 2021 Lockdown was mostly lifted and we may suspect that the Mean AQI Levels of Pollutants have increased.
 
-So, to Test our Hypothesis of whether the Mean AQI Level of 2020 less than that of 2019 against the Alternative that the Mean AQI Level has Dropped in 2020, we will perform a **two sample t-test for equality of mean**.
+So, to Test our Hypothesis of whether the Mean AQI Level of 2020 less than that of 2019 against the Alternative that the Mean AQI Level has Dropped in 2020, we will perform a **two sample t-test for equality of mean**. Here after looking at the boxplots, the variances for each year looks more or less the same, and I took variances of both the samples to be same.
 
 ![](Data_Analysis_files/figure-html/average_pollutant_yearly_t_test-1.png)<!-- -->
 
@@ -575,3 +578,17 @@ Indeed Our guess was right here. The AQI values during the time when there was L
 A rather surprising fact which we noted in the Visual Overview Section through scatter plot is that the Average AQI Levels during the second half of 2020 was more compared to 2019.
 
 ![](Data_Analysis_files/figure-html/average_pollutant_last6month_t_test-1.png)<!-- -->
+
+-   How different are the mean AQI Levels of each individual Pollutant?
+
+Here we will try to look deep into each individual pollutant's mean and will be using similar **two-sample t-tests** and confidence intervals to decide how big a change was observed during the year 2020 compared to 2019 and 2021. For All the Pollutants I suspect that 2020 will be a drop in mean AQI Levels compared to 2019 and 2021 and 2019 & 2021 will have same mean AQI. Let's Test this now
+
+![](Data_Analysis_files/figure-html/average_indiv_pollutant_first6month_t_test-1.png)<!-- -->
+
+**The first row corresponds to t-test between 2019 & 2020, the second row for 2020 & 2021 and third row for 2019 & 2021.**
+
+It is indeed the case that 2020 saw a dip in the mean AQI Levels compared to 2019 & 2021 in most of the pollutants in the first 6 months. It can be clearly seen from the p-values given under respective box plots.
+
+Performing a similar series of tests on the last 6 months of 2020 & 2019. It turns out to be surprising that the mean AQI Levels of most of the pollutants have gone up, even though the first half of the year saw a major dip !
+
+![](Data_Analysis_files/figure-html/average_indiv_pollutant_lastt6month_t_test-1.png)<!-- -->
