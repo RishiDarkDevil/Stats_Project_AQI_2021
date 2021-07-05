@@ -63,6 +63,7 @@ air_data_pollutants_2019_avg_median %>%
 # gamma & lognormal fits really well needs to be compared
 fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "co")$AQI)
 
+
 # no2
 air_data_pollutants_2019_avg_median %>%
   filter(pollutants == "no2") %>%
