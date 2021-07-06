@@ -1264,3 +1264,591 @@ We will see more of Hypothesis Testing where ever needed, during our Analysis.
 ### PROBABILITY MODELS
 
 We have already taken a look at the Distributions of all the Pollutants in the Distribution section of the Visual Overview. Now, it's time to fit Probability Models to the data we have observed. It is a really important part of parametric modelling. It will give us an idea about the noise we have in our data and in general what sort of AQI values of different pollutants we can expect every year. We will also carry our analysis on how different is the distribution of Year 2020 compared to 2019 & 2021.
+
+```{r model_fitting_functions}
+fit_distribution <- function(data, title_name = "Model & Data", qqtitle = NULL){
+  invisible(capture.output(fit_g <<- fitdistrplus::fitdist(data, "gamma")))
+  invisible(capture.output(fit_l <<- fitdistrplus::fitdist(data, "lnorm")))
+  invisible(capture.output(fit_w <<- fitdistrplus::fitdist(data, "weibull")))
+  invisible(capture.output(fit_n <<- fitdistrplus::fitdist(data, "norm")))
+  invisible(capture.output(fit_e <<- fitdistrplus::fitdist(data, "exp")))
+  
+  plot.legend <- c("gamma", "lognormal", "weibull", "normal")#, "exponential")
+  
+  gof <<- fitdistrplus::gofstat(list(fit_g, fit_l, fit_w, fit_n, fit_e), fitnames = plot.legend)
+  
+  p1 <- fitdistrplus::denscomp(list(fit_g, fit_l, fit_w, fit_n), legendtext = plot.legend, fitlwd = c(2,2,2,2), xlegend = 0.007, plotstyle = "ggplot") #, fit_e), legendtext = plot.legend, fitlwd = c(3,3.5,4,4.5,1), xlegend = 0.007)
+  #fitdistrplus::cdfcomp (list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend)
+  p2 <- fitdistrplus::qqcomp  (list(fit_g, fit_l, fit_w, fit_n), legendtext = plot.legend, plotstyle = "ggplot") # , fit_e), legendtext = plot.legend, xlegend = 0.01, )
+  #fitdistrplus::ppcomp  (list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend)
+  
+  p1 <- p1 +
+    theme(legend.justification = c(1, 1), legend.position = c(1, 1)) + ggtitle(title_name) + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+  p2 <- p2  +
+    theme(legend.position = "None") + ggtitle(qqtitle) + labs(subtitle = paste(rownames(as.data.frame(gof$ks[which.min(gof$ks)])), "seems to fit the data better.")) + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+  
+  #print(paste(rownames(as.data.frame(gof$ks[which.min(gof$ks)])), "seems to fit the data well"))
+  #distfit.table <- tibble("Distribution" = c("Gamma", "Log-Norm", "Weibull", "Norm", "Expo"), "value" = gof$chisqpvalue) %>%
+  #  spread(key = Distribution, value = value) %>%
+  #  mutate(across(where(is.numeric), ~ round(., digits = 3)))
+  #return(distfit.table)
+  p <- ggarrange(p1, p2, ncol = 2)
+  return(p)
+}
+
+# Calculates the sqrt(f).sqrt(g) things that needs to be maximized for minimum hellinger distance
+hellinger_distance.minimizer <- function(...) {
+  y <<- as.list(...) 
+  x <<- as.list(c(NA, unlist(y)))
+  x[[1]] <<- c(-Inf, gof$chisqbreaks, Inf)
+  hellinger <<- sum(sqrt(diff(do.call(distribution, x)))*sqrt(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3] / sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3])))
+  return(hellinger)
+}
+
+# Fits Model based on Minimizing Hellinger Distance
+hellinger_fit <- function(data, distribution){
+  data1 <<- data
+  distribution <<- distribution
+  fit <<- fitdistrplus::fitdist(data, sub('.', '', distribution))
+  gof <<- fitdistrplus::gofstat(fit, fitnames = c(sub('.', '', distribution))) 
+  estimates <<- optim(par = as.vector(fit$estimate), fn = hellinger_distance.minimizer, control = list(fnscale=-1))
+  sq_hellinger_dist <<- sum(diff(do.call(distribution, x))) + sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3] / sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3])) - 2*hellinger_distance.minimizer(estimates$par)
+  return(list("Hellinger_Estimates" = estimates$par, "Square_Hellinger_Distance" = sq_hellinger_dist))
+}
+
+# Comparing Hellinger Fit with MLE Fit
+compare_hellinger_fit_v_MLE <- function(data, distribution){
+  fit_MLE <<- fitdistrplus::fitdist(data, sub('.', '', distribution))
+  fit_hellinger <<- fitdistrplus::fitdist(data, sub('.', '', distribution))
+  fit_hellinger$estimate <<- hellinger_fit(data, distribution)$Hellinger_Estimates
+  
+  plot.legend <- c("MLE_Fit", "Hellinger_Fit")
+  p1 <- fitdistrplus::denscomp(list(fit_MLE, fit_hellinger), legendtext = plot.legend, fitlwd = c(2, 2), xlegend = 0.007, plotstyle = "ggplot")
+  p2 <- fitdistrplus::qqcomp  (list(fit_MLE, fit_hellinger), legendtext = plot.legend, plotstyle = "ggplot")
+  p1 <- p1 + theme(legend.justification = c(1, 1), legend.position = c(1, 1)) + ggtitle("Hellinger Fit vs MLE Fit Model")
+  p2 <- p2 + theme(legend.position = "None")
+  ggarrange(p1, p2, ncol = 2)
+}
+```
+
+```{r expectation_variance_finders}
+ev_finder <- function(transform = identity) {
+  function(f, ..., from = -Inf, to = Inf) {
+    integrate(function(x) transform(x) * f(x, ...), from, to)
+  }
+}
+
+moment_finder <- function(n, c = 0) {
+  ev_finder(function(x) (x - c) ^ n)
+}
+
+find_mean <- moment_finder(1)
+find_variance <- function(f, ...) {
+  mu <- find_mean(f, ...)$value
+  moment_finder(2, mu)(f, ...)
+}
+
+```
+
+-   One Important thing to keep in mind is that we have 3 types of Measure of AQI Levels for Each Day that is Maximum AQI detected on that day, Minimum AQI Detected on that Day and Median AQI Detected. So merging all these data results in bad fit for any model since there are lots of data points for high value and median value resulting in two different distributions. So we will take a look at them separately. And the Combined AQI for all pollutants which we will see will be without including particulate matter because they too take much higher value compared to the other pollutants.
+
+-   We mostly observe that the histograms look quite close to Gamma, Lognormal, Weibull and Normal Density. So we tried fitting from these four models and if needed we will explore other models too. We will also take a look at how well the model fits our data best using **Chi-square Goodness of Fit Test**. In case of outliers we shift to some distance based model fitting approach i.e. **Hellinger-Distance**
+
+-   Let's Start by comparing the Models for Maximum AQI Level of 2019, 2020 & 2021.
+
+```{r Model_Max_AQI, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+air_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation) %>%
+  gather(dew, humidity, pressure, temperature, `wind-gust`, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Max") %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019", "QQ-Plot")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Max") %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+```
+
+The Above fitted model quite surprisingly shows an increase in the expected Maximum AQI Level in 2020, as well as 2021 where we could have thought that the lockdowns during 2020 might have decreased All the Levels of AQI. But wait! It can be because we also saw previously that the second half of 2020 saw an increase in AQI Levels where the AQI Levels exceeded that of 2019. So, let's take a look at the first 6 months only for all the 3 Years.
+
+```{r Model_Max_AQI_First6Month, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+```
+
+But No! It seems indeed the Maximum AQI Levels were high even though there was a Lockdown during this phase, which seems pretty strange!
+
+Taking a look at the later half of 2020 & 2019, we see
+
+```{r Model_Max_AQI_Last6Month, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+
+ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+```
+
+That the first Model doesn't seem to fit the data well mostly because of scattered values and our model fails to track the portion well where there is maximum number of observations. We can improve on this by fitting using Minimization of Hellinger-Distance, but still practically it doesn't make much of a difference as the expectation remains almost the same.
+
+```{r compare_hellinger, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+invisible(capture.output(p1 <- compare_hellinger_fit_v_MLE(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "plnorm")))
+
+t1 <- tibble("MLE_Fit" = c("meanlog", round(fit_MLE$estimate[1], digits = 2), "sdlog", round(fit_MLE$estimate[2], digits = 2)))
+
+t2 <- tibble("Hel_Fit" = c("meanlog", round(fit_hellinger$estimate[1], digits = 2), "sdlog", round(fit_hellinger$estimate[2], digits = 2)))
+  
+table1 <- ggtexttable(tibble(MLE_Fit = c(t1[1,1]$MLE_Fit, t1[2,1]$MLE_Fit, t1[3,1]$MLE_Fit, t1[4,1]$MLE_Fit)), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Hel_Fit = c(t2[1,1]$Hel_Fit, t2[2,1]$Hel_Fit, t2[3,1]$Hel_Fit, t2[4,1]$Hel_Fit)), theme = ttheme("mCyan"), rows = NULL)
+
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[2,1]) + 0.5*as.numeric(t1[4,1])^2), digits = 2), "Var", round(exp(as.numeric(t1[2,1])*2 + 0.5*4*as.numeric(t1[4,1])^2) - (exp(as.numeric(t1[2,1])*1 + 0.5*as.numeric(t1[4,1])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[2,1]) + 0.5*as.numeric(t2[4,1])^2), digits = 2), "Var", round(exp(as.numeric(t2[2,1])*2 + 0.5*4*as.numeric(t2[4,1])^2) - (exp(as.numeric(t2[2,1])*1 + 0.5*as.numeric(t2[4,1])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+
+table <- ggarrange(table1, table2, nrow = 2)
+ggarrange(p1, table, nrow = 1, ncol = 2, widths = c(10,1))
+```
+
+Looking at the QQ-Plot the Hellinger Fit seems better.
+
+-   Now, we shall take a look at the Median AQI Levels of Pollutants for the first 6 months of the Year.
+
+```{r Model_Median_AQI_Indiv, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+```
+
+-   Later Half of 2020 & 2021 Compared.
+
+```{r Model_Median_AQI_Last6Month, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Median" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Median" & !(Month %in% c(1,2,3,4,5,6))) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm10"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
+  filter((pollutants %in% c("pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+
+ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+```

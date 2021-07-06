@@ -592,3 +592,49 @@ It is indeed the case that 2020 saw a dip in the mean AQI Levels compared to 201
 Performing a similar series of tests on the last 6 months of 2020 & 2019. It turns out to be surprising that the mean AQI Levels of most of the pollutants have gone up, even though the first half of the year saw a major dip !
 
 ![](Data_Analysis_files/figure-html/average_indiv_pollutant_lastt6month_t_test-1.png)<!-- -->
+
+We have seen several Tests in this section, and it seems that the first half of 2020 indeed saw a dip in Mean AQI Levels of Pollutants. It is also observed that it was the time when India went under a nation-wide lockdown which might have resulted in the drop of Mean AQI Levels of Pollutants.
+
+But that surprising part which we eventually unfolded is that the Later half of 2020 saw an increase in the AQI Levels of Pollutants where I expected to see a drop or similar AQI Levels.
+
+We will see more of Hypothesis Testing where ever needed, during our Analysis.
+
+### PROBABILITY MODELS
+
+We have already taken a look at the Distributions of all the Pollutants in the Distribution section of the Visual Overview. Now, it's time to fit Probability Models to the data we have observed. It is a really important part of parametric modelling. It will give us an idea about the noise we have in our data and in general what sort of AQI values of different pollutants we can expect every year. We will also carry our analysis on how different is the distribution of Year 2020 compared to 2019 & 2021.
+
+
+
+
+
+-   One Important thing to keep in mind is that we have 3 types of Measure of AQI Levels for Each Day that is Maximum AQI detected on that day, Minimum AQI Detected on that Day and Median AQI Detected. So merging all these data results in bad fit for any model since there are lots of data points for high value and median value resulting in two different distributions. So we will take a look at them separately. And the Combined AQI for all pollutants which we will see will be without including particulate matter because they too take much higher value compared to the other pollutants.
+
+-   We mostly observe that the histograms look quite close to Gamma, Lognormal, Weibull and Normal Density. So we tried fitting from these four models and if needed we will explore other models too. We will also take a look at how well the model fits our data best using **Chi-square Goodness of Fit Test**. In case of outliers we shift to some distance based model fitting approach i.e. **Hellinger-Distance**
+
+-   Let's Start by comparing the Models for Maximum AQI Level of 2019, 2020 & 2021.
+
+![](Data_Analysis_files/figure-html/Model_Max_AQI-1.png)<!-- -->
+
+The Above fitted model quite surprisingly shows an increase in the expected Maximum AQI Level in 2020, as well as 2021 where we could have thought that the lockdowns during 2020 might have decreased All the Levels of AQI. But wait! It can be because we also saw previously that the second half of 2020 saw an increase in AQI Levels where the AQI Levels exceeded that of 2019. So, let's take a look at the first 6 months only for all the 3 Years.
+
+![](Data_Analysis_files/figure-html/Model_Max_AQI_First6Month-1.png)<!-- -->
+
+But No! It seems indeed the Maximum AQI Levels were high even though there was a Lockdown during this phase, which seems pretty strange!
+
+Taking a look at the later half of 2020 & 2019, we see
+
+![](Data_Analysis_files/figure-html/Model_Max_AQI_Last6Month-1.png)<!-- -->
+
+That the first Model doesn't seem to fit the data well mostly because of scattered values and our model fails to track the portion well where there is maximum number of observations. We can improve on this by fitting using Minimization of Hellinger-Distance, but still practically it doesn't make much of a difference as the expectation remains almost the same.
+
+![](Data_Analysis_files/figure-html/compare_hellinger-1.png)<!-- -->
+
+Looking at the QQ-Plot the Hellinger Fit seems better.
+
+-   Now, we shall take a look at the Median AQI Levels of Pollutants for the first 6 months of the Year.
+
+![](Data_Analysis_files/figure-html/Model_Median_AQI_Indiv-1.png)<!-- -->
+
+-   Later Half of 2020 & 2021 Compared.
+
+![](Data_Analysis_files/figure-html/Model_Median_AQI_Last6Month-1.png)<!-- -->
