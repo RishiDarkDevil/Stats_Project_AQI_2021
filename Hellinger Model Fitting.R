@@ -89,3 +89,4 @@ compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
                                filter(Measure == "Avg_Median" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "pnorm")
 compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
                                filter(Measure == "Avg_Max" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "plnorm")
+compare_hellinger_fit_v_MLE((air_data_india_All_Specie_Monthly_2_pollutants_combined)$Mean_Pollutant_AQI, "pweibull")

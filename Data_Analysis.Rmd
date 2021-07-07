@@ -2367,3 +2367,17 @@ p6 <- ggarrange(p_pm25_1, table_pm25_1, p_pm25_2, table_pm25_2, nrow = 2, ncol =
 
 ggarrange(p1, p2, p3, p4, p5, p6, nrow = 6)
 ```
+
+# MODELING
+
+In this section, we will see how interestingly one pollutant's AQI affect the other pollutant's AQI, as well as we will study the natural effect of the non-pollutants on the pollutant's AQI values. We have already seen in the relationships part of Visual Overview, that there indeed exist a strong relationship between the pollutants and we also saw before that that the AQI values are quite dependent on the Month! Now, it is natural to assume that the contribution of Factories and Transportation and other factors are uniformly distributed over all months, then where does this pattern turn up ? It turns out that it can be because of the change in season and along with it the temperature, humidity, pressure, etc. also change which might be the actual cause in the difference in the concentration of the Pollutants measured. Thus, it can very well be that the relationship of Pollutants with Month is a Spurious one and the actual roots lie in the measure of non-pollutants which undergo change with time.
+
+We will also explore interesting ideas like how much one of the pollutants contribute to the AQI Levels of the other pollutants?
+
+Finally we will as is with the all the other section try out some interesting ideas to see whether the First 6 Months of 2020 actually had low AQI Levels of pollutants.
+
+### REGRESSION
+
+The main model which will be focusing on is the Multiple Linear Regression.
+
+-   As we were doing earlier we will have a separate Analysis for the first 6 months of the Year 2019, 2020 & 2021.

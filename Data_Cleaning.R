@@ -14,11 +14,18 @@ air_data_world <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND
 air_data_world
 covid_data <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Covid Cases\\covid_19_india.csv")
 covid_data
+air_data_india_1 <- read_csv("E:\\MY COLLEGE\\ISI KOLKATA\\1ST YEAR\\PROJECTS\\2ND SEM\\STATISTICAL METHODS II\\Air Quality Index\\Archive 1\\city_day.csv")
+air_data_india_1
 
 # Separating out the date column for easier analysis
 air_data_world <- air_data_world %>%
   mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
   select(Year, Month, Day, Country, City, Specie, count, min, max, median, variance)
+
+air_data_india_1 <- air_data_india_1 %>%
+  mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
+  select(Year, Month, Day, everything(), -Date)
+air_data_india_1
 
 covid_data <- covid_data %>%
   mutate(Year = year(Date), Month = month(Date), Day = day(Date)) %>%
