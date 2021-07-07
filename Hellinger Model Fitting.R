@@ -81,3 +81,11 @@ compare_hellinger_fit_v_MLE(air_data_pollutants_2019_avg_median_all_pol_summariz
 compare_hellinger_fit_v_MLE(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "plnorm")
 compare_hellinger_fit_v_MLE(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "plnorm")
 compare_hellinger_fit_v_MLE(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "plnorm")
+compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2021_avg_median, pollutants == "pm25")$AQI, "pnorm")
+compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2020_avg_median, pollutants == "pm25")$AQI, "pnorm")
+compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
+                    filter(Measure == "Avg_Min" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "plnorm")
+compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
+                               filter(Measure == "Avg_Median" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "pnorm")
+compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
+                               filter(Measure == "Avg_Max" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "plnorm")

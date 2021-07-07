@@ -611,30 +611,22 @@ We have already taken a look at the Distributions of all the Pollutants in the D
 
 -   We mostly observe that the histograms look quite close to Gamma, Lognormal, Weibull and Normal Density. So we tried fitting from these four models and if needed we will explore other models too. We will also take a look at how well the model fits our data best using **Chi-square Goodness of Fit Test**. In case of outliers we shift to some distance based model fitting approach i.e. **Hellinger-Distance**
 
--   Let's Start by comparing the Models for Maximum AQI Level of 2019, 2020 & 2021.
+-   Let's Start by comparing the Models for each Measure's AQI Level of 2019, 2020 & 2021.
 
-![](Data_Analysis_files/figure-html/Model_Max_AQI-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/Model_Yearly_AQI-1.png)<!-- -->
 
-The Above fitted model quite surprisingly shows an increase in the expected Maximum AQI Level in 2020, as well as 2021 where we could have thought that the lockdowns during 2020 might have decreased All the Levels of AQI. But wait! It can be because we also saw previously that the second half of 2020 saw an increase in AQI Levels where the AQI Levels exceeded that of 2019. So, let's take a look at the first 6 months only for all the 3 Years.
+-   Looking at the AQI Levels during the First Six Months Only.
 
-![](Data_Analysis_files/figure-html/Model_Max_AQI_First6Month-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/Model_AQI_First6Month-1.png)<!-- -->
 
-But No! It seems indeed the Maximum AQI Levels were high even though there was a Lockdown during this phase, which seems pretty strange!
+-   Last 6 Months of 2019 & 2020
 
-Taking a look at the later half of 2020 & 2019, we see
+![](Data_Analysis_files/figure-html/Model_AQI_Last6Month-1.png)<!-- -->
 
-![](Data_Analysis_files/figure-html/Model_Max_AQI_Last6Month-1.png)<!-- -->
+-   Looking at the Pollutant wise AQI Levels During the First 6 Months
 
-That the first Model doesn't seem to fit the data well mostly because of scattered values and our model fails to track the portion well where there is maximum number of observations. We can improve on this by fitting using Minimization of Hellinger-Distance, but still practically it doesn't make much of a difference as the expectation remains almost the same.
+![](Data_Analysis_files/figure-html/Model_AQI_Indiv_First6Month-1.png)<!-- -->
 
-![](Data_Analysis_files/figure-html/compare_hellinger-1.png)<!-- -->
+-   Later Half of 2020 & 2019 Compared Pollutant-Wise
 
-Looking at the QQ-Plot the Hellinger Fit seems better.
-
--   Now, we shall take a look at the Median AQI Levels of Pollutants for the first 6 months of the Year.
-
-![](Data_Analysis_files/figure-html/Model_Median_AQI_Indiv-1.png)<!-- -->
-
--   Later Half of 2020 & 2021 Compared.
-
-![](Data_Analysis_files/figure-html/Model_Median_AQI_Last6Month-1.png)<!-- -->
+![](Data_Analysis_files/figure-html/Model_AQI_Indiv_Last6Month-1.png)<!-- -->

@@ -1356,15 +1356,17 @@ find_variance <- function(f, ...) {
 
 -   We mostly observe that the histograms look quite close to Gamma, Lognormal, Weibull and Normal Density. So we tried fitting from these four models and if needed we will explore other models too. We will also take a look at how well the model fits our data best using **Chi-square Goodness of Fit Test**. In case of outliers we shift to some distance based model fitting approach i.e. **Hellinger-Distance**
 
--   Let's Start by comparing the Models for Maximum AQI Level of 2019, 2020 & 2021.
+-   Let's Start by comparing the Models for each Measure's AQI Level of 2019, 2020 & 2021.
 
-```{r Model_Max_AQI, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+```{r Model_Yearly_AQI, fig.asp=1.6, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
 air_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
   filter(Year != 2018) %>% # There is a lot of Missing values in this year
   spread(key = Specie, value = AQI) %>%
   select(-precipitation) %>%
   gather(dew, humidity, pressure, temperature, `wind-gust`, `wind-speed`, key = "non_pollutants", value = Levels) %>%
   gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+# Max AQI Compared
 
 air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
   filter(Year == 2019 & Measure == "Avg_Max") %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
@@ -1376,23 +1378,12 @@ air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
 # Normal Data fits well
 invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019", "QQ-Plot")))
 
 t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # -------------2020 ------------------------
 air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
@@ -1405,27 +1396,16 @@ air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
 invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
 
 t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # ------------2021-------------
 # First 6 months Only
 air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
-  filter(Year == 2021 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  filter(Year == 2021 & Measure == "Avg_Max") %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
   select(-c("non_pollutants", "Levels"))
 
 air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
@@ -1434,22 +1414,10 @@ air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2021")))
 
 t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 
 table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
@@ -1464,12 +1432,154 @@ table1 <- ggarrange(table1, table1a, nrow = 2)
 table2 <- ggarrange(table2, table2a, nrow = 2)
 table3 <- ggarrange(table3, table3a, nrow = 2)
 
-ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+p_max <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+# Avg_Median Comapared
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Median") %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Median") %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Median") %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+p_median <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+# Avg_Min Compared
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Min") %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Min") %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Min") %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t3[1]) + 0.5*as.numeric(t3[2])^2), digits = 2), "Var", round(exp(as.numeric(t3[1])*2 + 0.5*4*as.numeric(t3[2])^2) - (exp(as.numeric(t3[1])*1 + 0.5*as.numeric(t3[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+p_min <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+ggarrange(p_max, p_median, p_min, nrow = 3)
 ```
 
-The Above fitted model quite surprisingly shows an increase in the expected Maximum AQI Level in 2020, as well as 2021 where we could have thought that the lockdowns during 2020 might have decreased All the Levels of AQI. But wait! It can be because we also saw previously that the second half of 2020 saw an increase in AQI Levels where the AQI Levels exceeded that of 2019. So, let's take a look at the first 6 months only for all the 3 Years.
+-   Looking at the AQI Levels during the First Six Months Only.
 
-```{r Model_Max_AQI_First6Month, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+```{r Model_AQI_First6Month, fig.asp=2.4, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+# First 6 Months
+aair_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation) %>%
+  gather(dew, humidity, pressure, temperature, `wind-gust`, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+# Max AQI Compared
+
 air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
   filter(Year == 2019 & Measure == "Avg_Max" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
   select(-c("non_pollutants", "Levels"))
@@ -1480,23 +1590,12 @@ air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
 # Normal Data fits well
-invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019")))
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019", "QQ-Plot")))
 
 t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # -------------2020 ------------------------
 air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
@@ -1509,22 +1608,11 @@ air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
 invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
 
 t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # ------------2021-------------
 # First 6 months Only
@@ -1538,22 +1626,10 @@ air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2021")))
 
 t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 
 table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
@@ -1568,115 +1644,9 @@ table1 <- ggarrange(table1, table1a, nrow = 2)
 table2 <- ggarrange(table2, table2a, nrow = 2)
 table3 <- ggarrange(table3, table3a, nrow = 2)
 
-ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
-```
+p_max <- ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
 
-But No! It seems indeed the Maximum AQI Levels were high even though there was a Lockdown during this phase, which seems pretty strange!
-
-Taking a look at the later half of 2020 & 2019, we see
-
-```{r Model_Max_AQI_Last6Month, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
-air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
-  filter(Year == 2019 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
-  select(-c("non_pollutants", "Levels"))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
-  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-# Normal Data fits well
-invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019")))
-
-t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 2)))
-# -------------2020 ------------------------
-air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
-  filter(Year == 2020 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
-  select(-c("non_pollutants", "Levels"))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
-  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
-
-t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
-  mutate(across(where(is.numeric), ~ round(., digits = 2)))
-
-
-table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
-table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
-
-
-table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
-table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
-
-
-table1 <- ggarrange(table1, table1a, nrow = 2)
-table2 <- ggarrange(table2, table2a, nrow = 2)
-
-ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
-```
-
-That the first Model doesn't seem to fit the data well mostly because of scattered values and our model fails to track the portion well where there is maximum number of observations. We can improve on this by fitting using Minimization of Hellinger-Distance, but still practically it doesn't make much of a difference as the expectation remains almost the same.
-
-```{r compare_hellinger, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
-invisible(capture.output(p1 <- compare_hellinger_fit_v_MLE(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "plnorm")))
-
-t1 <- tibble("MLE_Fit" = c("meanlog", round(fit_MLE$estimate[1], digits = 2), "sdlog", round(fit_MLE$estimate[2], digits = 2)))
-
-t2 <- tibble("Hel_Fit" = c("meanlog", round(fit_hellinger$estimate[1], digits = 2), "sdlog", round(fit_hellinger$estimate[2], digits = 2)))
-  
-table1 <- ggtexttable(tibble(MLE_Fit = c(t1[1,1]$MLE_Fit, t1[2,1]$MLE_Fit, t1[3,1]$MLE_Fit, t1[4,1]$MLE_Fit)), theme = ttheme("mCyan"), rows = NULL)
-table2 <- ggtexttable(tibble(Hel_Fit = c(t2[1,1]$Hel_Fit, t2[2,1]$Hel_Fit, t2[3,1]$Hel_Fit, t2[4,1]$Hel_Fit)), theme = ttheme("mCyan"), rows = NULL)
-
-
-table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[2,1]) + 0.5*as.numeric(t1[4,1])^2), digits = 2), "Var", round(exp(as.numeric(t1[2,1])*2 + 0.5*4*as.numeric(t1[4,1])^2) - (exp(as.numeric(t1[2,1])*1 + 0.5*as.numeric(t1[4,1])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
-table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[2,1]) + 0.5*as.numeric(t2[4,1])^2), digits = 2), "Var", round(exp(as.numeric(t2[2,1])*2 + 0.5*4*as.numeric(t2[4,1])^2) - (exp(as.numeric(t2[2,1])*1 + 0.5*as.numeric(t2[4,1])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
-
-
-table1 <- ggarrange(table1, table1a, nrow = 2)
-table2 <- ggarrange(table2, table2a, nrow = 2)
-
-table <- ggarrange(table1, table2, nrow = 2)
-ggarrange(p1, table, nrow = 1, ncol = 2, widths = c(10,1))
-```
-
-Looking at the QQ-Plot the Hellinger Fit seems better.
-
--   Now, we shall take a look at the Median AQI Levels of Pollutants for the first 6 months of the Year.
-
-```{r Model_Median_AQI_Indiv, fig.asp=0.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+# Avg_Median Comapared
 air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
   filter(Year == 2019 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
   select(-c("non_pollutants", "Levels"))
@@ -1687,23 +1657,11 @@ air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 # Normal Data fits well
 invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2019")))
 
 t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # -------------2020 ------------------------
 air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
@@ -1716,22 +1674,10 @@ air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2020")))
 
 t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # ------------2021-------------
 # First 6 months Only
@@ -1745,22 +1691,10 @@ air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2021_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2021_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2021")))
 
 t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 
 table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
@@ -1775,12 +1709,128 @@ table1 <- ggarrange(table1, table1a, nrow = 2)
 table2 <- ggarrange(table2, table2a, nrow = 2)
 table3 <- ggarrange(table3, table3a, nrow = 2)
 
-ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+p_median <- ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+
+# Avg_Min Compared
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Min" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Min" & Month %in% c(1,2,3,4,5,6)) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# ------------2021-------------
+# First 6 months Only
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Min" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p3 <- fit_distribution(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2021")))
+
+t3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table3 <- ggtexttable(tibble(Fit = c(colnames(t3)[1], as.character(t3[1]),colnames(t3)[2], as.character(t3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t3[1]) + 0.5*as.numeric(t3[2])^2), digits = 2), "Var", round(exp(as.numeric(t3[1])*2 + 0.5*4*as.numeric(t3[2])^2) - (exp(as.numeric(t3[1])*1 + 0.5*as.numeric(t3[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+table3 <- ggarrange(table3, table3a, nrow = 2)
+
+p_min <- ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, widths = c(10,1))
+
+ggarrange(p_max, p_median, p_min, nrow = 3)
 ```
 
--   Later Half of 2020 & 2021 Compared.
+-   Last 6 Months of 2019 & 2020
 
-```{r Model_Median_AQI_Last6Month, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+```{r Model_AQI_Last6Month, fig.asp=1.6, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+# AQI - Last 6 Month
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Max" & !(Month %in% c(1,2,3,4,5,6))) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Maximum AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+
+p_max <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+# Median AQI - Last 6 Month
 air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
   filter(Year == 2019 & Measure == "Avg_Median" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
   select(-c("non_pollutants", "Levels"))
@@ -1791,23 +1841,11 @@ air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2019_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2019_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 # Normal Data fits well
 invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2019")))
 
 t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 # -------------2020 ------------------------
 air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
@@ -1820,22 +1858,10 @@ air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_polluta
   group_by(Year, Month, Day) %>%
   summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
 
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm10 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm10"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
-air_data_pollutants_2020_avg_median_all_pol_summarized_pm25 <- air_data_pollutants_2020_avg_median %>%
-  filter((pollutants %in% c("pm25"))) %>%
-  ungroup() %>%
-  group_by(Year, Month, Day) %>%
-  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
-
 invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Median AQI 2020")))
 
 t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
-    spread(key = names, value = x) %>% 
+  spread(key = names, value = x) %>% 
   mutate(across(where(is.numeric), ~ round(., digits = 2)))
 
 
@@ -1850,5 +1876,494 @@ table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) +
 table1 <- ggarrange(table1, table1a, nrow = 2)
 table2 <- ggarrange(table2, table2a, nrow = 2)
 
-ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+p_median <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+
+# Min AQI - Last 6 Months
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Min" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2019_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+# Normal Data fits well
+invisible(capture.output(p1 <- fit_distribution(air_data_pollutants_2019_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2019")))
+
+t1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+# -------------2020 ------------------------
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Min" & !(Month %in% c(1,2,3,4,5,6))) %>% #   ----------------------------------------LOOOOOOOOOOKKKKKKKK!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2020_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+invisible(capture.output(p2 <- fit_distribution(air_data_pollutants_2020_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "Min AQI 2020")))
+
+t2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+
+table1 <- ggtexttable(tibble(Fit = c(colnames(t1)[1], as.character(t1[1]),colnames(t1)[2], as.character(t1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table2 <- ggtexttable(tibble(Fit = c(colnames(t2)[1], as.character(t2[1]),colnames(t2)[2], as.character(t2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dnorm, mean = as.numeric(t2[1]), sd = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dnorm, mean = as.numeric(t2[1]), sd = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table1 <- ggarrange(table1, table1a, nrow = 2)
+table2 <- ggarrange(table2, table2a, nrow = 2)
+
+p_min <- ggarrange(p1, table1, p2, table2, nrow = 2, ncol = 2, widths = c(10,1))
+
+ggarrange(p_max, p_median, p_min, nrow = 3)
+```
+
+-   Looking at the Pollutant wise AQI Levels During the First 6 Months
+
+```{r Model_AQI_Indiv_First6Month, fig.asp=4.8, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+
+# First 6 Month Pollutant Wise
+# First 6 Month
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Median" & Month %in% c(1,2,3,4,5,6)) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+# Pollutant-wise
+# co
+
+# gamma & lognormal fits really well needs to be compared
+invisible(capture.output(p_co_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "co")$AQI, "CO AQI - 2019", "QQ-Plot")))
+
+t_co_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_co_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "co")$AQI, "CO AQI - 2020")))
+
+t_co_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_co_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "co")$AQI, "CO AQI - 2021")))
+
+t_co_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_co_1 <- ggtexttable(tibble(Fit = c(colnames(t_co_1)[1], as.character(t_co_1[1]),colnames(t_co_1)[2], as.character(t_co_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_co_2 <- ggtexttable(tibble(Fit = c(colnames(t_co_2)[1], as.character(t_co_2[1]),colnames(t_co_2)[2], as.character(t_co_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_co_3 <- ggtexttable(tibble(Fit = c(colnames(t_co_3)[1], as.character(t_co_3[1]),colnames(t_co_3)[2], as.character(t_co_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_co_1
+t2 <- t_co_2
+t3 <- t_co_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t3[1]) + 0.5*as.numeric(t3[2])^2), digits = 2), "Var", round(exp(as.numeric(t3[1])*2 + 0.5*4*as.numeric(t3[2])^2) - (exp(as.numeric(t3[1])*1 + 0.5*as.numeric(t3[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_co_1 <- ggarrange(table_co_1, table1a, nrow = 2)
+table_co_2 <- ggarrange(table_co_2, table2a, nrow = 2)
+table_co_3 <- ggarrange(table_co_3, table3a, nrow = 2)
+
+# no2
+
+# All three fits similar need to compare
+invisible(capture.output(p_no2_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "no2")$AQI, "NO2 AQI - 2019", "QQ-Plot")))
+
+t_no2_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_no2_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "no2")$AQI, "NO2 AQI - 2020")))
+
+t_no2_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_no2_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "no2")$AQI, "NO2 AQI - 2021")))
+
+t_no2_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_no2_1 <- ggtexttable(tibble(Fit = c(colnames(t_no2_1)[1], as.character(t_no2_1[1]),colnames(t_no2_1)[2], as.character(t_no2_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_no2_2 <- ggtexttable(tibble(Fit = c(colnames(t_no2_2)[1], as.character(t_no2_2[1]),colnames(t_no2_2)[2], as.character(t_no2_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_no2_3 <- ggtexttable(tibble(Fit = c(colnames(t_no2_3)[1], as.character(t_no2_3[1]),colnames(t_no2_3)[2], as.character(t_no2_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_no2_1
+t2 <- t_no2_2
+t3 <- t_no2_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_no2_1 <- ggarrange(table_no2_1, table1a, nrow = 2)
+table_no2_2 <- ggarrange(table_no2_2, table2a, nrow = 2)
+table_no2_3 <- ggarrange(table_no2_3, table3a, nrow = 2)
+
+# o3
+
+# None seems to fit well
+invisible(capture.output(p_o3_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "o3")$AQI, "O3 AQI - 2019", "QQ-Plot")))
+
+t_o3_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_o3_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "o3")$AQI, "O3 AQI - 2020")))
+
+t_o3_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_o3_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "o3")$AQI, "O3 AQI - 2021")))
+
+t_o3_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_o3_1 <- ggtexttable(tibble(Fit = c(colnames(t_o3_1)[1], as.character(t_o3_1[1]),colnames(t_o3_1)[2], as.character(t_o3_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_o3_2 <- ggtexttable(tibble(Fit = c(colnames(t_o3_2)[1], as.character(t_o3_2[1]),colnames(t_o3_2)[2], as.character(t_o3_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_o3_3 <- ggtexttable(tibble(Fit = c(colnames(t_o3_3)[1], as.character(t_o3_3[1]),colnames(t_o3_3)[2], as.character(t_o3_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_o3_1
+t2 <- t_o3_2
+t3 <- t_o3_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t2[1]), shape = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_o3_1 <- ggarrange(table_o3_1, table1a, nrow = 2)
+table_o3_2 <- ggarrange(table_o3_2, table2a, nrow = 2)
+table_o3_3 <- ggarrange(table_o3_3, table3a, nrow = 2)
+
+# so2
+
+# None fits well
+invisible(capture.output(p_so2_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "SO2 AQI - 2019", "QQ-Plot")))
+
+t_so2_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_so2_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "so2")$AQI, "SO2 AQI - 2020")))
+
+t_so2_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_so2_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "so2")$AQI, "SO2 AQI - 2021")))
+
+t_so2_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_so2_1 <- ggtexttable(tibble(Fit = c(colnames(t_so2_1)[1], as.character(t_so2_1[1]),colnames(t_so2_1)[2], as.character(t_so2_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_so2_2 <- ggtexttable(tibble(Fit = c(colnames(t_so2_2)[1], as.character(t_so2_2[1]),colnames(t_so2_2)[2], as.character(t_so2_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_so2_3 <- ggtexttable(tibble(Fit = c(colnames(t_so2_3)[1], as.character(t_so2_3[1]),colnames(t_so2_3)[2], as.character(t_so2_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_so2_1
+t2 <- t_so2_2
+t3 <- t_so2_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t3[1]) + 0.5*as.numeric(t3[2])^2), digits = 2), "Var", round(exp(as.numeric(t3[1])*2 + 0.5*4*as.numeric(t3[2])^2) - (exp(as.numeric(t3[1])*1 + 0.5*as.numeric(t3[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_so2_1 <- ggarrange(table_so2_1, table1a, nrow = 2)
+table_so2_2 <- ggarrange(table_so2_2, table2a, nrow = 2)
+table_so2_3 <- ggarrange(table_so2_3, table3a, nrow = 2)
+
+# pm10
+
+# None well
+invisible(capture.output(p_pm10_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "pm10")$AQI, "PM 10 AQI - 2019", "QQ-Plot")))
+
+t_pm10_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm10_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "pm10")$AQI, "PM 10 AQI - 2020")))
+
+t_pm10_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm10_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "pm10")$AQI, "PM 10 AQI - 2021")))
+
+t_pm10_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_pm10_1 <- ggtexttable(tibble(Fit = c(colnames(t_pm10_1)[1], as.character(t_pm10_1[1]),colnames(t_pm10_1)[2], as.character(t_pm10_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm10_2 <- ggtexttable(tibble(Fit = c(colnames(t_pm10_2)[1], as.character(t_pm10_2[1]),colnames(t_pm10_2)[2], as.character(t_pm10_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm10_3 <- ggtexttable(tibble(Fit = c(colnames(t_pm10_3)[1], as.character(t_pm10_3[1]),colnames(t_pm10_3)[2], as.character(t_pm10_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_pm10_1
+t2 <- t_pm10_2
+t3 <- t_pm10_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_pm10_1 <- ggarrange(table_pm10_1, table1a, nrow = 2)
+table_pm10_2 <- ggarrange(table_pm10_2, table2a, nrow = 2)
+table_pm10_3 <- ggarrange(table_pm10_3, table3a, nrow = 2)
+
+# pm25
+
+# Normal and weibull fits well needs to be compared
+invisible(capture.output(p_pm25_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "pm25")$AQI, "PM 25 AQI - 2019", "QQ-Plot")))
+
+t_pm25_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm25_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "pm25")$AQI, "PM 25 AQI - 2020")))
+
+t_pm25_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm25_3 <- fit_distribution(filter(air_data_pollutants_2021_avg_median, pollutants == "pm25")$AQI, "PM 25 AQI - 2021")))
+
+t_pm25_3 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_pm25_1 <- ggtexttable(tibble(Fit = c(colnames(t_pm25_1)[1], as.character(t_pm25_1[1]),colnames(t_pm25_1)[2], as.character(t_pm25_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm25_2 <- ggtexttable(tibble(Fit = c(colnames(t_pm25_2)[1], as.character(t_pm25_2[1]),colnames(t_pm25_2)[2], as.character(t_pm25_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm25_3 <- ggtexttable(tibble(Fit = c(colnames(t_pm25_3)[1], as.character(t_pm25_3[1]),colnames(t_pm25_3)[2], as.character(t_pm25_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_pm25_1
+t2 <- t_pm25_2
+t3 <- t_pm25_3
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table3a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(t3[1]), shape = as.numeric(t3[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_pm25_1 <- ggarrange(table_pm25_1, table1a, nrow = 2)
+table_pm25_2 <- ggarrange(table_pm25_2, table2a, nrow = 2)
+table_pm25_3 <- ggarrange(table_pm25_3, table3a, nrow = 2)
+
+
+p1 <- ggarrange(p_co_1, table_co_1, p_co_2, table_co_2, p_co_3, table_co_3, nrow = 3, ncol = 2, widths = c(10,1))
+p2 <- ggarrange(p_no2_1, table_no2_1, p_no2_2, table_no2_2, p_no2_3, table_no2_3, nrow = 3, ncol = 2, widths = c(10,1))
+p3 <- ggarrange(p_o3_1, table_o3_1, p_o3_2, table_o3_2, p_o3_3, table_o3_3, nrow = 3, ncol = 2, widths = c(10,1))
+p4 <- ggarrange(p_so2_1, table_so2_1, p_so2_2, table_so2_2, p_so2_3, table_so2_3, nrow = 3, ncol = 2, widths = c(10,1))
+p5 <- ggarrange(p_pm10_1, table_pm10_1, p_pm10_2, table_pm10_2, p_pm10_3, table_pm10_3, nrow = 3, ncol = 2, widths = c(10,1))
+p6 <- ggarrange(p_pm25_1, table_pm25_1, p_pm25_2, table_pm25_2, p_pm25_3, table_pm25_3, nrow = 3, ncol = 2, widths = c(10,1))
+
+ggarrange(p1, p2, p3, p4, p5, p6, nrow = 6)
+```
+
+-   Later Half of 2020 & 2019 Compared Pollutant-Wise
+
+```{r Model_AQI_Indiv_Last6Month, fig.asp=3.2, fig.width=12, warning=FALSE, message=FALSE, results='hide'}
+# Last 6 Month Pollutant Wise
+# Last 6 Month
+air_data_pollutants_2019_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2019 & Measure == "Avg_Median" & !(Month %in% c(1,2,3,4,5,6))) %>% #  -----------------------------------------------LOOOOK!!!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2020_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2020 & Measure == "Avg_Median" & !(Month %in% c(1,2,3,4,5,6))) %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+# Pollutant-wise
+# co
+
+# gamma & lognormal fits really well needs to be compared
+invisible(capture.output(p_co_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "co")$AQI, "CO AQI - 2019", "QQ-Plot")))
+
+t_co_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_co_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "co")$AQI, "CO AQI - 2020")))
+
+t_co_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_co_1 <- ggtexttable(tibble(Fit = c(colnames(t_co_1)[1], as.character(t_co_1[1]),colnames(t_co_1)[2], as.character(t_co_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_co_2 <- ggtexttable(tibble(Fit = c(colnames(t_co_2)[1], as.character(t_co_2[1]),colnames(t_co_2)[2], as.character(t_co_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_co_1
+t2 <- t_co_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_co_1 <- ggarrange(table_co_1, table1a, nrow = 2)
+table_co_2 <- ggarrange(table_co_2, table2a, nrow = 2)
+
+# no2
+
+# All three fits similar need to compare
+invisible(capture.output(p_no2_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "no2")$AQI, "NO2 AQI - 2019", "QQ-Plot")))
+
+t_no2_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_no2_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "no2")$AQI, "NO2 AQI - 2020")))
+
+t_no2_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_no2_1 <- ggtexttable(tibble(Fit = c(colnames(t_no2_1)[1], as.character(t_no2_1[1]),colnames(t_no2_1)[2], as.character(t_no2_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_no2_2 <- ggtexttable(tibble(Fit = c(colnames(t_no2_2)[1], as.character(t_no2_2[1]),colnames(t_no2_2)[2], as.character(t_no2_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_no2_3 <- ggtexttable(tibble(Fit = c(colnames(t_no2_3)[1], as.character(t_no2_3[1]),colnames(t_no2_3)[2], as.character(t_no2_3[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_no2_1
+t2 <- t_no2_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_no2_1 <- ggarrange(table_no2_1, table1a, nrow = 2)
+table_no2_2 <- ggarrange(table_no2_2, table2a, nrow = 2)
+
+# o3
+
+# None seems to fit well
+invisible(capture.output(p_o3_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "o3")$AQI, "O3 AQI - 2019", "QQ-Plot")))
+
+t_o3_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_o3_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "o3")$AQI, "O3 AQI - 2020")))
+
+t_o3_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_o3_1 <- ggtexttable(tibble(Fit = c(colnames(t_o3_1)[1], as.character(t_o3_1[1]),colnames(t_o3_1)[2], as.character(t_o3_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_o3_2 <- ggtexttable(tibble(Fit = c(colnames(t_o3_2)[1], as.character(t_o3_2[1]),colnames(t_o3_2)[2], as.character(t_o3_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_o3_1
+t2 <- t_o3_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(t1[1]), shape = as.numeric(t1[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dnorm, mean = as.numeric(t2[1]), sd = as.numeric(t2[2]))$value, digits = 2), "Var", round(find_variance(dnorm, mean = as.numeric(t2[1]), sd = as.numeric(t2[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_o3_1 <- ggarrange(table_o3_1, table1a, nrow = 2)
+table_o3_2 <- ggarrange(table_o3_2, table2a, nrow = 2)
+
+# so2
+
+# None fits well
+invisible(capture.output(p_so2_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "SO2 AQI - 2019", "QQ-Plot")))
+
+t_so2_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_so2_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "so2")$AQI, "SO2 AQI - 2020")))
+
+t_so2_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_so2_1 <- ggtexttable(tibble(Fit = c(colnames(t_so2_1)[1], as.character(t_so2_1[1]),colnames(t_so2_1)[2], as.character(t_so2_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_so2_2 <- ggtexttable(tibble(Fit = c(colnames(t_so2_2)[1], as.character(t_so2_2[1]),colnames(t_so2_2)[2], as.character(t_so2_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_so2_1
+t2 <- t_so2_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_so2_1 <- ggarrange(table_so2_1, table1a, nrow = 2)
+table_so2_2 <- ggarrange(table_so2_2, table2a, nrow = 2)
+
+# pm10
+
+# None well
+invisible(capture.output(p_pm10_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "pm10")$AQI, "PM 10 AQI - 2019", "QQ-Plot")))
+
+t_pm10_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm10_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "pm10")$AQI, "PM 10 AQI - 2020")))
+
+t_pm10_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_pm10_1 <- ggtexttable(tibble(Fit = c(colnames(t_pm10_1)[1], as.character(t_pm10_1[1]),colnames(t_pm10_1)[2], as.character(t_pm10_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm10_2 <- ggtexttable(tibble(Fit = c(colnames(t_pm10_2)[1], as.character(t_pm10_2[1]),colnames(t_pm10_2)[2], as.character(t_pm10_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_pm10_1
+t2 <- t_pm10_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_pm10_1 <- ggarrange(table_pm10_1, table1a, nrow = 2)
+table_pm10_2 <- ggarrange(table_pm10_2, table2a, nrow = 2)
+
+# pm25
+
+# Normal and weibull fits well needs to be compared
+invisible(capture.output(p_pm25_1 <- fit_distribution(filter(air_data_pollutants_2019_avg_median, pollutants == "pm25")$AQI, "PM 25 AQI - 2019", "QQ-Plot")))
+
+t_pm25_1 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+invisible(capture.output(p_pm25_2 <- fit_distribution(filter(air_data_pollutants_2020_avg_median, pollutants == "pm25")$AQI, "PM 25 AQI - 2020")))
+
+t_pm25_2 <- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+  spread(key = names, value = x) %>% 
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+
+table_pm25_1 <- ggtexttable(tibble(Fit = c(colnames(t_pm25_1)[1], as.character(t_pm25_1[1]),colnames(t_pm25_1)[2], as.character(t_pm25_1[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+table_pm25_2 <- ggtexttable(tibble(Fit = c(colnames(t_pm25_2)[1], as.character(t_pm25_2[1]),colnames(t_pm25_2)[2], as.character(t_pm25_2[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+
+t1 <- t_pm25_1
+t2 <- t_pm25_2
+
+table1a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t1[1]) + 0.5*as.numeric(t1[2])^2), digits = 2), "Var", round(exp(as.numeric(t1[1])*2 + 0.5*4*as.numeric(t1[2])^2) - (exp(as.numeric(t1[1])*1 + 0.5*as.numeric(t1[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+table2a <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(t2[1]) + 0.5*as.numeric(t2[2])^2), digits = 2), "Var", round(exp(as.numeric(t2[1])*2 + 0.5*4*as.numeric(t2[2])^2) - (exp(as.numeric(t2[1])*1 + 0.5*as.numeric(t2[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+
+table_pm25_1 <- ggarrange(table_pm25_1, table1a, nrow = 2)
+table_pm25_2 <- ggarrange(table_pm25_2, table2a, nrow = 2)
+
+p1 <- ggarrange(p_co_1, table_co_1, p_co_2, table_co_2, nrow = 2, ncol = 2, widths = c(10,1))
+p2 <- ggarrange(p_no2_1, table_no2_1, p_no2_2, table_no2_2, nrow = 2, ncol = 2, widths = c(10,1))
+p3 <- ggarrange(p_o3_1, table_o3_1, p_o3_2, table_o3_2, nrow = 2, ncol = 2, widths = c(10,1))
+p4 <- ggarrange(p_so2_1, table_so2_1, p_so2_2, table_so2_2, nrow = 2, ncol = 2, widths = c(10,1))
+p5 <- ggarrange(p_pm10_1, table_pm10_1, p_pm10_2, table_pm10_2, nrow = 2, ncol = 2, widths = c(10,1))
+p6 <- ggarrange(p_pm25_1, table_pm25_1, p_pm25_2, table_pm25_2, nrow = 2, ncol = 2, widths = c(10,1))
+
+ggarrange(p1, p2, p3, p4, p5, p6, nrow = 6)
 ```
