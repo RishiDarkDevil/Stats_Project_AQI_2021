@@ -206,7 +206,7 @@ p_min <- ggarrange(p1, table1, p2, table2, p3, table3, nrow = 3, ncol = 2, width
 ggarrange(p_max, p_median, p_min, nrow = 3)
 
 # First 6 Months
-aair_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
+air_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
   filter(Year != 2018) %>% # There is a lot of Missing values in this year
   spread(key = Specie, value = AQI) %>%
   select(-precipitation) %>%

@@ -90,3 +90,47 @@ compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
 compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
                                filter(Measure == "Avg_Max" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "plnorm")
 compare_hellinger_fit_v_MLE((air_data_india_All_Specie_Monthly_2_pollutants_combined)$Mean_Pollutant_AQI, "pweibull")
+
+# A Customized Versatile Version of lnorm - Source: KM Assignment 6 Prob Theory 1st Year, 2nd Sem
+customized_lnorm_fit <- function(data, guess, smoothness = 0.1){
+  lnorm_tweaked <- function(theta, x) ((1/(sqrt(2*pi*theta[2]^2)*x))*exp(-(1/(2*(theta[2]^2)))*(log(x)-theta[1])^2))*(1 + theta[3]*sin(2*pi*theta[4]*x))
+  
+  lnorm_tweaked_likelihood <- function(theta, data) {
+    log(prod(lnorm_tweaked(theta = theta, x = data)))
+  }
+  
+  lnorm_tweaked_log_likelihood <- function(theta, data){
+    -length(data)*log(sqrt(2*pi)*theta[2]) - sum(log(data)) - (1/(2*theta[2]^2))*sum((log(data)-theta[1])^2) + sum(log(1+theta[3]*sin(2*theta[4]*pi*data)))
+  }
+  
+  different_lognormal_fit <- function(data, guess, smoothness = 0.1){
+    data1 <<- tibble(x = data)
+    
+    fitted_params <<- optim(as.vector(guess), lnorm_tweaked_log_likelihood, data = data, control = list(fnscale=-1))
+    theta1 <<- fitted_params
+    
+    x <- seq(min(data), max(data), by = smoothness)
+    tweaked_lnorm <- lnorm_tweaked(theta1$par, x)
+    
+    plot_data <- tibble(x1 = x, y1 = tweaked_lnorm)
+    
+    p1 <<- data1 %>%
+      ggplot(aes(x, ..density..)) +
+      geom_histogram() +
+      geom_line(data = plot_data, aes(x1, y1), size = 2, color = "blue")
+    
+    estimates <<- tibble(
+      mu = fitted_params$par[1],
+      sigma = fitted_params$par[2],
+      sine_coeff = fitted_params$par[3],
+      theta_mult = fitted_params$par[4]
+    )
+  }
+  different_lognormal_fit(data, guess, smoothness)
+  print(p1)
+  return(estimates)
+}
+
+#Usage
+customized_lnorm_fit(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, c(2,1,0.1,1), 0.001) # The Function Attains minima at many points so be careful
+customized_lnorm_fit(filter(air_data_pollutants_2019_avg_median, pollutants == "o3")$AQI, c(1,1,0.1,1), 0.01)

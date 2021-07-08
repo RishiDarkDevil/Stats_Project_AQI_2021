@@ -33,6 +33,8 @@ library(pander)
 library(stargazer)
 library(forcats)
 library(broom)
+library(jtools)
+library(huxtable)
 options(dplyr.summarise.inform = FALSE)
 ```
 
