@@ -63,9 +63,9 @@ compare_hellinger_fit_v_MLE <- function(data, distribution){
 
 # Usage
 compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2021_avg_median, pollutants == "pm25")$AQI, "pnorm")
-compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "co")$AQI, "plnorm")
-compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "o3")$AQI, "pweibull")
-compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "plnorm")
+compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "co", AQI > 0)$AQI, "plnorm")
+compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "o3", AQI > 0)$AQI, "pweibull")
+compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "so2", AQI > 0)$AQI, "plnorm")
 compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "pgamma")
 compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "pweibull")
 compare_hellinger_fit_v_MLE(filter(air_data_pollutants_2019_avg_median, pollutants == "so2")$AQI, "pnorm")
@@ -90,6 +90,7 @@ compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
 compare_hellinger_fit_v_MLE((air_data_india_Pollutants_nonpollutants_daily %>%
                                filter(Measure == "Avg_Max" & !(pollutants %in% c("pm10", "pm25"))))$AQI, "plnorm")
 compare_hellinger_fit_v_MLE((air_data_india_All_Specie_Monthly_2_pollutants_combined)$Mean_Pollutant_AQI, "pweibull")
+compare_hellinger_fit_v_MLE(air_data_india_All_Specie_Daily_Regress_model$pm10, "pgamma")
 
 # A Customized Versatile Version of lnorm - Source: KM Assignment 6 Prob Theory 1st Year, 2nd Sem
 customized_lnorm_fit <- function(data, guess, smoothness = 0.1){

@@ -682,4 +682,253 @@ It suggests that the **wind-speeds and humidity were higher in 2020, whereas pre
 
 To perform any kind of analysis we need to model the data we have in order to get an idea about the expected value, variance and other properties related to the data. It also helps us get rid of the noise we get from the data we collect.
 
--   Here we will look at *how the different pollutants are distributed and how different are the models for different year & location.*
+-   Here we will look at *how the different pollutants are distributed and how different are the models for different year & location and which probability model fits our data and what are the parameter estimates of the fitted model along with Mean and Variance.*
+
+```{r model_fitting_functions}
+fit_distribution <- function(data, title_name = "Model & Data", qqtitle = NULL){
+  fit_g <<- invisible(fitdistrplus::fitdist(data, "gamma"))
+  fit_l <<- invisible(fitdistrplus::fitdist(data, "lnorm"))
+  fit_w <<- invisible(fitdistrplus::fitdist(data, "weibull"))
+  fit_n <<- invisible(fitdistrplus::fitdist(data, "norm"))
+  fit_e <<- invisible(fitdistrplus::fitdist(data, "exp"))
+  
+  plot.legend <- c("gamma", "lognormal", "weibull", "normal", "exponential")
+  gof <<- fitdistrplus::gofstat(list(fit_g, fit_l, fit_w, fit_n, fit_e), fitnames = plot.legend)
+  
+  p1 <- fitdistrplus::denscomp(list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend, fitlwd = c(2,2,2,2,2), xlegend = 0.007, plotstyle = "ggplot") #, fit_e), legendtext = plot.legend, fitlwd = c(3,3.5,4,4.5,1), xlegend = 0.007)
+  #fitdistrplus::cdfcomp (list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend)
+  p2 <- fitdistrplus::qqcomp  (list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend, plotstyle = "ggplot") # , fit_e), legendtext = plot.legend, xlegend = 0.01, )
+  #fitdistrplus::ppcomp  (list(fit_g, fit_l, fit_w, fit_n, fit_e), legendtext = plot.legend)
+  
+  p1 <- p1 +
+    theme(legend.justification = c(1, 1), legend.position = c(1, 1)) + ggtitle(title_name) + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+  p2 <- p2  +
+    theme(legend.position = "None") + ggtitle(qqtitle) + labs(subtitle = paste(rownames(as.data.frame(gof$ks[which.min(gof$ks)])), "seems to fit the data better.")) + theme(axis.title.x = element_blank(), axis.title.y = element_blank())
+  
+  
+  #print(paste(rownames(as.data.frame(gof$ks[which.min(gof$ks)])), "seems to fit the data well"))
+  #distfit.table <- tibble("Distribution" = c("Gamma", "Log-Norm", "Weibull", "Norm", "Expo"), "value" = gof$chisqpvalue) %>%
+  #  spread(key = Distribution, value = value) %>%
+  #  mutate(across(where(is.numeric), ~ round(., digits = 3)))
+  #return(distfit.table)
+  p <- ggarrange(p1, p2, ncol = 2)
+  return(p)
+}
+
+proper_fit_distribution <- function(data, heading = "Model & Data"){
+  
+  invisible(capture.output(p <- fit_distribution(data, heading)))
+  
+  tf <<- (map_df(list(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$estimate), tidy)) %>%
+    spread(key = names, value = x) %>% 
+    mutate(across(where(is.numeric), ~ round(., digits = 2)))
+  
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "exp")
+    table <- ggtexttable(tibble(Fit = c(colnames(tf)[1], as.character(tf[1]))), theme = ttheme("mCyan"), rows = NULL)
+  else
+    table <- ggtexttable(tibble(Fit = c(colnames(tf)[1], as.character(tf[1]),colnames(tf)[2], as.character(tf[2])[1])), theme = ttheme("mCyan"), rows = NULL)
+  
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "weibull")
+    tablea <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dweibull, scale = as.numeric(tf[1]), shape = as.numeric(tf[2]))$value, digits = 2), "Var", round(find_variance(dweibull, scale = as.numeric(tf[1]), shape = as.numeric(tf[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "lnorm")
+    tablea <-  ggtexttable(tibble(Moments = c("Mean", round(exp(as.numeric(tf[1]) + 0.5*as.numeric(tf[2])^2), digits = 2), "Var", round(exp(as.numeric(tf[1])*2 + 0.5*4*as.numeric(tf[2])^2) - (exp(as.numeric(tf[1])*1 + 0.5*as.numeric(tf[2])^2))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "gamma")
+    tablea <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dgamma, rate = as.numeric(tf[1]), shape = as.numeric(tf[2]))$value, digits = 2), "Var", round(find_variance(dgamma, rate = as.numeric(tf[1]), shape = as.numeric(tf[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "norm")
+    tablea <-  ggtexttable(tibble(Moments = c("Mean", round(find_mean(dnorm, mean = as.numeric(tf[1]), sd = as.numeric(tf[2]))$value, digits = 2), "Var", round(find_variance(dnorm, mean = as.numeric(tf[1]), sd = as.numeric(tf[2]))$value, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+  if(list(fit_g, fit_l, fit_w, fit_n, fit_e)[as.numeric(which.min(gof$ks))][[1]]$distname == "exp")
+    tablea <-  ggtexttable(tibble(Moments = c("Mean", round(1/as.numeric(tf[1]), digits = 2), "Var", round(1/(as.numeric(tf[1]))^2, digits = 2))), theme = ttheme("mGreen"), rows = NULL)
+  
+  table <- ggarrange(table, tablea, nrow = 2)
+  
+  p <- ggarrange(p, table, nrow = 1, ncol = 2, widths = c(10,1))
+  return(p)
+}
+
+fit_distribution_all_cities <- function(data, flag = 1){
+  # So2 Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$so2, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$so2, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$so2, "Muzaffarnagar")
+  p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$so2, "Mumbai")
+  
+  fit_so2 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  # No2 Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$no2, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$no2, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$no2, "Muzaffarnagar")
+  p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$no2, "Mumbai")
+  
+  fit_no2 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  # CO Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$co, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$co, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$co, "Muzaffarnagar")
+  p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$co, "Mumbai")
+  
+  fit_co <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  # O3 Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$o3, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$o3, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$o3, "Muzaffarnagar")
+  p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$o3, "Mumbai")
+  
+  fit_o3 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  # pm10 Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$pm10, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$pm10, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$pm10, "Muzaffarnagar")
+  if(flag == 1)
+    p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$pm10, "Mumbai")
+  
+  fit_pm10 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  # pm25 Level prediction
+  p1 <- proper_fit_distribution((data %>% filter(City == "Kolkata"))$pm25, "Kolkata")
+  p2 <- proper_fit_distribution((data %>% filter(City == "Delhi"))$pm25, "Delhi")
+  p3 <- proper_fit_distribution((data %>% filter(City == "Muzaffarnagar"))$pm25, "Muzaffarnagar")
+  p4 <- proper_fit_distribution((data %>% filter(City == "Mumbai"))$pm25, "Mumbai")
+  
+  fit_pm25 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  
+  return(list("fit_so2"=fit_so2, "fit_no2"=fit_no2, "fit_co"=fit_co, "fit_o3"=fit_o3, "fit_pm10"=fit_pm10, "fit_pm25"=fit_pm25))
+}
+```
+
+```{r expectation_variance_finders}
+ev_finder <- function(transform = identity) {
+  function(f, ..., from = -Inf, to = Inf) {
+    integrate(function(x) transform(x) * f(x, ...), from, to)
+  }
+}
+
+moment_finder <- function(n, c = 0) {
+  ev_finder(function(x) (x - c) ^ n)
+}
+
+find_mean <- moment_finder(1)
+find_variance <- function(f, ...) {
+  mu <- find_mean(f, ...)$value
+  moment_finder(2, mu)(f, ...)
+}
+
+```
+
+```{r regress_estimation_data_prep, fig.asp=0.7, fig.width=12, cache=TRUE}
+air_data_india_All_Specie_Daily_Regress <- air_data_india %>%
+  group_by(Year, Month, Day,  Specie, City) %>%
+  summarise(Min = mean(min, na.rm = TRUE), Median = mean(median, na.rm = TRUE), Max = mean(max, na.rm = TRUE), Var = mean(variance, na.rm = TRUE))
+
+air_data_india_All_Specie_Daily_Regress <- air_data_india_All_Specie_Daily_Regress %>%
+  gather(Min, Median, Max, Var, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Daily_Regress <- air_data_india_All_Specie_Daily_Regress %>%
+  spread(key = Specie, value = AQI)
+
+air_data_india_All_Specie_Daily_Regress <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(City %in% c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai")) %>%
+  filter(Year %in% c(2019, 2020, 2021), Measure != "Var") %>%
+  group_by(Year, Month, Day, City) %>%
+  mutate(Year = as.character(Year)) %>%
+  filter(!is.na(so2)) %>%
+  filter(!is.na(no2)) %>%
+  filter(!is.na(co)) %>%
+  filter(!is.na(o3)) %>%
+  filter(!is.na(pm25)) %>%
+  filter(!(City == "Mumbai" & temperature < 15)) %>%
+  filter(!((City == "Mumbai" & co > 50))) %>%
+  filter((humidity >= 20 & humidity <= 100) & (dew >= 0 & dew <= 50) & (temperature >= 0 & temperature <= 55) & (pressure >= 600)) %>%
+  filter(so2 > 0, no2 > 0, o3 > 0, co > 0, pm10 > 0, pm25 > 0)
+
+```
+
+```{r fit_distribution_all_cities, fig.asp=1.8, fig.width=14, warning=FALSE}
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019, Measure != "Var") %>% # ------------LOOOOOOOK
+  filter(!(Month %in% c(1,2,3,4,5,6)))
+
+city_distributions <- fit_distribution_all_cities(air_data_india_All_Specie_Daily_Regress_model)
+
+fig1 <- annotate_figure(city_distributions$fit_pm25, top = text_grob("PM25 Distribution for first 6 Months of 2019", face = "bold", size = 14 ))
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020, Measure != "Var") %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6))
+
+city_distributions <- fit_distribution_all_cities(air_data_india_All_Specie_Daily_Regress_model, flag = 0)
+
+fig2 <- annotate_figure(city_distributions$fit_pm25, top = text_grob("PM25 Distribution for first 6 Months of 2020", face = "bold", size = 14 ))
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2021, Measure != "Var") %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6))
+
+city_distributions <- fit_distribution_all_cities(air_data_india_All_Specie_Daily_Regress_model)
+
+fig3 <- annotate_figure(city_distributions$fit_pm25, top = text_grob("PM25 Distribution for first 6 Months of 2021", face = "bold", size = 14 ))
+
+ggarrange(fig1, fig2, fig3, nrow = 3)
+```
+
+I have mostly tried **fitting one of Gamma, Lognormal, Normal, Weibull and Exponential Distribution by the Method of Maximum Likelihood Estimation** after looking at the histograms of the data for all the Pollutants. The **better model out of all these 5 models was chosen based on Chi-Squre test for goodness of fit**.
+
+Looking at the moments of the fitted distribution we see one of the most important factor contributing to AQI Calculation i.e. **pm25 Levels during the first 6 months were much lower in all the cities except Mumbai in 2020 compared to 2019, whereas these levels increased back to a much higher value in 2021**.
+
+Similar **Fitted Probability Models suggests almost all the Pollutant Levels were lower in 2020 compared to that of 2019, but the values of 2019 and 2021 are very similar, if not that of 2021 is higher**. I will attach all the relevant Plots and figures for other Pollutants at the end, if interested in looking at them.
+
+There were also some cases were **outliers degraded the fit of the model, I tried minimizing the Hellinger Distance to fit the model in that case**. Below give is one such case -
+
+```{r Hellinger_Fit, fig.asp=0.618, fig.width=12, warning=FALSE, message=FALSE}
+# Calculates the sqrt(f).sqrt(g) things that needs to be maximized for minimum hellinger distance
+hellinger_distance.minimizer <- function(...) {
+  y <<- as.list(...) 
+  x <<- as.list(c(NA, unlist(y)))
+  x[[1]] <<- c(-Inf, gof$chisqbreaks, Inf)
+  hellinger <<- sum(sqrt(diff(do.call(distribution, x)))*sqrt(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3] / sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3])))
+  return(hellinger)
+}
+
+# Fits Model based on Minimizing Hellinger Distance
+hellinger_fit <- function(data, distribution){
+  data1 <<- data
+  distribution <<- distribution
+  fit <<- fitdistrplus::fitdist(data, sub('.', '', distribution))
+  gof <<- fitdistrplus::gofstat(fit, fitnames = c(sub('.', '', distribution))) 
+  estimates <<- optim(par = as.vector(fit$estimate), fn = hellinger_distance.minimizer, control = list(fnscale=-1))
+  sq_hellinger_dist <<- sum(diff(do.call(distribution, x))) + sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3] / sum(as.data.frame(gof$chisqtable)[1:(length(gof$chisqbreaks)+1), 3])) - 2*hellinger_distance.minimizer(estimates$par)
+  return(list("Hellinger_Estimates" = estimates$par, "Square_Hellinger_Distance" = sq_hellinger_dist))
+}
+
+# Comparing Hellinger Fit with MLE Fit
+compare_hellinger_fit_v_MLE <- function(data, distribution){
+  invisible(capture.output(fit_MLE <<- fitdistrplus::fitdist(data, sub('.', '', distribution))))
+  invisible(capture.output(fit_hellinger <<- fitdistrplus::fitdist(data, sub('.', '', distribution))))
+  invisible(capture.output(fit_hellinger$estimate <<- hellinger_fit(data, distribution)$Hellinger_Estimates))
+  
+  plot.legend <- c("MLE_Fit", "Hellinger_Fit")
+  p1 <- fitdistrplus::denscomp(list(fit_MLE, fit_hellinger), legendtext = plot.legend, fitlwd = c(2, 2), xlegend = 0.007, plotstyle = "ggplot")
+  p2 <- fitdistrplus::qqcomp  (list(fit_MLE, fit_hellinger), legendtext = plot.legend, plotstyle = "ggplot")
+  p1 <- p1 + theme(legend.justification = c(1, 1), legend.position = c(1, 1)) + ggtitle("Hellinger Fit vs MLE Fit Model")
+  p2 <- p2 + theme(legend.position = "None")
+  ggarrange(p1, p2, ncol = 2)
+}
+
+air_data_pollutants_2021_avg_median <- air_data_india_Pollutants_nonpollutants_daily %>%
+  filter(Year == 2021 & Measure == "Avg_Max") %>% # ------------------------------LOOOOOOOOOOOOOOOOOOK!!!!!!!!
+  select(-c("non_pollutants", "Levels"))
+
+air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm <- air_data_pollutants_2021_avg_median %>%
+  filter(!(pollutants %in% c("pm10", "pm25"))) %>%
+  ungroup() %>%
+  group_by(Year, Month, Day) %>%
+  summarise(Mean_AQI = mean(AQI, na.rm = TRUE))
+
+annotate_figure(compare_hellinger_fit_v_MLE(air_data_pollutants_2021_avg_median_all_pol_summarized_wo_pm$Mean_AQI, "pweibull"), top = text_grob("Average Median Pollutant Levels(Except pm10 & pm25), 2021", face = "bold", size = 14))
+```
+
+It is clear that the **Hellinger fit is much better in fitting the part of the distribution where there are maximum observations**.
