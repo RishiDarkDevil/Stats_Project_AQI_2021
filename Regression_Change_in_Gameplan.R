@@ -192,7 +192,7 @@ prediction.R2$Prediction_Table
 
 # ------------Training 2021 First 6 Months 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
-  filter(Year == 2021, Measure == "Median") %>% # ------------LOOOOOOOK
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
 air_data_india_All_Specie_Daily_Regress_model
 
@@ -222,3 +222,7 @@ predict(model_o1, predict_data, interval = "prediction")
 predict(model_n1, predict_data, interval = "prediction")
 predict(model_p1, predict_data, interval = "prediction")
 predict(model_p.1, predict_data, interval = "prediction")
+
+
+# 
+model_kol <- train_city_pol(air_data_india_All_Specie_Daily_Regress_model %>% filter(City == "Kolkata"), "Kolkata")

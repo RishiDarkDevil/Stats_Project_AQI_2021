@@ -225,6 +225,101 @@ make_predictions <- function(trained_model, test_data){
   return(p)
 }
 
+# Training for 1 city
+train_city_pol <- function(data, city = "City"){
+  # so2 on non-pollutants
+  model_s1 <<- lm(so2 ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  # no2 on non-pollutants
+  model_n1 <<- lm(no2 ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  # co on non-pollutants
+  model_c1 <<- lm(co ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  # o3 on non-pollutants
+  model_o1 <<- lm(o3 ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  # pm10 on non-pollutants
+  model_p1 <<- lm(pm10 ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  # pm25 on non-pollutants
+  model_p.1 <<- lm(pm25 ~ dew + humidity + pressure + temperature + `wind-speed`, data = data)
+  
+  R2.so2 <- tibble(
+    city = find_R.squared(model_s1, data)
+  )
+  R2.no2 <- tibble(
+    city = find_R.squared(model_n1, data)
+  )
+  R2.co <- tibble(
+    city = find_R.squared(model_c1, data)
+  )
+  R2.o3 <- tibble(
+    city = find_R.squared(model_o1, data)
+  )
+  R2.pm10 <- tibble(
+    city = find_R.squared(model_p1, data)
+  )
+  R2.pm25 <- tibble(
+    city = find_R.squared(model_p.1, data)
+  )
+  
+  Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25)
+  Prediction_Table.nonpol <- Prediction_Table %>%
+    mutate(Pollutant = c("so2", "no2", "co", "o3", "pm10", "pm25")) %>%
+    select(Pollutant, everything())
+  
+  model_summary.nonpol <- export_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, error_format = "[{conf.low}, {conf.high}]", model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), number_format = "%.2f")
+  
+  # so2 on pollutants
+  model_s1 <<- lm(so2 ~ no2 + co + o3 + pm10 + pm25, data = data)
+  
+  # no2 on pollutants
+  model_n1 <<- lm(no2 ~ so2 + co + o3 + pm10 + pm25, data = data)
+  
+  
+  # co on pollutants
+  model_c1 <<- lm(co ~ so2 + no2 + o3 + pm10 + pm25, data = data)
+  
+  
+  # o3 on pollutants
+  model_o1 <<- lm(o3 ~ so2 + no2 + co + pm10 + pm25, data = data)
+  
+  # pm10 on pollutants
+  model_p1 <<- lm(pm10 ~ so2 + no2 + co + o3 + pm25, data = data)
+  
+  # pm25 on pollutants
+  model_p.1 <<- lm(pm25 ~ so2 + no2 + co + o3 + pm10, data = data)
+  
+  R2.so2 <- tibble(
+    city = find_R.squared(model_s1, data)
+  )
+  R2.no2 <- tibble(
+    city = find_R.squared(model_n1, data)
+  )
+  R2.co <- tibble(
+    city = find_R.squared(model_c1, data)
+  )
+  R2.o3 <- tibble(
+    city = find_R.squared(model_o1, data)
+  )
+  R2.pm10 <- tibble(
+    city = find_R.squared(model_p1, data)
+  )
+  R2.pm25 <- tibble(
+    city = find_R.squared(model_p.1, data)
+  )
+  
+  Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25)
+  Prediction_Table.otherpol <- Prediction_Table %>%
+    mutate(Pollutant = c("so2", "no2", "co", "o3", "pm10", "pm25")) %>%
+    select(Pollutant, everything())
+  
+  model_summary.otherpol <- export_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, error_format = "[{conf.low}, {conf.high}]", model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), number_format = "%.2f")
+  
+  return(list("prediction.table.nonpol"=Prediction_Table.nonpol, "prediction.table.otherpol"=Prediction_Table.otherpol, "nonpolsummary"=model_summary.nonpol, "otherpolsummary"=model_summary.otherpol))
+}
+
 # Training top 9 cities
 train_all_cities_pol_with_nonpol <- function(data){
   # so2 on non-pollutants
@@ -897,3 +992,47 @@ added_variable_plot_all_cities <- function(data){
   
   return(list("resid.plot.Kolkata" = resid.plot.Kolkata, "resid.plot.Delhi"=resid.plot.Delhi, "resid.plot.Muzz"=resid.plot.Muzz, "resid.plot.Mumbai"=resid.plot.Mumbai))
 }
+
+
+format_reg_table <- function(model, digs = 2){
+  mod <- tidy(model, conf.level = .99, conf.int = TRUE) %>%
+    mutate(across(where(is.numeric), ~ round(., digits = digs)))
+  mod <- mod %>%
+    mutate(estimate = as.character(estimate)) %>%
+    mutate(estimate = paste(estimate, ifelse(p.value < 0.05, "*",""), ifelse(p.value < 0.01, "*",""), ifelse(p.value < 0.001, "*",""), "[", conf.low, ",", conf.high, "]", sep = ""))
+  mod <- mod %>%
+    select(term, estimate)
+  return(mod)
+}
+
+present_all_pols_model <- function(model_s, model_n, model_c, model_o, model_p, model_p.){
+  mod1 <- format_reg_table(model_s) %>% rename(SO2 = estimate)
+  mod2 <- format_reg_table(model_n) %>% select(estimate) %>% rename(NO2 = estimate)
+  mod3 <- format_reg_table(model_c) %>% select(estimate) %>% rename(CO = estimate)
+  mod4 <- format_reg_table(model_o) %>% select(estimate) %>% rename(O3 = estimate)
+  mod5 <- format_reg_table(model_p) %>% select(estimate) %>% rename(PM10 = estimate)
+  mod6 <- format_reg_table(model_p.) %>% select(estimate) %>% rename(PM25 = estimate)
+  fin.table <- as_tibble(cbind(mod1, mod2, mod3, mod4, mod5, mod6))
+  return(fin.table)
+}
+
+# Presenting Model Summary Concisely.
+present_model_summary <- function(data){ # The Data must be Yearly
+  # Kolkata
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Kolkata", Month %in% c(1,2,3,4,5,6)))))
+  nonpol_model_1 <- present_all_pols_model(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Kolkata", Month %in% c(7,8,9,10,11,12)))))
+  nonpol_model_2 <- present_all_pols_model(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  nonpol_model_1 <- ggtexttable(nonpol_model_1, rows = NULL, theme = ttheme("mGreen")) %>%
+    tab_add_title("First Half of the Year", face = "bold")
+  nonpol_model_2 <- ggtexttable(nonpol_model_2, rows = NULL, theme = ttheme("mBlue")) %>%
+    tab_add_title("Second Half of the Year", face = "bold")
+  
+  annotate_figure(ggarrange(nonpol_model_1, nonpol_model_2, nrow = 2), top = text_grob("2019", face = "bold", size = 14))
+  
+}
+
+# Usage
+present_model_summary(air_data_india_All_Specie_Daily_Regress %>% filter(Year == 2019))
