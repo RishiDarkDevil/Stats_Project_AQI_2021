@@ -648,32 +648,38 @@ panel.grid.minor = element_blank(),strip.background = element_blank()) +
 
 This suggests that there is a **positive linear relationship between Temperature & Humidity and all the Pollutant Levels**. **Wind speed is indeed positively correlated with pm10 and pm25 which might be the cause for higher AQI in Mumbai**.
 
-## DISTRIBUTIONS
+-   Another Important thing to keep in mind is *how the weather parameters change with seasons*.
 
-To perform any kind of analysis we need to model the data we have in order to get an idea about the expected value, variance and other properties related to the data. It also helps us get rid of the noise we get from the data we collect.
-
--   Here we will look at *how the different pollutants are distributed and how different are the models for different year & location.*
-
-```{r Yearly_Pollutant_Hist, fig.asp=0.618, fig.width=12}
-air_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
-  filter(Year != 2018) %>% # There is a lot of Missing values in this year
-  spread(key = Specie, value = AQI) %>%
-  select(-precipitation, -`wind-gust`) %>%
-  gather(dew, humidity, pressure, temperature, `wind-speed`, key = "non_pollutants", value = Levels) %>%
-  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
-
-air_data_india_Pollutants_nonpollutants_daily %>%
-  mutate(Year = as.character(Year)) %>%
-  ggplot(aes(AQI, ..density.., fill = Year)) +
-  geom_histogram(binwidth = 0.5) +
-  facet_wrap(~City + Specie, ncol = 6) +
-  labs(fill = "City", x = "Pollutant Levels", y = "Density")+
+```{r Monthly_nonpol_viz, fig.asp=0.7, fig.width=12}
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  group_by(Year, Month, non_pollutants) %>%
+  summarise(Levels = mean(Levels)) %>%
+  ggplot(aes(Month, Levels, color = Year)) +
+  geom_point(size = 3) +
+  geom_smooth(se = FALSE, method = "lm", formula = y~x + I(x^2) + I(x^3)) +
+  facet_wrap(~non_pollutants, scales = "free") +
+  labs(y = "Levels")+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),strip.background = element_blank()) +
   theme(legend.position = "bottom") +
   guides(
     fill = guide_legend(
       nrow = 1,
-      aes.override = list(size = 3)
+      override.aes = list(size = 3)
     )
-  ) +
-  scale_fill_viridis(discrete = TRUE)
+  ) + ggtitle("Monthly Weather Parameter Levels") +
+  scale_color_viridis(discrete = TRUE)
 ```
+
+It suggests that the **wind-speeds and humidity were higher in 2020, whereas pressure and temperatures were lower in 2020**.
+
+# STATISTICAL INFERENCE
+
+## ESTIMATION
+
+### DISTRIBUTIONS & PROBABILITY MODELS 
+
+To perform any kind of analysis we need to model the data we have in order to get an idea about the expected value, variance and other properties related to the data. It also helps us get rid of the noise we get from the data we collect.
+
+-   Here we will look at *how the different pollutants are distributed and how different are the models for different year & location.*
