@@ -23,7 +23,7 @@ library(kableExtra)
 library(stringr)
 library(viridis)
 library(formattable)
-library(skimr)
+#library(skimr)
 library(moderndive)
 library(infer)
 #library(fitdistrplus)
@@ -126,6 +126,36 @@ station_list <- station_list %>%
   filter(City %in% unique(air_data_india$City)) %>%
   group_by(State, City) %>%
   summarise("Number of Stations" = n())
+
+# Some preliminary cleaning
+air_data_india_All_Specie_Daily_AQI_formulated <- air_data_india %>%
+  group_by(Year, Month, Day,  Specie, City) %>%
+  summarise(Min = mean(min, na.rm = TRUE), Median = mean(median, na.rm = TRUE), Max = mean(max, na.rm = TRUE), Var = mean(variance, na.rm = TRUE)) %>%
+  gather(Min, Median, Max, Var, key = "Measure", value = "AQI") %>%
+  spread(key = Specie, value = AQI) %>%
+  filter(Year %in% c(2019, 2020, 2021), Measure != "Var") %>%
+  group_by(Year, Month, Day, City) %>%
+  mutate(so2 = mean(so2, na.rm = TRUE), no2 = mean(no2, na.rm = TRUE), co = mean(co, na.rm = TRUE), o3 = mean(o3, na.rm = TRUE), pm10 = mean(pm10, na.rm = TRUE), pm25 = mean(pm25, na.rm = TRUE), dew = mean(dew, na.rm = TRUE), humidity = mean(humidity, na.rm = TRUE), pessure = mean(pressure, na.rm = TRUE), temperature = mean(temperature, na.rm = TRUE), `wind-speed` = mean(`wind-speed`, na.rm = TRUE)) %>%
+  mutate(AQI = max(co, no2, o3, so2, pm10, pm25, na.rm = TRUE))
+
+air_data_india_All_Specie_Daily_AQI_formulated <- air_data_india_All_Specie_Daily_AQI_formulated %>%
+  filter(City %in% c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai", "Lucknow", "Patna", "Chandigarh", "Gandhinagar", "Jaipur")) %>%
+  mutate(Year = as.character(Year)) %>%
+  filter(!is.na(so2)) %>%
+  filter(!is.na(no2)) %>%
+  filter(!is.na(co)) %>%
+  filter(!is.na(o3)) %>%
+  filter(!is.na(pm25)) %>%
+  filter(!(is.na(pm10) & City == "Chandigarh")) %>%
+  filter(!(is.na(pm10) & City == "Gandhinagar")) %>%
+  filter(!(City == "Mumbai" & temperature < 15)) %>%
+  filter(!((City == "Jaipur" & o3 > 100) | (City == "Lucknow" & o3 > 100) | (City == "Chandigarh" & o3 > 100))) %>%
+  filter(!((City == "Mumbai" & co > 50))) %>%
+  filter(!((City == "Patna" & no2 > 50))) %>%
+  filter(!((City == "Patna" & so2 > 100))) %>%
+  filter((humidity >= 20 & humidity <= 100) & (dew >= 0 & dew <= 50) & (temperature >= 0 & temperature <= 55) & (pressure >= 600)) %>%
+  filter(Measure == "Median") %>%
+  select(-c(Measure, precipitation, `wind-gust`))
 ```
 
 # INTRODUCTION
@@ -186,7 +216,7 @@ kable(Specie_description, caption = "Specie Description") %>%
   kable_styling(position = "center")
 ```
 
-AQI is a comparable and communicable way of measuring the parameters in the Air. It is calculated when atleast 3 of the top 6 parameter's data is available of which one must be pm10 or pm25.
+AQI is a comparable and communicable way of measuring the parameters in the Air. It is calculated when atleast 3 of the top 6 parameter's data is available of which one must be pm10 or pm25. It is the max of the parameters recorded given they satisfy the above condition.
 
 -   It also helps in identifying faulty standards and inadequate monitoring programmes.
 
@@ -462,3 +492,91 @@ ggarrange(p1, p2, nrow = 2)
 ```
 
 Here we see an interesting effect of Lockdowns. **All the pollutants have decreased considerably in the First half of 2020 whereas in the Second half it has bumped up again to match the Levels of 2019 or even more! While the Levels of 2021 & 2019 are very similar**.
+
+-   Pollutant Gases and Particulate Matter, whose levels despite being affected by Human Intervention and Industrial Activities, are nothing but Natural Gases which follow nature's process. Here we will take a look at *how the AQI Levels change with seasons throughout the year*.
+
+```{r Station_Monthly_Viz, fig.asp=0.8, fig.width=12}
+Monthly_Pollutant_City <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017)) & City %in% avg_median_per_year_per_station$City[1:11]) %>%
+  group_by(Year, Month, City) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+
+Monthly_Pollutant_City_1 <- Monthly_Pollutant_City %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Daily_AQI_formulated %>%
+  filter(City %in% top_cities) %>%
+  group_by(Year, Month, City) %>%
+  summarise(AQI = mean(AQI)) %>%
+  ggplot(aes(Month, AQI, color = Year)) +
+  geom_point(size = 4, alpha = 0.7) +
+  stat_smooth(se = FALSE, method = "lm", formula = y ~ x + I(x^2), size = 2) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank()) +
+  facet_wrap(~City) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) + 
+  facet_wrap(~City) + ggtitle("Monthly AQI Levels") +
+  scale_color_viridis(discrete = TRUE)
+```
+
+Indeed it looks like the **AQI Levels have dropped in the first half of 2020 compared to 2019, with the exception of Mumbai. But it has increased to levels more than 2019 in the later half. The AQI Levels of 2021 is more that both the previous years**. I have fit here a Quadratic Model which seems to model the situation well though we shouldn't focus on the model fit to 2021 as we only have the data pertaining to first 6 months.
+
+Now, we will see the above observed AQI Levels in terms of Levels of each Pollutants.
+
+```{r Monthly_Pollutant_Viz_and_Daily_Data_wrangling_included, fig.asp=0.8, fig.width=13.5, warning=FALSE, message=FALSE}
+Monthly_Specie <- air_data_india_pollutants %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017, 2018)), City %in% top_cities) %>%
+  group_by(Year, Month, City, Specie) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+ 
+
+Monthly_Specie_1 <- Monthly_Specie %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI") %>%
+  spread(key = Specie, value = AQI)
+
+
+Monthly_Specie_2 <- Monthly_Specie_1 %>%
+  gather(co:so2, key = "Pollutants", value = "AQI") %>%
+  mutate(Year = as.character(Year))
+
+air_data_india_All_Specie_Daily <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017, 2018)), City %in% top_cities) %>%
+  group_by(Year, Month, Day, City, Specie) %>%
+  summarise(Avg_Min = mean(min), Avg_Median = mean(median), Avg_Max = mean(max))
+
+air_data_india_All_Specie_Daily_1 <- air_data_india_All_Specie_Daily %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Daily_2 <- air_data_india_All_Specie_Daily_1 %>%
+  spread(key = Specie, value = AQI)
+
+Monthly_Specie_2 %>%
+  group_by(Year, Month, City, Pollutants) %>%
+  summarise(AQI = mean(AQI)) %>%
+  ggplot(aes(Month, AQI, color = Year)) +
+  geom_point(alpha = 0.66, size = 3) +
+  geom_smooth(se = FALSE, method = "lm", formula = y~x+I(x^2)) +
+  labs(
+    y = "Average AQI Levels"
+  ) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank()) +
+  facet_wrap(~City + Pollutants, ncol = 6, scales = "free", labeller = label_wrap_gen(multi_line=FALSE)) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 3) 
+    )
+  ) + ggtitle("Monthly Pollutant Levels") +
+  scale_color_viridis(discrete = TRUE, option = "C")
+```
+
+**Except for Ground-Level Ozone and Sulphur Dioxide most of the Pollutant Levels have decreased during the first half of 2020 which saw an increase in the second half when compared to 2019**. The surprising thing is that even **particulate matter increased to much higher levels in Mumbai** even though it saw a massive lockdown and transportation as well as industrial work were suspended.
+
+-   The Pollutant Levels are affected to a great deal by the weather conditions of a place. Here we try to look at *how the Pollutant Levels are related to the weather parameters*.
