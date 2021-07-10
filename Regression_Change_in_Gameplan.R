@@ -194,7 +194,15 @@ prediction.R2$Prediction_Table
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
   filter(Year == 2021) %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+air_data_india_All_Specie_Daily_Regress_model
 
+# Partial train with only other polutants
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+# Partial train with only weather parameters
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+# Full train with all other parameters
 full_train_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model)
 # Predicting
 # Quick Review on different cities model fit
