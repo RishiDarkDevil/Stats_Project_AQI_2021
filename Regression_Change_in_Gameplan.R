@@ -192,11 +192,33 @@ prediction.R2$Prediction_Table
 
 # ------------Training 2021 First 6 Months 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
-  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter(Year == 2021, Measure == "Median") %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+air_data_india_All_Specie_Daily_Regress_model
 
+# Partial train with only other polutants
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+# Partial train with only weather parameters
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+# Full train with all other parameters
 full_train_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model)
 # Predicting
 # Quick Review on different cities model fit
 prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model)
 prediction.R2$Prediction_Table
+
+# Detailed Model Summary
+model_summaries <- print_all_city_model_summary()
+model_summaries$model_pm10
+
+# predicting for 25th June Kolkata Bidhanagar
+predict_data <- tibble(so2 = 5, co = 24, o3 = 34, no2 = 16, pm25 = 57, pm10 = 67)
+
+predict(model_s1, predict_data, interval = "prediction")
+predict(model_c1, predict_data, interval = "prediction")
+predict(model_o1, predict_data, interval = "prediction")
+predict(model_n1, predict_data, interval = "prediction")
+predict(model_p1, predict_data, interval = "prediction")
+predict(model_p.1, predict_data, interval = "prediction")
