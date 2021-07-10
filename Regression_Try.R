@@ -27,7 +27,9 @@ air_data_india_All_Specie_Daily_Regress <- air_data_india_All_Specie_Daily_Regre
 air_data_india_All_Specie_Daily_Regress
 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress_model %>%
-  mutate(Pollutant_AQI = (co + no2 + o3 + so2 + pm10 + pm25) / 6)
+  group_by(Year, Month, Day, City) %>%
+  mutate_at(.vars = c("so2", "no2", "co", "o3", "pm10", "pm25", "humidity", "dew", "temperature", "precipitation", "wind-gust", "wind-speed", "pressure"), ~mean(.,na.rm = TRUE)) %>%
+  mutate(AQI = max(so2, co, o3, no2, pm25, pm10))
 air_data_india_All_Specie_Daily_Regress_model
 
 # --------------2019 First 6 Months Based Model Train

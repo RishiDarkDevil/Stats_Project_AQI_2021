@@ -1,20 +1,31 @@
 # An overall study is lil difficult so we will focus on Top City wise Regression
+correct_mumbai_temp <- function(x) return(ifelse(x < 10, x, ))
 
 air_data_india_All_Specie_Daily_Regress %>%
   filter(City %in% c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai", "Lucknow", "Patna", "Chandigarh", "Gandhinagar", "Jaipur")) %>%
-  filter(Year == 2019, Measure != "Var") %>% #, Month %in% c(1,2,3,4,5,6)
+  filter(Year %in% c(2019, 2020, 2021), Measure != "Var") %>% #, Month %in% c(1,2,3,4,5,6)
   group_by(Year, Month, Day, City) %>%
-  mutate_at(.vars = c("so2", "no2", "co", "o3", "pm10", "pm25", "humidity", "dew", "temperature", "precipitation", "wind-gust", "wind-speed", "pressure"), ~mean(.,na.rm = TRUE)) %>%
+  #mutate_at(.vars = c("so2", "no2", "co", "o3", "pm10", "pm25", "humidity", "dew", "temperature", "precipitation", "wind-gust", "wind-speed", "pressure"), ~mean(.,na.rm = TRUE)) %>%
   #summarise(mean_pm25 = mean(pm25, na.rm = TRUE), mean_wind_speed = mean(`wind-speed`, na.rm = TRUE)) %>%
-  ggplot(aes(so2, pm25, color = City)) +
+  mutate(Year = as.character(Year)) %>%
+  filter(!is.na(so2)) %>%
+  filter(!is.na(no2)) %>%
+  filter(!is.na(co)) %>%
+  filter(!is.na(o3)) %>%
+  filter(!is.na(pm25)) %>%
+  filter(!(is.na(pm10) & City == "Chandigarh")) %>%
+  filter(!(is.na(pm10) & City == "Gandhinagar")) %>%
+  filter(!(City == "Mumbai" & temperature < 15)) %>%
+  filter((humidity >= 20 & humidity <= 100) & (dew >= 0 & dew <= 50) & (temperature >= 0 & temperature <= 55) & (pressure >= 600)) %>%
+  ggplot(aes(temperature, pm25, color = Year)) +
   geom_point() +
-  geom_smooth(method = lm) +
+  geom_smooth(se = FALSE) +
   facet_wrap(~City, scales = "free")
 
 # --------------2019 First 6 Months Based Model Train
 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
-  filter(Year == 2019, Measure != "Var") %>% # ------------LOOOOOOOK
+  filter(Year == 2019, Measure != "Var" & Measure == "Max") %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) # ------------LOOK
 #filter(Measure == "Max")
 air_data_india_All_Specie_Daily_Regress_model
@@ -33,7 +44,8 @@ air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily
   filter(!is.na(o3)) %>%
   filter(!is.na(pm25)) %>%
   filter(!(is.na(pm10) & City == "Chandigarh")) %>%
-  filter(!(is.na(pm10) & City == "Gandhinagar"))
+  filter(!(is.na(pm10) & City == "Gandhinagar")) %>%
+  filter((humidity >= 20 & humidity <= 100) & (dew >= 0 & dew <= 50) & (temperature >= 0 & temperature <= 55) & (pressure >= 600))
 air_data_india_All_Specie_Daily_Regress_model
 nrow(air_data_india_All_Specie_Daily_Regress_model)
 
@@ -60,10 +72,13 @@ model_summaries$model_pm25
 
 predict_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
 
+prediction_R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model)
+prediction_R2$Prediction_Table
+
 # --------------------Trying to predict First 6 Months 2020 AQI Level's of Pollutants from 2019 fitted data
 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
-  filter(Year == 2020, Measure != "Var") %>% # ------------LOOOOOOOK
+  filter(Year == 2020, Measure != "Var", Measure == "Median") %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
 #filter(Measure == "Max")
 air_data_india_All_Specie_Daily_Regress_model
@@ -928,4 +943,19 @@ prediction_R2$Prediction_Table
 
 
 # -----------------LOOKING AT ADDED VARIABLE PLOTS
-added_variable_plot(air_data_india_All_Specie_Daily_Regress_model, model_s1, model_n1)
+# 2019 - First 6 Months Based 
+added.plot <- added_variable_plot_all_cities(air_data_india_All_Specie_Daily_Regress_model)
+added.plot$resid.plot.Kolkata
+added.plot$resid.plot.Delhi
+added.plot$resid.plot.Muzz
+added.plot$resid.plot.Mumbai
+added.plot$resid.plot.Lucknow
+added.plot$resid.plot.Patna
+added.plot$resid.plot.Chandigarh
+added.plot$resid.plot.Gandhi
+added.plot$resid.plot.Jaipur
+
+
+
+
+
