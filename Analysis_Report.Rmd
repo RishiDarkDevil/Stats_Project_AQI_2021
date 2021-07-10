@@ -481,6 +481,8 @@ ggarrange(p1, p2, nrow = 2)
 
 Here we see an interesting effect of Lockdowns. **All the pollutants have decreased considerably in the First half of 2020 whereas in the Second half it has bumped up again to match the Levels of 2019 or even more! While the Levels of 2021 & 2019 are very similar**.
 
+## RELATIONSHIPS - PATTERNS & TRENDS
+
 -   Pollutant Gases and Particulate Matter, whose levels despite being affected by Human Intervention and Industrial Activities, are nothing but Natural Gases which follow nature's process. Here we will take a look at *how the AQI Levels change with seasons throughout the year*.
 
 ```{r Station_Monthly_Viz, fig.asp=0.8, fig.width=12}
@@ -553,7 +555,8 @@ Monthly_Specie_2 %>%
     y = "Average AQI Levels"
   ) +
   theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank()) +
+  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),strip.background = element_blank()) +
   facet_wrap(~City + Pollutants, ncol = 6, scales = "free", labeller = label_wrap_gen(multi_line=FALSE)) +
   theme(legend.position = "bottom") +
   guides(
@@ -565,6 +568,112 @@ Monthly_Specie_2 %>%
   scale_color_viridis(discrete = TRUE, option = "C")
 ```
 
-**Except for Ground-Level Ozone and Sulphur Dioxide most of the Pollutant Levels have decreased during the first half of 2020 which saw an increase in the second half when compared to 2019**. The surprising thing is that even **particulate matter increased to much higher levels in Mumbai** even though it saw a massive lockdown and transportation as well as industrial work were suspended.
+**Except for Ground-Level Ozone and Sulphur Dioxide most of the Pollutant Levels have decreased during the first half of 2020 which saw an increase in the second half when compared to 2019.This increase can be attributed to increased Stubble Burning that took place in the later half of the Year**. The surprising thing is that even **particulate matter increased to much higher levels in Mumbai** even though it saw a massive lockdown and transportation as well as industrial work were suspended.
 
--   The Pollutant Levels are affected to a great deal by the weather conditions of a place. Here we try to look at *how the Pollutant Levels are related to the weather parameters*.
+-   The Pollutant Levels are affected to a great deal by the weather conditions of a place. Here we try to look at *how the Pollutant Levels are related to other Pollutant Levels* and *how the weather parameters are related among themselves* followed by a dependency of *Pollutant Levels of weather parameters*.
+
+```{r Monthly_Specie_Scatterplot_Matrix_pol_v_pol, fig.asp=0.7, fig.width=12, message=FALSE, warning=FALSE}
+# Exploring the relationships between All Species with each other Monthly
+air_data_india_All_Specie_Monthly <- air_data_india %>%
+  filter(!(Year %in% c(2014, 2015, 2016, 2017, 2018))) %>%
+  filter(City %in% top_cities) %>%
+  group_by(Year, Month, City, Specie) %>%
+  summarise(Avg_Min = mean(min, na.rm = TRUE), Avg_Median = mean(median, na.rm = TRUE), Avg_Max = mean(max, na.rm = TRUE)) %>%
+  mutate(Year = as.character(Year))
+
+air_data_india_All_Specie_Monthly_1 <- air_data_india_All_Specie_Monthly %>%
+  gather(Avg_Min, Avg_Median, Avg_Max, key = "Measure", value = "AQI")
+
+air_data_india_All_Specie_Monthly_2 <- air_data_india_All_Specie_Monthly_1 %>%
+  spread(key = Specie, value = AQI)
+
+my_fn <- function(data, mapping, ...){
+  p <- ggplot(data = data, mapping = mapping) + 
+    geom_point() + 
+    geom_smooth(method=lm, formula = y~x, fill="red", color="blue", size = 0.5, se = FALSE, ...)
+  p
+}
+
+# Actually here all the parameters with all the others except Year and Month are really highly correlated. So let's take a look at them 
+air_data_india_All_Specie_Monthly_2 %>%
+  ggpairs(columns = c("co", "no2", "o3", "so2", "pm10", "pm25"), aes(color = City, shape = Year), progress = FALSE, lower = list(continuous = my_fn)) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),strip.background = element_blank()) + ggtitle("Scatterplot Matrix for Pollutants") +
+  scale_color_viridis(discrete = TRUE)
+
+```
+
+We see a **strong linear relationship between the pollutants** among themselves across the past 3 years at our Top Cities.
+
+```{r Monthly_Specie_Scatterplot_Matrix_nonpol_v_nonpol, fig.asp=0.8, fig.width=12, message=FALSE, warning=FALSE}
+
+air_data_india_All_Specie_Monthly_2 %>%
+  ggpairs(columns = c("dew", "humidity", "pressure", "temperature", "wind-speed"), aes(color = City, shape = Year), progress = FALSE) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),strip.background = element_blank()) + ggtitle("Scatterplot Matrix for Weather Parameters") +
+  scale_color_viridis(discrete = TRUE)
+```
+
+We see a **strong linear relationship between the weather parameters** across the past 3 years. One important thing that gives us a hint towards *why the pm10 and pm25 levels were higher in Mumbai*, as we see **Mumbai has experienced really high wind-speeds in 2020 and 2021. The pm content was thus increased due to movement of lots of dust by wind**.
+
+```{r Monthly_Pol_non_Pol_Scatterplot_Matrix, fig.asp=0.8, fig.width=13, warning=FALSE}
+air_data_india_Pollutants_nonpollutants_monthly <- air_data_india_All_Specie_Monthly_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation, -`wind-gust`) %>%
+  gather(dew, humidity, pressure, temperature, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+air_data_india_Pollutants_nonpollutants_monthly %>%
+  ggplot(aes(AQI, Levels, color = City)) +
+  geom_point(alpha = 0.6, aes(shape = Year)) +
+  geom_smooth(method = "lm", se = FALSE, formula = y~x, alpha = 0.1, size = 0.5, linetype = "dashed") +
+  labs(y = "Weather Parameters Levels", x = "Pollutant Levels") +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),strip.background = element_blank()) +
+  facet_wrap(~non_pollutants + pollutants, ncol = 6, scales = "free", labeller = label_wrap_gen(multi_line=FALSE)) +
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      override.aes = list(size = 5) 
+    )
+  ) + ggtitle("Pollutants and Weather Parameters Relationship") +
+  coord_flip() +
+  scale_color_viridis(discrete = TRUE)
+```
+
+This suggests that there is a **positive linear relationship between Temperature & Humidity and all the Pollutant Levels**. **Wind speed is indeed positively correlated with pm10 and pm25 which might be the cause for higher AQI in Mumbai**.
+
+## DISTRIBUTIONS
+
+To perform any kind of analysis we need to model the data we have in order to get an idea about the expected value, variance and other properties related to the data. It also helps us get rid of the noise we get from the data we collect.
+
+-   Here we will look at *how the different pollutants are distributed and how different are the models for different year & location.*
+
+```{r Yearly_Pollutant_Hist, fig.asp=0.618, fig.width=12}
+air_data_india_Pollutants_nonpollutants_daily <- air_data_india_All_Specie_Daily_1 %>%
+  filter(Year != 2018) %>% # There is a lot of Missing values in this year
+  spread(key = Specie, value = AQI) %>%
+  select(-precipitation, -`wind-gust`) %>%
+  gather(dew, humidity, pressure, temperature, `wind-speed`, key = "non_pollutants", value = Levels) %>%
+  gather(co, so2, no2, o3, pm10, pm25, key = "pollutants", value = "AQI")
+
+air_data_india_Pollutants_nonpollutants_daily %>%
+  mutate(Year = as.character(Year)) %>%
+  ggplot(aes(AQI, ..density.., fill = Year)) +
+  geom_histogram(binwidth = 0.5) +
+  facet_wrap(~City + Specie, ncol = 6) +
+  labs(fill = "City", x = "Pollutant Levels", y = "Density")+
+  theme(legend.position = "bottom") +
+  guides(
+    fill = guide_legend(
+      nrow = 1,
+      aes.override = list(size = 3)
+    )
+  ) +
+  scale_fill_viridis(discrete = TRUE)
+```
