@@ -7,8 +7,8 @@ Some of the Topics which I really enjoyed and learnt from this Project are:
 - Fitting Models to Distributions.
 - Simulation Based Inferential Statistics.
 - Modelling Real World Data.
-- Data Wrangling, Some nice ways to reshape and transform the Data.
-Though there are few portions of my R-Codes which I wrote in-order to explore the Data, which had some important story to tell mainly because of the restriction on the length of the Project and partly because of some Time Constraints.
+- Data Wrangling, Some nice ways to reshape and transform the Data. \
+Though there are few portions of my R-Codes which I wrote in-order to explore the Data, which had some important story to tell weren't able to make their way up in the Report mainly because of the restriction on the length of the Project and partly because of some Time Constraints.\
 There are some genuine drawbacks which I didn't refered to in this project that is Multicollinearity, and few related issues.\
 Mostly becausse I didn't have much knowledge and idea on them when I started with this Project. Though I will definitely return back with an updated more relevant dataset to respond and make important changes, once I know some more techniques to efficiently handle these issues along with some other interesting Modelling & Inferential Techniques.
 
