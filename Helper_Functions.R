@@ -264,13 +264,19 @@ train_city_pol <- function(data, city = "City"){
     city = find_R.squared(model_p.1, data)
   )
   
-  Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25)
+  suppressMessages(Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25))
   Prediction_Table.nonpol <- Prediction_Table %>%
     mutate(Pollutant = c("so2", "no2", "co", "o3", "pm10", "pm25")) %>%
     select(Pollutant, everything())
   
   model_summary.nonpol <- export_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, error_format = "[{conf.low}, {conf.high}]", model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), number_format = "%.2f")
   
+ 
+  
+  return(list("prediction.table.nonpol"=Prediction_Table.nonpol, "nonpolsummary"=model_summary.nonpol))
+}
+
+train_city_pol_w_pol <- function(data, city = "City"){
   # so2 on pollutants
   model_s1 <<- lm(so2 ~ no2 + co + o3 + pm10 + pm25, data = data)
   
@@ -310,14 +316,14 @@ train_city_pol <- function(data, city = "City"){
     city = find_R.squared(model_p.1, data)
   )
   
-  Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25)
+  suppressMessages(Prediction_Table <- full_join(full_join(full_join(full_join(full_join(R2.so2, R2.no2), R2.co), R2.o3), R2.pm10), R2.pm25))
   Prediction_Table.otherpol <- Prediction_Table %>%
     mutate(Pollutant = c("so2", "no2", "co", "o3", "pm10", "pm25")) %>%
     select(Pollutant, everything())
   
   model_summary.otherpol <- export_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, error_format = "[{conf.low}, {conf.high}]", model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), number_format = "%.2f")
   
-  return(list("prediction.table.nonpol"=Prediction_Table.nonpol, "prediction.table.otherpol"=Prediction_Table.otherpol, "nonpolsummary"=model_summary.nonpol, "otherpolsummary"=model_summary.otherpol))
+  return(list("prediction.table.otherpol"=Prediction_Table.otherpol, "otherpolsummary"=model_summary.otherpol))
 }
 
 # Training top 9 cities
@@ -699,12 +705,14 @@ train_all_cities_pol_with_otherpol_wl <- function(data){
 
 # Print all City Model Summaries
 print_all_city_model_summary <- function(){
+
   model_so2 <- export_summs(model_s1, model_s2, model_s3, model_s4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_no2 <- export_summs(model_n1, model_n2, model_n3, model_n4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_co <- export_summs(model_c1, model_c2, model_c3, model_c4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_o3 <- export_summs(model_o1, model_o2, model_o3, model_o4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_pm10 <- export_summs(model_p1, model_p2, model_p3, model_p4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_pm25 <- export_summs(model_p.1, model_p.2, model_p.3, model_p.4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
+
   return(list("model_so2"=model_so2, "model_no2"=model_no2, "model_co"=model_co, "model_o3"=model_o3, "model_pm10"=model_pm10, "model_pm25"=model_pm25))
 }
 
@@ -999,40 +1007,133 @@ format_reg_table <- function(model, digs = 2){
     mutate(across(where(is.numeric), ~ round(., digits = digs)))
   mod <- mod %>%
     mutate(estimate = as.character(estimate)) %>%
-    mutate(estimate = paste(estimate, ifelse(p.value < 0.05, "*",""), ifelse(p.value < 0.01, "*",""), ifelse(p.value < 0.001, "*",""), "[", conf.low, ",", conf.high, "]", sep = ""))
+    mutate(estimate = paste(paste(estimate, ifelse(p.value < 0.05, "*",""), ifelse(p.value < 0.01, "*",""), ifelse(p.value < 0.001, "*",""), sep = ""), paste("[", conf.low, ", ", conf.high, "]", sep = ""), sep = "\n"))
   mod <- mod %>%
     select(term, estimate)
   return(mod)
 }
 
-present_all_pols_model <- function(model_s, model_n, model_c, model_o, model_p, model_p.){
+present_all_pols_model <- function(data, model_s, model_n, model_c, model_o, model_p, model_p.){
   mod1 <- format_reg_table(model_s) %>% rename(SO2 = estimate)
   mod2 <- format_reg_table(model_n) %>% select(estimate) %>% rename(NO2 = estimate)
   mod3 <- format_reg_table(model_c) %>% select(estimate) %>% rename(CO = estimate)
   mod4 <- format_reg_table(model_o) %>% select(estimate) %>% rename(O3 = estimate)
   mod5 <- format_reg_table(model_p) %>% select(estimate) %>% rename(PM10 = estimate)
   mod6 <- format_reg_table(model_p.) %>% select(estimate) %>% rename(PM25 = estimate)
-  fin.table <- as_tibble(cbind(mod1, mod2, mod3, mod4, mod5, mod6))
+  
+  R2table <<- tibble(term = c("R2"), SO2 = c(find_R.squared(model_s, data)), NO2 = c(find_R.squared(model_n, data)), CO = c(find_R.squared(model_c, data)), O3 = c(find_R.squared(model_o, data)), PM10 = c(find_R.squared(model_p, data)), PM25 = c(find_R.squared(model_p., data)))
+  R2table <<- R2table %>%
+    mutate(across(where(is.numeric), ~ round(., digits = 2))) %>%
+    mutate(across(where(is.numeric), ~ as.character(.)))
+  
+  suppressMessages(fin.table <<- as_tibble(cbind(mod1, mod2, mod3, mod4, mod5, mod6)) %>%
+    full_join(R2table))
+  return(fin.table)
+}
+
+present_all_pols_otherpols_model <- function(data, model_s, model_n, model_c, model_o, model_p, model_p.){
+  mod1 <- format_reg_table(model_s) %>% select(estimate) %>% rename(SO2 = estimate)
+  mod2 <- format_reg_table(model_n) %>% select(estimate) %>% rename(NO2 = estimate)
+  mod3 <- format_reg_table(model_c) %>% select(estimate) %>% rename(CO = estimate)
+  mod4 <- format_reg_table(model_o) %>% select(estimate) %>% rename(O3 = estimate)
+  mod5 <- format_reg_table(model_p) %>% select(estimate) %>% rename(PM10 = estimate)
+  mod6 <- format_reg_table(model_p.) %>% select(estimate) %>% rename(PM25 = estimate)
+  
+  mod <- tibble(
+    term = c("(Intercept)", "SO2", "NO2", "CO", "O3", "PM10", "PM25"),
+    SO2 = c(mod1$SO2[1], NA, mod1$SO2[2:nrow(mod1)]),
+    NO2 = c(mod2$NO2[1:2], NA, mod2$NO2[3:nrow(mod2)]),
+    CO = c(mod3$CO[1:3], NA, mod3$CO[4:nrow(mod3)]),
+    O3 = c(mod4$O3[1:4], NA, mod4$O3[5:nrow(mod4)]),
+    PM10 = c(mod5$PM10[1:5], NA, mod5$PM10[6:nrow(mod5)]),
+    PM25 = c(mod6$PM25[1:nrow(mod6)], NA),
+  )
+  
+  R2table <<- tibble(term = c("R2"), SO2 = c(find_R.squared(model_s, data)), NO2 = c(find_R.squared(model_n, data)), CO = c(find_R.squared(model_c, data)), O3 = c(find_R.squared(model_o, data)), PM10 = c(find_R.squared(model_p, data)), PM25 = c(find_R.squared(model_p., data)))
+  R2table <<- R2table %>%
+    mutate(across(where(is.numeric), ~ round(., digits = 2))) %>%
+    mutate(across(where(is.numeric), ~ as.character(.)))
+  
+  suppressMessages(fin.table <<- mod %>%
+                     full_join(R2table))
   return(fin.table)
 }
 
 # Presenting Model Summary Concisely.
-present_model_summary <- function(data){ # The Data must be Yearly
-  # Kolkata
-  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Kolkata", Month %in% c(1,2,3,4,5,6)))))
-  nonpol_model_1 <- present_all_pols_model(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+present_model_summary <- function(data, city_name = "Kolkata"){ # The Data must be Yearly
   
-  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Kolkata", Month %in% c(7,8,9,10,11,12)))))
-  nonpol_model_2 <- present_all_pols_model(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  # Kolkata
+  # On weather params
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == city_name, Month %in% c(1,2,3,4,5,6)))))
+  nonpol_model_1 <<- present_all_pols_model(data %>% filter(City == city_name, Month %in% c(1,2,3,4,5,6)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == city_name, Month %in% c(7,8,9,10,11,12)))))
+  nonpol_model_2 <<- present_all_pols_model(data %>% filter(City == city_name, Month %in% c(7,8,9,10,11,12)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
   
   nonpol_model_1 <- ggtexttable(nonpol_model_1, rows = NULL, theme = ttheme("mGreen")) %>%
-    tab_add_title("First Half of the Year", face = "bold")
+    tab_add_title("First Half of the Year (Pollutant Levels On Weather Parameters)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
   nonpol_model_2 <- ggtexttable(nonpol_model_2, rows = NULL, theme = ttheme("mBlue")) %>%
-    tab_add_title("Second Half of the Year", face = "bold")
+    tab_add_title("Second Half of the Year (Pollutant Levels on Weather Parameters)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
   
-  annotate_figure(ggarrange(nonpol_model_1, nonpol_model_2, nrow = 2), top = text_grob("2019", face = "bold", size = 14))
+  # On other Pols
+  invisible(capture.output(kol <- train_city_pol_w_pol(data %>% filter(City == city_name, Month %in% c(1,2,3,4,5,6)))))
+  pol_model_1 <<- present_all_pols_otherpols_model(data %>% filter(City == city_name, Month %in% c(1,2,3,4,5,6)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  invisible(capture.output(kol <- train_city_pol_w_pol(data %>% filter(City == city_name, Month %in% c(7,8,9,10,11,12)))))
+  pol_model_2 <<- present_all_pols_otherpols_model(data %>% filter(City == city_name, Month %in% c(7,8,9,10,11,12)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  pol_model_1 <- ggtexttable(pol_model_1, rows = NULL, theme = ttheme("mOrange")) %>%
+    tab_add_title("First Half of the Year (Pollutant Levels on Other Pollutant Levels)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  pol_model_2 <- ggtexttable(pol_model_2, rows = NULL, theme = ttheme("mRed")) %>%
+    tab_add_title("Second Half of the Year (Pollutant Levels on Other Pollutant Levels)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  
+  
+  kolkata <- annotate_figure(ggarrange(nonpol_model_1, pol_model_1, nonpol_model_2, pol_model_2, nrow = 2, ncol = 2), top = text_grob(city_name, face = "bold", size = 14))
+  kolkata
+  
+}
+
+present_model_summary_Delhi <- function(data){ # The Data must be Yearly
+  
+  # Delhi
+  # On weather params
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Delhi", Month %in% c(1,2,3,4,5,6)))))
+  nonpol_model_1 <<- present_all_pols_model(data %>% filter(City == "Delhi", Month %in% c(1,2,3,4,5,6)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  invisible(capture.output(kol <- train_city_pol(data %>% filter(City == "Delhi", Month %in% c(7,8,9,10,11,12)))))
+  nonpol_model_2 <<- present_all_pols_model(data %>% filter(City == "Delhi", Month %in% c(7,8,9,10,11,12)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  nonpol_model_1 <- ggtexttable(nonpol_model_1, rows = NULL, theme = ttheme("mGreen")) %>%
+    tab_add_title("First Half of the Year (Pollutant Levels On Weather Parameters)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  nonpol_model_2 <- ggtexttable(nonpol_model_2, rows = NULL, theme = ttheme("mBlue")) %>%
+    tab_add_title("Second Half of the Year (Pollutant Levels on Weather Parameters)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  
+  # On other Pols
+  invisible(capture.output(kol <- train_city_pol_w_pol(data %>% filter(City == "Delhi", Month %in% c(1,2,3,4,5,6)))))
+  pol_model_1 <<- present_all_pols_otherpols_model(data %>% filter(City == "Delhi", Month %in% c(1,2,3,4,5,6)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  invisible(capture.output(kol <- train_city_pol_w_pol(data %>% filter(City == "Delhi", Month %in% c(7,8,9,10,11,12)))))
+  pol_model_2 <<- present_all_pols_otherpols_model(data %>% filter(City == "Delhi", Month %in% c(7,8,9,10,11,12)), model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  pol_model_1 <- ggtexttable(pol_model_1, rows = NULL, theme = ttheme("mOrange")) %>%
+    tab_add_title("First Half of the Year (Pollutant Levels on Other Pollutant Levels)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  pol_model_2 <- ggtexttable(pol_model_2, rows = NULL, theme = ttheme("mRed")) %>%
+    tab_add_title("Second Half of the Year (Pollutant Levels on Other Pollutant Levels)", face = "bold") %>%
+    tab_add_footnote(text = "*** p < 0.001; ** p < 0.01; * p < 0.05; 99% confidence Intervals", size = 10, face = "italic")
+  
+  
+  Delhi <- annotate_figure(ggarrange(nonpol_model_1, pol_model_1, nonpol_model_2, pol_model_2, nrow = 2, ncol = 2), top = text_grob("Delhi", face = "bold", size = 14))
+  Delhi
   
 }
 
 # Usage
-present_model_summary(air_data_india_All_Specie_Daily_Regress %>% filter(Year == 2019))
+present_model_summary(air_data_india_All_Specie_Daily_Regress %>% filter(Year == 2019), city_name = "Muzaffarnagar")
+
