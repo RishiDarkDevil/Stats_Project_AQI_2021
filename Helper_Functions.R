@@ -221,7 +221,9 @@ make_predictions <- function(trained_model, test_data){
     add_residuals(trained_model)
   p <- predictions %>%
     ggplot(aes(resid, ..density..)) +
-    geom_histogram()
+    geom_histogram() + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank())
   return(p)
 }
 
@@ -723,52 +725,52 @@ predict_all_cities_pol <- function(data){
   # So2 Level prediction
   p1 <- make_predictions(model_s1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_s2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_s3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_s4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_s3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_s4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_so2 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_so2 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("SO2 Residuals", face = "bold", size = 16))
   
   # No2 Level prediction
   p1 <- make_predictions(model_n1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_n2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_n3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_n4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_n3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_n4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_no2 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_no2 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("NO2 Residuals", face = "bold", size = 16))
   
   # CO Level prediction
   p1 <- make_predictions(model_c1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_c2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_c3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_c4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_c3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_c4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_co <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_co <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("CO Residuals", face = "bold", size = 16))
   
   # O3 Level prediction
   p1 <- make_predictions(model_o1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_o2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_o3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_o4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_o3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_o4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_o3 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_o3 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("O3 Residuals", face = "bold", size = 16))
   
   # pm10 Level prediction
   p1 <- make_predictions(model_p1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_p2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_p3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_p4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_p3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_p4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_pm10 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_pm10 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("PM10 Residuals", face = "bold", size = 16))
   
   # pm25 Level prediction
   p1 <- make_predictions(model_p.1, data %>% filter(City == "Kolkata")) + ggtitle("Kolkata")
   p2 <- make_predictions(model_p.2, data %>% filter(City == "Delhi")) + ggtitle("Delhi")
-  p3 <- make_predictions(model_p.3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
-  p4 <- make_predictions(model_p.4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
+  #p3 <- make_predictions(model_p.3, data %>% filter(City == "Muzaffarnagar")) + ggtitle("Muzaffarnagar")
+  #p4 <- make_predictions(model_p.4, data %>% filter(City == "Mumbai")) + ggtitle("Mumbai")
   
-  res_pm25 <- ggarrange(p1,p2,p3,p4, nrow = 2, ncol = 2)
+  res_pm25 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("PM25 Residuals", face = "bold", size = 16))
   
-  return(list("res_so2"=res_so2, "res_no2"=res_no2, "res_co"=res_co, "res_o3"=res_o3, "res_pm10"=res_pm10, "res_pm25"=res_pm25))
+  return(annotate_figure(ggarrange(res_so2, res_no2, res_co, res_o3, res_pm10, res_pm25), top = text_grob("Residuals", face = "bold", size = 18)))
 }
 
 # Test Data R^2

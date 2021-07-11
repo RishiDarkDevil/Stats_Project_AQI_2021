@@ -73,6 +73,9 @@ full_train_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model)
 prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model)
 prediction.R2$Prediction_Table
 
+suppressMessages(resplot <- predict_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model))
+resplot
+
 # Let's see our model performance - Little more detailed
 model_summaries <- print_all_city_model_summary()
 model_summaries$model_so2
@@ -227,3 +230,5 @@ predict(model_p.1, predict_data, interval = "prediction")
 
 model_kol <- train_city_pol_w_pol(air_data_india_All_Specie_Daily_Regress_model %>% filter(City == "Kolkata"), "Kolkata")
 model_kol$prediction.table.otherpol
+
+
