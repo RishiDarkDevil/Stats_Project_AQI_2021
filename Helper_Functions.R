@@ -699,12 +699,14 @@ train_all_cities_pol_with_otherpol_wl <- function(data){
 
 # Print all City Model Summaries
 print_all_city_model_summary <- function(){
+
   model_so2 <- export_summs(model_s1, model_s2, model_s3, model_s4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_no2 <- export_summs(model_n1, model_n2, model_n3, model_n4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_co <- export_summs(model_c1, model_c2, model_c3, model_c4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_o3 <- export_summs(model_o1, model_o2, model_o3, model_o4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_pm10 <- export_summs(model_p1, model_p2, model_p3, model_p4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
   model_pm25 <- export_summs(model_p.1, model_p.2, model_p.3, model_p.4, error_format = "[{conf.low}, {conf.high}]", model.names = c("Kolkata", "Delhi", "Muzaffarnagar", "Mumbai"))
+
   return(list("model_so2"=model_so2, "model_no2"=model_no2, "model_co"=model_co, "model_o3"=model_o3, "model_pm10"=model_pm10, "model_pm25"=model_pm25))
 }
 
