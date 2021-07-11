@@ -476,3 +476,15 @@ q <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, d
 annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face = "bold", size = 16))
 
 
+# Added-Variable Plots -------------------------------------!!!!!!!!!!!!!!!!!!ISSSSSSSSSSUUUUUUUUUUUUUUEEEEEEEEEEEEEEEEEE!!!!!!!!!!!!!!!!!!!!------------------
+# ---------------------------------------------------MULTICOLLINEARITY ISSUE----------------------------
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  #filter(Month %in% c(1,2,3,4,5,6)) %>% # ------------LOOK
+  filter(Measure == "Max")
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+add.var.plt <- added_variable_plot_all_cities(air_data_india_All_Specie_Daily_Regress_model)
+add.var.plt$resid.plot.Kolkata
+add.var.plt$resid.plot.Delhi
+add.var.plt$resid.plot.Muzz
+add.var.plt$resid.plot.Mumbai

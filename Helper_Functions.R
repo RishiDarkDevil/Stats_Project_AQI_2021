@@ -839,11 +839,16 @@ added_variable_plot <- function(data, model_1, model_2){
   p1 <- residuals %>%
     ggplot(aes(resid_1, resid_2)) +
     geom_point() +
+    geom_smooth(method = "lm", formula = y~x) +
     labs(
       x = paste(model_1$terms[[2]], "resid"),
       y = paste(model_2$terms[[2]], "resid")
-    )
-  print(p1)
+    ) + 
+    scale_x_continuous(labels = NULL) +
+    scale_y_continuous(labels = NULL) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank())
+  return(p1)
 }
 
 # Added Variable Plots All Cities
