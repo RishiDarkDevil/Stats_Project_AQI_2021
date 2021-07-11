@@ -227,3 +227,5 @@ predict(model_p.1, predict_data, interval = "prediction")
 
 model_kol <- train_city_pol_w_pol(air_data_india_All_Specie_Daily_Regress_model %>% filter(City == "Kolkata"), "Kolkata")
 model_kol$prediction.table.otherpol
+
+
