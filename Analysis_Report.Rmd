@@ -2,8 +2,9 @@
 title: "India Air Quality Index - Data Analysis"
 author: "Rishi Dey Chowdhury"
 date: "7/9/2021"
-output: pdf_document
-keep_md: TRUE
+output: 
+  html_document:
+    keep_md: TRUE
 ---
 
 ```{r setup, include=FALSE}
@@ -3374,7 +3375,7 @@ annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face =
 
 -   Despite there being several restrictions on travel, transportation, industrial work which are major contributors to pollutant Levels, we saw an **increased Level of Pollutants in the second half of the year 2020 which surpassed the Levels of 2019** which maybe due to the **40% increase in the Stubble Burning during the end of the Year**.
 
--    **Coastal Regions tend to have lower AQI Levels and Pollutant Levels** mostly because of the influence of **winds and more Cyclonic Conditions**.
+-   **Coastal Regions tend to have lower AQI Levels and Pollutant Levels** mostly because of the influence of **winds and more Cyclonic Conditions**.
 
 -   **Major Contributor to AQI Levels are particulate matters**. So reducing there levels will greatly help reducing the overall Air Quality.
 
@@ -3386,10 +3387,10 @@ annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face =
 
 # BIBLIOGRAPHY
 
--   The Dataset was collected from [Air Quality Open Data Platform](<https://aqicn.org/data-platform/covid19/>).
+-   The Dataset was collected from [Air Quality Open Data Platform](https://aqicn.org/data-platform/covid19/).
 
--   [More on Cyclone Nisarga](<https://en.wikipedia.org/wiki/Cyclone_Nisarga>)
+-   [More on Cyclone Nisarga](https://en.wikipedia.org/wiki/Cyclone_Nisarga)
 
--   As Per various [News Reports an Observations from SAFAR, there was a 40% Increase in Stubble Burning in 2020](<https://www.google.co.in/search?q=safar+40+increase+in+stubble+burning+2020&sxsrf=ALeKk00JLE8JdJbIUsLZKL4jjMQj62KvoQ%3A1626027095459&ei=VzTrYITLG5mO4-EP6cCz-Ak&oq=safar+40+increase+in+stubble+burning+2020&gs_lcp=Cgdnd3Mtd2l6EAM6BwgjELADECc6BwgAEEcQsAM6BQghEKABOgQIIRAVSgQIQRgAUNN2WMp9YM2GAWgBcAJ4AIAB9gGIAbsJkgEFMC4zLjOYAQCgAQGqAQdnd3Mtd2l6yAEJwAEB&sclient=gws-wiz&ved=0ahUKEwjE0q37ztvxAhUZxzgGHWngDJ8Q4dUDCA0&uact=5>)
+-   As Per various [News Reports an Observations from SAFAR, there was a 40% Increase in Stubble Burning in 2020](https://www.google.co.in/search?q=safar+40+increase+in+stubble+burning+2020&sxsrf=ALeKk00JLE8JdJbIUsLZKL4jjMQj62KvoQ%3A1626027095459&ei=VzTrYITLG5mO4-EP6cCz-Ak&oq=safar+40+increase+in+stubble+burning+2020&gs_lcp=Cgdnd3Mtd2l6EAM6BwgjELADECc6BwgAEEcQsAM6BQghEKABOgQIIRAVSgQIQRgAUNN2WMp9YM2GAWgBcAJ4AIAB9gGIAbsJkgEFMC4zLjOYAQCgAQGqAQdnd3Mtd2l6yAEJwAEB&sclient=gws-wiz&ved=0ahUKEwjE0q37ztvxAhUZxzgGHWngDJ8Q4dUDCA0&uact=5)
 
--   All Relevant R-Codes, Files, Datasets, etc are present on [My Account](<https://github.com/RishiDarkDevil/Stats_Project_AQI_2021>)
+-   All Relevant R-Codes, Files, Datasets, etc are present on [My Account](https://github.com/RishiDarkDevil/Stats_Project_AQI_2021)
