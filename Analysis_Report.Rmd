@@ -3083,7 +3083,7 @@ make_predictions <- function(trained_model, test_data){
 }
 
 # Predicting top 9 cities pollutants from non pol trained data
-predict_all_cities_pol <- function(data){
+predict_all_cities_pol <- function(data, heading = "Residuals"){
   # Non-pollutants based predictions --- MAKE SURE THE model_s1 and all model used in this part is trained with non-pollutants
   
   # So2 Level prediction
@@ -3134,7 +3134,7 @@ predict_all_cities_pol <- function(data){
   
   res_pm25 <- annotate_figure(ggarrange(p1,p2, nrow = 1, ncol = 2), top = text_grob("PM25 Residuals", face = "bold", size = 16))
   
-  return(annotate_figure(ggarrange(res_so2, res_no2, res_co, res_o3, res_pm10, res_pm25, ncol = 2), top = text_grob("Residuals", face = "bold", size = 18)))
+  return(annotate_figure(ggarrange(res_so2, res_no2, res_co, res_o3, res_pm10, res_pm25), top = text_grob(heading, face = "bold", size = 18)))
 }
 ```
 
@@ -3154,3 +3154,15 @@ We see an interesting thing that is in the **first half of the year, the weather
 The confidence intervals are mentioned under each coefficient giving us information about it's significance of being present in the model.
 
 -   How well will take a look at *how the residuals of the above mentioned models are spread*
+
+```{r Model_2019_resid, warning=FALSE, message=FALSE, fig.asp=0.618, fig.width=14}
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6))
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(resplot <- predict_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model, "Residuals of MLR Model of Pollutant Levels on Weather Parameters(First 6 Months)"))
+resplot
+
+```
