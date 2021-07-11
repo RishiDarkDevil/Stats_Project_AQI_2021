@@ -2,7 +2,7 @@
 title: "India Air Quality Index - Data Analysis"
 author: "Rishi Dey Chowdhury"
 date: "7/9/2021"
-output: html_document
+output: pdf_document
 keep_md: TRUE
 ---
 
@@ -3366,6 +3366,8 @@ q <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, d
 annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face = "bold", size = 16))
 ```
 
+**Kolkata saw more or less stable conditions of weather parameters throughout the first half of the year and hence not much of the variability of the Pollutants were explained by the weather Parameters. Delhi's dependence on Weather Parameters appear stronger.**
+
 # CONCLUSION
 
 -   In 2020, During Lockdown i.e. in the **first Half of the Year there was a drop in the Pollutant Levels and AQI Levels** across most of the Major Cities, our study included Kolkata, Delhi, Muzaffarnagar and Mumbai. Though the **Particulate Matter Levels in Mumbai were much higher which can be seen due to Cyclonic Impact of *Nisarga***.
@@ -3381,3 +3383,13 @@ annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face =
 -   Introduction of Electric Powered Vehicles can greatly combat Air Pollution reducing Levels of NO2, SO2, CO which are released by Diesel and Petrol Powered Engines.
 
 -   Controlled Stubble Burning can stabilize Air Quality throughout the later half of the Year.
+
+# BIBLIOGRAPHY
+
+-   The Dataset was collected from [Air Quality Open Data Platform](<https://aqicn.org/data-platform/covid19/>).
+
+-   [More on Cyclone Nisarga](<https://en.wikipedia.org/wiki/Cyclone_Nisarga>)
+
+-   As Per various [News Reports an Observations from SAFAR, there was a 40% Increase in Stubble Burning in 2020](<https://www.google.co.in/search?q=safar+40+increase+in+stubble+burning+2020&sxsrf=ALeKk00JLE8JdJbIUsLZKL4jjMQj62KvoQ%3A1626027095459&ei=VzTrYITLG5mO4-EP6cCz-Ak&oq=safar+40+increase+in+stubble+burning+2020&gs_lcp=Cgdnd3Mtd2l6EAM6BwgjELADECc6BwgAEEcQsAM6BQghEKABOgQIIRAVSgQIQRgAUNN2WMp9YM2GAWgBcAJ4AIAB9gGIAbsJkgEFMC4zLjOYAQCgAQGqAQdnd3Mtd2l6yAEJwAEB&sclient=gws-wiz&ved=0ahUKEwjE0q37ztvxAhUZxzgGHWngDJ8Q4dUDCA0&uact=5>)
+
+-   All Relevant R-Codes, Files, Datasets, etc are present on [My Account](<https://github.com/RishiDarkDevil/Stats_Project_AQI_2021>)

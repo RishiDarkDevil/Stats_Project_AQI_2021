@@ -367,13 +367,112 @@ as_tibble(predict(model_s2, test_data, interval = "prediction", level = 0.99)) %
 
 # --
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
-  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
   filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+header.true <- function(df) {
+  colnames(df) <- as.character(unlist(df[1,]))
+  df[-1,]
+}
 
 train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
 
 suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
-prediction.R2$Prediction_Table
 
-plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE)
+t_reg_wo_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                      mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mVioletWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_wo_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_wo_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                         mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mRedWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Other Pollutants")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Other Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+p <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, del_f6ms_pol, t_reg_wo_pol, t_reg_pol, ncol = 2, nrow = 3, heights = c(5,5,2)), top = text_grob("First 6 Months", face = "bold", size = 14))
+
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(!(Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+header.true <- function(df) {
+  colnames(df) <- as.character(unlist(df[1,]))
+  df[-1,]
+}
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_wo_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                      mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mVioletWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_wo_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_wo_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                   mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mRedWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Other Pollutants")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Other Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+q <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, del_f6ms_pol, t_reg_wo_pol, t_reg_pol, ncol = 2, nrow = 3, heights = c(5,5,2)), top = text_grob("Last 6 Months", face = "bold", size = 14))
+
+annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face = "bold", size = 16))
+
 
