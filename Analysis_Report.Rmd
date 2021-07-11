@@ -2,7 +2,7 @@
 title: "India Air Quality Index - Data Analysis"
 author: "Rishi Dey Chowdhury"
 date: "7/9/2021"
-output: html_document
+output: pdf_document
 keep_md: TRUE
 ---
 
