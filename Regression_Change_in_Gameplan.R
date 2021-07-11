@@ -74,7 +74,7 @@ prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regr
 prediction.R2$Prediction_Table
 
 suppressMessages(resplot <- predict_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model))
-resplot
+r <- resplot
 
 # Let's see our model performance - Little more detailed
 model_summaries <- print_all_city_model_summary()
@@ -93,12 +93,15 @@ plot_summs(model_p.1, model_p.2, model_p.3, model_p.4, model_p.5, model_p.6, mod
 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
   filter(Year == 2020) %>% # ------------LOOOOOOOK
-  filter(Month %in% c(3,4,5,6)) #%>% # ------------LOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
 
 # Predicting
 # Quick Review on different cities model fit
 prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model)
 prediction.R2$Prediction_Table
+
+suppressMessages(resplot <- predict_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model))
+resplot
 
 # Prediction visuallization
 predictions <- predict_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model)
@@ -108,7 +111,7 @@ predictions$res_pm25
 
 air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
   filter(Year == 2021) %>% # ------------LOOOOOOOK
-  filter(Month %in% c(3,4,5,6)) #%>% # ------------LOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
 
 # Predicting
 # Quick Review on different cities model fit
@@ -205,6 +208,8 @@ train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model
 # Partial train with only weather parameters
 train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
 
+plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, inner_ci_level = .95, plot.distributions = TRUE, rescale.distributions = TRUE)
+
 # Full train with all other parameters
 full_train_all_cities_pol(air_data_india_All_Specie_Daily_Regress_model)
 # Predicting
@@ -231,4 +236,144 @@ predict(model_p.1, predict_data, interval = "prediction")
 model_kol <- train_city_pol_w_pol(air_data_india_All_Specie_Daily_Regress_model %>% filter(City == "Kolkata"), "Kolkata")
 model_kol$prediction.table.otherpol
 
+
+# comparison Random Testing
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+grid1 <- air_data_india_All_Specie_Daily_Regress_model %>%
+  add_residuals(model_s1, var = "2019_resid")
+
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+grid2 <- air_data_india_All_Specie_Daily_Regress_model %>%
+  add_residuals(model_s1, var = "2020_resid")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+grid3 <- air_data_india_All_Specie_Daily_Regress_model %>%
+  add_residuals(model_s1, var = "2021_resid")
+
+grid <- plyr::rbind.fill(as.data.frame(grid1$`2019_resid`),as.data.frame(grid2$`2020_resid`),as.data.frame(grid3$`2021_resid`))
+grid <- tibble("resid_19" = as.vector(grid[,1]), "resid_20" = as.vector(grid[,2]), "resid_21" = as.vector(grid[,3]))
+
+grid <- grid %>%
+  gather(resid_19, resid_20, resid_21, key = "Residual_Year", value = "residuals")
+
+make_predictions_comparison <- function(residual_data){
+  p <- residual_data %>%
+    ggplot(aes(residuals, ..density.., fill = Residual_Year)) +
+    geom_histogram(position = "identity", alpha = 0.6) + 
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank())
+  return(p)
+}
+
+make_predictions_comparison(grid)
+
+# ---
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+grid1 <- air_data_india_All_Specie_Daily_Regress_model %>% filter(City == "Delhi") %>%
+  add_residuals(model_p2, var = "2019_resid")
+
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>% filter(City == "Delhi") %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+grid2 <- air_data_india_All_Specie_Daily_Regress_model %>%
+  add_residuals(model_p2, var = "2020_resid")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>% filter(City == "Delhi") %>%
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter((Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+grid3 <- air_data_india_All_Specie_Daily_Regress_model %>%
+  add_residuals(model_p2, var = "2021_resid")
+
+grid <- plyr::rbind.fill(as.data.frame(grid1$`2019_resid`),as.data.frame(grid2$`2020_resid`),as.data.frame(grid3$`2021_resid`))
+grid <- tibble("resid_19" = as.vector(grid[,1]), "resid_20" = as.vector(grid[,2]), "resid_21" = as.vector(grid[,3]))
+
+grid <- grid %>%
+  gather(resid_19, resid_20, resid_21, key = "Residual_Year", value = "residuals")
+
+# --
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+prediction.R2$Prediction_Table
+
+t_reg0 <- ggtexttable(prediction.R2$Prediction_Table%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mBlue"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2019 Data")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+prediction.R2$Prediction_Table
+
+t_reg1 <- ggtexttable(prediction.R2$Prediction_Table%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mViolet"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2020 Data")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+prediction.R2$Prediction_Table
+
+t_reg2 <- ggtexttable(prediction.R2$Prediction_Table%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mCyan"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2021 Data")
+
+ggarrange(t_reg0, t_reg1, t_reg2, ncol = 3)
+
+test_data <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(City == "Delhi") %>%
+  filter(Month %in% c(1,2,3,4,5,6)) %>%  #------------LOOK
+  group_by(Year, Month, City) %>%
+  summarise(co = mean(co), no2 = mean(no2), o3 = mean(o3), so2 = mean(so2), pm10 = mean(pm10), pm25 = mean(pm25),dew = mean(dew), pressure = mean(pressure), humidity = mean(humidity), temperature = mean(temperature), `wind-speed`=mean(`wind-speed`))
+
+test_data %>%
+  spread_predictions(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2)
+
+as_tibble(predict(model_s2, test_data, interval = "prediction", level = 0.99)) %>%
+  mutate(actual = test_data$so2) %>%
+  select(actual, everything())
+
+# --
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+prediction.R2$Prediction_Table
+
+plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE)
 

@@ -3151,7 +3151,7 @@ I have presented here the models for Kolkata and Delhi only. Other models for ot
 
 We see an interesting thing that is in the **first half of the year, the weather parameters are able to explain the pollutant Levels much better compared to that of the second half**. The **strength of the relationship of Pollutant Levels on other Pollutant Levels remains almost similar during both halves of the year. Temperature, Humidity and Dew have high significant effect throughout the year in explaining the Pollutant Levels throughout the year, which can be due to the intricate physical relationship that exists between this quantities i.e. concentration of gas being directly proportional to temperature, etc.**
 
-The confidence intervals are mentioned under each coefficient giving us information about it's significance of being present in the model.
+The confidence intervals are mentioned under each coefficient giving us information about it's significance of being present in the model. Any coefficient which includes 0 in its confidence interval can be thought of being less important in explaining the response.
 
 -   How well will take a look at *how the residuals of the above mentioned models are spread*
 
@@ -3166,3 +3166,212 @@ suppressMessages(resplot <- predict_all_cities_pol(air_data_india_All_Specie_Dai
 resplot
 
 ```
+
+Indeed it seems that the **residuals are normally distributed with mean around 0**. Therefore our model doesn't seems to have an issue in assuming that the **relationship is linear between Pollutant Levels and weather parameters**.
+
+-   Now since, we have assumed that the weather parameters remains similar in all the years. It would be interesting to see *how well our model fitted with 2019's weather parameter performs when used on 2020's first 6 Months Data & 2021's first 6 Months Data.*
+
+```{r Model_2019_resid_and_predict_resid, warning=FALSE, message=FALSE, fig.asp=1.4, fig.width=12}
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6))
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+comparing_year_residuals <- function(full_data, model_train_year, model_train_month){
+  
+  test_region <- full_data %>% filter(City == "Kolkata", Month %in% model_train_month)
+  
+  grid <- test_region %>%
+    gather_residuals(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  test_region <- full_data %>% filter(City == "Delhi", Month %in% model_train_month)
+  
+  grid <- grid %>%
+    full_join(
+      test_region %>%
+        gather_residuals(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2)
+    )
+  
+  grid %>%
+    ggplot(aes(resid,..density.., fill = Year)) +
+    geom_histogram(position = "identity", alpha = 0.3, bins = 30) +
+    geom_density(alpha = 0.4) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),strip.background = element_blank(), legend.position = "bottom") +
+    scale_y_continuous(labels = NULL) +
+    facet_wrap(~City + model, scales = "free", labeller = label_wrap_gen(multi_line=FALSE), ncol = 3) +
+    scale_fill_viridis(discrete = TRUE) +
+    ggtitle(paste("Residuals from the Model Fit with", model_train_year, ifelse(identical(model_train_month, c(1,2,3,4,5,6)), ", First 6 Months Weather Parameters", "Last 6 Months Weather Parameters")))
+}
+
+suppressWarnings(suppressMessages(hist_compare <- comparing_year_residuals(air_data_india_All_Specie_Daily_Regress, "2019", c(1,2,3,4,5,6))))
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2019) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg0 <- ggtexttable(prediction.R2$Prediction_Table[1:3]%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mBlue"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2019 Data", face = "bold")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+
+t_reg1 <- ggtexttable(prediction.R2$Prediction_Table[1:3]%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mViolet"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2020 Data", face = "bold")
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2021) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+# Predicting
+# Quick Review on different cities model fit
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+
+t_reg2 <- ggtexttable(prediction.R2$Prediction_Table[1:3]%>%
+                        mutate(across(where(is.numeric), ~ round(., digits = 2))), theme = ttheme("mCyan"), rows = NULL) %>%
+  tab_add_title("Model R2 on 2021 Data", face = "bold")
+
+model_performance <- ggarrange(t_reg0, t_reg1, t_reg2, ncol = 3)
+
+ggarrange(hist_compare, model_performance, nrow = 2, heights = c(10, 2))
+```
+
+We see an interesting thing that out **Model fitted with 2019 Weather parameters performs less well on 2020's Data as compared to 2021's. The histogram-density plots for residuals also shows our Model predicts higher values for the weather parameters in 2020 compared to the actual values observed which suggests that 2020's Pollutant Levels were lower during first 6 Months.**
+
+2.  Model Based on 2020. We will take a Visual Look instead of the tables here, along with the estimate Distributions.
+
+```{r Model_2019, warning=FALSE, message=FALSE, fig.asp=1.3, fig.width=16.2}
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(Month %in% c(1,2,3,4,5,6)) #%>% # ------------LOOK
+
+header.true <- function(df) {
+  colnames(df) <- as.character(unlist(df[1,]))
+  df[-1,]
+}
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_wo_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                      mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mVioletWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_wo_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_wo_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                         mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mRedWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Other Pollutants")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Other Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+p <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, del_f6ms_pol, t_reg_wo_pol, t_reg_pol, ncol = 2, nrow = 3, heights = c(5,5,2)), top = text_grob("First 6 Months", face = "bold", size = 14))
+
+
+air_data_india_All_Specie_Daily_Regress_model <- air_data_india_All_Specie_Daily_Regress %>%
+  filter(Year == 2020) %>% # ------------LOOOOOOOK
+  filter(!(Month %in% c(1,2,3,4,5,6))) #%>% # ------------LOOK
+
+header.true <- function(df) {
+  colnames(df) <- as.character(unlist(df[1,]))
+  df[-1,]
+}
+
+train_all_cities_pol_with_nonpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_wo_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                      mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mVioletWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_wo_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_wo_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Weather Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+train_all_cities_pol_with_otherpol(air_data_india_All_Specie_Daily_Regress_model)
+
+suppressMessages(prediction.R2 <- print_all_cities_R.squared(air_data_india_All_Specie_Daily_Regress_model))
+
+t_reg_pol <- ggtexttable(as_tibble(header.true(t(prediction.R2$Prediction_Table[1:3] %>%
+                                                   mutate(across(where(is.numeric), ~ round(., digits = 2))) ))), theme = ttheme("mRedWhite"), rows = c("Kolkata", "Delhi")) %>%
+  tab_add_title("Model R2", face = "bold")
+
+del_f6ms_pol <- plot_summs(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Delhi - Pollutants On Other Pollutants")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  ) 
+kol_f6ms_pol <- plot_summs(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1, model.names = c("SO2", "NO2", "CO", "O3", "PM10", "PM25"), ci_level = .99, plot.distributions = TRUE, rescale.distributions = TRUE) +theme(legend.position = "bottom") + ggtitle("Kolkata - Pollutants On Other Parameters")+
+  guides(
+    fill = guide_legend(
+      nrow = 1
+    )
+  )
+
+q <- annotate_figure(ggarrange(kol_f6ms_wo_pol, kol_f6ms_pol, del_f6ms_wo_pol, del_f6ms_pol, t_reg_wo_pol, t_reg_pol, ncol = 2, nrow = 3, heights = c(5,5,2)), top = text_grob("Last 6 Months", face = "bold", size = 14))
+
+annotate_figure(ggarrange(p, q, nrow = 2), top = text_grob("Models-2020", face = "bold", size = 16))
+```
+
+# CONCLUSION
+
+-   In 2020, During Lockdown i.e. in the **first Half of the Year there was a drop in the Pollutant Levels and AQI Levels** across most of the Major Cities, our study included Kolkata, Delhi, Muzaffarnagar and Mumbai. Though the **Particulate Matter Levels in Mumbai were much higher which can be seen due to Cyclonic Impact of *Nisarga***.
+
+-   Despite there being several restrictions on travel, transportation, industrial work which are major contributors to pollutant Levels, we saw an **increased Level of Pollutants in the second half of the year 2020 which surpassed the Levels of 2019** which maybe due to the **40% increase in the Stubble Burning during the end of the Year**.
+
+-    **Coastal Regions tend to have lower AQI Levels and Pollutant Levels** mostly because of the influence of **winds and more Cyclonic Conditions**.
+
+-   

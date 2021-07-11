@@ -1139,3 +1139,44 @@ present_model_summary_Delhi <- function(data){ # The Data must be Yearly
 # Usage
 present_model_summary(air_data_india_All_Specie_Daily_Regress %>% filter(Year == 2019), city_name = "Muzaffarnagar")
 
+# Printing Residual Difference Among Years
+make_predictions_comparison <- function(residual_data){
+  p <- residual_data %>%
+    ggplot(aes(residuals, ..density.., fill = Residual_Year)) +
+    geom_histogram(position = "identity", alpha = 0.2) + 
+    geom_density(alpha = 0.4) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),strip.background = element_blank()) +
+    scale_fill_viridis(discrete = TRUE)
+  return(p)
+}
+
+comparing_year_residuals <- function(full_data, model_train_year, model_train_month){
+  
+  test_region <- full_data %>% filter(City == "Kolkata", Month %in% model_train_month)
+  
+  grid <- test_region %>%
+    gather_residuals(model_s1, model_n1, model_c1, model_o1, model_p1, model_p.1)
+  
+  test_region <- full_data %>% filter(City == "Delhi", Month %in% model_train_month)
+  
+  grid <- grid %>%
+    full_join(
+      test_region %>%
+        gather_residuals(model_s2, model_n2, model_c2, model_o2, model_p2, model_p.2)
+    )
+  
+  grid %>%
+    ggplot(aes(resid,..density.., fill = Year)) +
+    geom_histogram(position = "identity", alpha = 0.3) +
+    geom_density(alpha = 0.4) +
+    theme_bw() +
+    theme(plot.title = element_text(hjust = 0.5), axis.line = element_line(colour = "black"),panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),strip.background = element_blank(), legend.position = "bottom") +
+    scale_y_continuous(labels = NULL) +
+    facet_wrap(~City + model, scales = "free", labeller = label_wrap_gen(multi_line=FALSE), ncol = 3) +
+    scale_fill_viridis(discrete = TRUE) +
+    ggtitle(paste("Residuals from the Model Fit with", model_train_year, ifelse(identical(model_train_month, c(1,2,3,4,5,6)), ", First 6 Months Weather Parameters", "Last 6 Months Weather Parameters")))
+}
+
+comparing_year_residuals(air_data_india_All_Specie_Daily_Regress, "2019", c(1,2,3,4,5,6))
